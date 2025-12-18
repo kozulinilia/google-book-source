@@ -212,3 +212,11 @@ function getFullThemes() {
       }
       return themes;
 }
+
+function loadEnvironment() {
+    GLOBAL.tableId = PropertiesService.getScriptProperties().getProperty('TABLE_ID')
+    GLOBAL.booksSheet = PropertiesService.getScriptProperties().getProperty('BOOKS_SHEET')
+    GLOBAL.themesSheet = PropertiesService.getScriptProperties().getProperty('THEME_SHEET')
+    GLOBAL.imgDir = PropertiesService.getScriptProperties().getProperty('BOOK_IMAGE_DIR')
+    Logger.log(GLOBAL)
+}
