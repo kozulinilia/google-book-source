@@ -7,10 +7,6 @@ const ANNOTATION_ROW = 8;
 const BOX_ROW = 11;
 const THEME_ROW = 2;
 const LINK_ROW = 10;
-const TABLE_ID = "1D6J9Li4ZPOh8QSavuVDAvigjBg61ikKpe2BCkVrUdpA";
-const BOOKS_SHEET = "список"
-const THEME_SHEET = "рубрикатор (альт)"
-const BOOK_IMAGE_DIR_ID = "1fnUMKXpSdhLbuF4WZZgSJWb7vFvFCIX5";
 
 function doGet(e) {
   return HtmlService
