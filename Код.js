@@ -11,20 +11,18 @@ const TABLE_ID = "1D6J9Li4ZPOh8QSavuVDAvigjBg61ikKpe2BCkVrUdpA";
 const BOOKS_SHEET = "список"
 const THEME_SHEET = "рубрикатор (альт)"
 const BOOK_IMAGE_DIR_ID = "1fnUMKXpSdhLbuF4WZZgSJWb7vFvFCIX5";
-const GLOBAL = {};
 
 function doGet(e) {
   return HtmlService
     .createTemplateFromFile("index")
     .evaluate()
-    .loadEnvironment()
     .setTitle("Фильтры из таблицы");
 }
 
 function getFilteredData(filterTheme = false) {
   filterStatus = 'free';
-  const ss = SpreadsheetApp.openById(GLOBAL.tableId);
-  const sheet = ss.getSheetByName(GLOBAL.booksSheet);
+  const ss = SpreadsheetApp.openById(TABLE_ID);
+  const sheet = ss.getSheetByName(BOOKS_SHEET);
 
   const data = sheet.getDataRange().getValues();
   const rawHeader = data.shift();
@@ -61,8 +59,8 @@ function getFilteredData(filterTheme = false) {
 }
 
 function getDropdownValues() {
-  const ss = SpreadsheetApp.openById(GLOBAL.tableId);
-  const sheet = ss.getSheetByName(GLOBAL.booksSheet);
+  const ss = SpreadsheetApp.openById(TABLE_ID);
+  const sheet = ss.getSheetByName(BOOKS_SHEET);
 
   const data = sheet.getDataRange().getValues();
   var themes = new Map();
@@ -77,8 +75,8 @@ function getDropdownValues() {
 }
 
 function addNewBook(id = null) {
-  const ss = SpreadsheetApp.openById(GLOBAL.tableId);
-  const sheet = ss.getSheetByName(GLOBAL.booksSheet);
+  const ss = SpreadsheetApp.openById(TABLE_ID);
+  const sheet = ss.getSheetByName(BOOKS_SHEET);
   let newId = 0;
   if (id === null) {
     const data = sheet.getDataRange().getValues();
@@ -162,8 +160,8 @@ function createRow(param) {
 }
 
 function replaceRowById(id, newRow) {
-  const ss = SpreadsheetApp.openById(GLOBAL.tableId);
-  const sh = ss.getSheetByName(GLOBAL.booksSheet);
+  const ss = SpreadsheetApp.openById(TABLE_ID);
+  const sh = ss.getSheetByName(BOOKS_SHEET);
 
   const data = sh.getDataRange().getValues();
 
@@ -178,7 +176,7 @@ function replaceRowById(id, newRow) {
 }
 
 function getImageLinkFromFolder(imageId) {
-  const folder = DriveApp.getFolderById(GLOBAL.imgDir);
+  const folder = DriveApp.getFolderById(BOOK_IMAGE_DIR_ID);
 
   const files = folder.getFiles();
   while (files.hasNext()) {
@@ -192,8 +190,8 @@ function getImageLinkFromFolder(imageId) {
 }
 
 function removeRowById(id) {
-  const ss = SpreadsheetApp.openById(GLOBAL.tableId);
-  const sh = ss.getSheetByName(GLOBAL.booksSheet);
+  const ss = SpreadsheetApp.openById(TABLE_ID);
+  const sh = ss.getSheetByName(BOOKS_SHEET);
   const data = sh.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
@@ -205,20 +203,12 @@ function removeRowById(id) {
 }
 
 function getFullThemes() {
-    const ss = SpreadsheetApp.openById(GLOBAL.tableId);
-      const sheet = ss.getSheetByName(GLOBAL.themesSheet);
+    const ss = SpreadsheetApp.openById(TABLE_ID);
+      const sheet = ss.getSheetByName(THEME_SHEET);
       const data = sheet.getDataRange().getValues();
       const themes = [];
       for (let i = 1; i < data.length; i++) {
         themes.push(data[i][1])
       }
       return themes;
-}
-
-function loadEnvironment() {
-    GLOBAL.tableId = PropertiesService.getScriptProperties().getProperty('TABLE_ID')
-    GLOBAL.booksSheet = PropertiesService.getScriptProperties().getProperty('BOOKS_SHEET')
-    GLOBAL.themesSheet = PropertiesService.getScriptProperties().getProperty('THEME_SHEET')
-    GLOBAL.imgDir = PropertiesService.getScriptProperties().getProperty('BOOK_IMAGE_DIR')
-    Logger.log(GLOBAL)
 }
