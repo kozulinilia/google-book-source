@@ -1,0 +1,61 @@
+<script>
+    function renderPage(tableId, pageId) {
+        const table = document.getElementById(tableId);
+        table.innerHTML = "";
+
+        // Header
+        const headerRow = document.createElement("tr");
+        headers.forEach(h => {
+            const th = document.createElement("th");
+            th.textContent = h;
+            headerRow.appendChild(th);
+        });
+        table.appendChild(headerRow);
+
+        // Вычисляем диапазон строк
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+        const pageRows = filteredData.slice(start, end);
+
+        pageRows.forEach(row => {
+            const tr = document.createElement("tr");
+            row.forEach((cell, index) => {
+                const td = document.createElement("td");
+                if (index === 5) {
+                    if (cell) {
+                        const a = document.createElement("a");
+                        a.href = cell;
+                        a.textContent = "посмотреть"
+                        a.target = "_blank";
+                        td.appendChild(a);
+                    } else {
+                        td.textContent = 'нет картинки';
+                    }
+
+                } else {
+                    td.textContent = cell;
+                }
+                tr.appendChild(td);
+            });
+            table.appendChild(tr);
+        });
+
+        // Обновить инфо
+        const pageInfo = document.getElementById(pageId);
+        pageInfo.textContent = "Стр. " + currentPage;
+    }
+
+    function nextPage() {
+        if (currentPage * pageSize < filteredData.length) {
+            currentPage++;
+            renderPage();
+        }
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderPage();
+        }
+    }
+</script>

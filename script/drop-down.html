@@ -1,0 +1,11 @@
+<script>
+    function populateDropdowns(data, id) {
+        const selectElement = document.getElementById(id);
+        data.forEach(v => {
+            const opt = document.createElement("option");
+            opt.value = v;
+            opt.textContent = v;
+            selectElement.appendChild(opt);
+        });
+    }
+</script>

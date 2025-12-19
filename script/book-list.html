@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<script>
+    let fullData = [];   // Полный набор данных (после фильтра)
+    let filteredData = [];
+    let headers = [];    // Заголовки
+    let currentPage = 1;
+    const pageSize = 20; // Кол-во строк на страницу
+    const addBookFields = [
+        "newAuthor",
+        "newName",
+        "newYear",
+        "newAnnotation",
+        "newBoxNum",
+        "newBookId",
+        "newTheme",
+    ];
+
+    // Загружаем значения для списков
+    window.onload = function () {
+        document.getElementById("add-book-page").style.display = "none";
+        const filterA = document.getElementById('filterA');
+        filterA.removeEventListener("change", loadData);
+        filterA.addEventListener("change", loadData);
+        showLoader(true);
+        google.script.run.withSuccessHandler(data => {
+            populateDropdowns(data, "filterA");
+        }).getDropdownValues();
+        google.script.run.withSuccessHandler(data => {
+            populateDropdowns(data, "newTheme");
+        }).getFullThemes();
+        google.script.run.withSuccessHandler(data => {
+            headers = data.header;
+            fullData = data.rows;
+            filteredData = data.rows;
+            currentPage = 1;
+            showLoader(false);
+            renderPage();
+        }).getFilteredData()
+    };
+
+    function populateDropdowns(data, id) {
+        const selectElement = document.getElementById(id);
+        data.forEach(v => {
+            const opt = document.createElement("option");
+            opt.value = v;
+            opt.textContent = v;
+            selectElement.appendChild(opt);
+        });
+    }
+
+    function loadData() {
+        currentPage = 1
+        var filterA = document.getElementById("filterA").value;
+        var filterName = document.getElementById("filterName").value;
+        var filterAuthor = document.getElementById("filterAuthor").value;
+        filterA = filterA === 'Все' ? '' : filterA;
+        filteredData = fullData.filter(item => {
+            return item[0].includes(filterA) && item[1].includes(filterAuthor) && item[2].includes(filterName);
+        });
+        renderPage("resultTable", "pageInfo");
+    }
+</script>

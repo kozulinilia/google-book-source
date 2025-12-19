@@ -221,3 +221,9 @@ function loadEnvironment() {
     GLOBAL.imgDir = PropertiesService.getScriptProperties().getProperty('BOOK_IMAGE_DIR')
     Logger.log(GLOBAL)
 }
+
+function include(file) {
+  return HtmlService
+  .createHtmlOutputFromFile(file)
+  .getContent();
+}
