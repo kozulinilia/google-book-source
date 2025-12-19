@@ -1,0 +1,56 @@
+<style>
+    body {
+        background: #f5f5f5;
+        padding: 20px;
+    }
+
+    .card {
+        border-radius: 12px;
+    }
+
+    .material-label {
+        font-weight: 500;
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+    table {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table-bordered {
+        border: 1px solid #dee2e6;
+    }
+
+    .loader {
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        margin-top: -20px;
+        margin-left: -20px;
+        z-index: 9999;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .table-bordered td,
+    .table-bordered th {
+        border: 1px solid #dee2e6;
+    }
+</style>

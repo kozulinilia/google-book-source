@@ -175,7 +175,7 @@ function replaceRowById(id, newRow) {
 
 function getImageLinkFromFolder(imageId) {
     loadEnvironment();
-    const folder = DriveApp.getFolderById(GLOBAL.imgDir_ID);
+    const folder = DriveApp.getFolderById(GLOBAL.imgDir);
 
     const files = folder.getFiles();
     while (files.hasNext()) {
@@ -220,4 +220,12 @@ function loadEnvironment() {
     GLOBAL.themesSheet = PropertiesService.getScriptProperties().getProperty('THEME_SHEET')
     GLOBAL.imgDir = PropertiesService.getScriptProperties().getProperty('BOOK_IMAGE_DIR')
     Logger.log(GLOBAL)
+}
+
+function include(file, data = {}) {
+    const tpl = HtmlService.createTemplateFromFile(file);
+    // прокидываем переменные
+    Object.assign(tpl, data);
+
+    return tpl.evaluate().getContent();
 }

@@ -1,0 +1,161 @@
+<script>
+    (function (ns) {
+        class Table {
+            constructor(
+                element,
+                headers,
+                customTableFunction,
+                pageSize,
+                rows = []
+            ) {
+                this.root = element
+                this.headers = headers
+                this.tdFunction = customTableFunction
+                this.tableData = rows
+                this.currentPage = 1
+                this.pageSize = pageSize
+                this.customTable = this.createTable()
+                this.reloadTable()
+                this.pagination = this.createPagination()
+                this.root.appendChild(this.customTable)
+                this.root.appendChild(this.pagination)
+                this.root.addEventListener('click', this.clickHandler)
+                this.render()
+            }
+
+            render(rows = null) {
+                if (rows) {
+                    this.tableData = rows
+                }
+                this.reloadPagination()
+                this.reloadTable()
+            }
+
+            createPagination() {
+                const nav = document.createElement('nav')
+                const ul = document.createElement('ul')
+                ul.className = "pagination justify-content-center mt-3"
+                const liPrev = document.createElement('li')
+                const btnPrev = document.createElement('button')
+                btnPrev.className = "page-link"
+                btnPrev.setAttribute("data-action", "prevPage")
+                btnPrev.innerText = "Предыдущая"
+                liPrev.appendChild(btnPrev)
+                const liInfo = document.createElement('li')
+                const spanInfo = document.createElement('span')
+                spanInfo.className = "page-link"
+                spanInfo.setAttribute("data-id", "pageInfo")
+                spanInfo.innerText = "1"
+                liInfo.appendChild(spanInfo)
+                const liNext = document.createElement('li')
+                const btnNext = document.createElement('button')
+                btnNext.className = "page-link"
+                btnNext.setAttribute("data-action", "nextPage")
+                btnNext.innerText = "Следующая"
+                liNext.appendChild(btnNext)
+                ul.appendChild(liPrev)
+                ul.appendChild(liInfo)
+                ul.appendChild(liNext)
+                nav.appendChild(ul)
+                return nav
+            }
+
+            createTable() {
+                const table = document.createElement('table');
+                table.className = 'table table-striped table-bordered'
+                table.innerHTML = "";
+                return table
+            }
+
+            reloadPagination() {
+                const spanInfo = this.root.querySelector('[data-id="pageInfo"]')
+                spanInfo.innerText = `${this.currentPage}`
+            }
+
+            reloadTable() {
+                this.customTable.innerHTML = ""
+                const headerRow = document.createElement("tr");
+                this.headers.forEach(h => {
+                    const th = document.createElement("th");
+                    th.textContent = h;
+                    headerRow.appendChild(th);
+                });
+                this.customTable.appendChild(headerRow);
+                const pageRows = this.getPageRows()
+                pageRows.forEach(row => {
+                    const tr = document.createElement("tr");
+                    row.forEach((cell, index) => {
+                        const td = document.createElement("td");
+                        this.tdFunction(td, index, cell);
+                        tr.appendChild(td);
+                    });
+                    this.customTable.appendChild(tr);
+                });
+            }
+
+            skipPage() {
+                this.currentPage = 1
+                this.render()
+            }
+
+            getPageRows() {
+                const start = (this.currentPage - 1) * this.pageSize;
+                const end = start + this.pageSize;
+                return this.tableData.slice(start, end);
+            }
+
+            nextPage() {
+                if (this.currentPage * this.pageSize < this.tableData.length) {
+                    this.currentPage++;
+                    this.render()
+                }
+            }
+
+            prevPage() {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.render()
+                }
+            }
+
+            destroy() {
+                this.root.removeEventListener('click', this.clickHandler)
+                this.customTable.innerHTML = ""
+            }
+
+            clickHandler = (event) => {
+                const action = event.target.dataset.action
+                if (action === 'prevPage') {
+                    this.prevPage()
+                }
+                if (action === 'nextPage') {
+                    this.nextPage()
+                }
+            }
+        }
+
+        function create(
+            element,
+            headers,
+            customTableFunction,
+            pageSize,
+            rows = [],
+        ) {
+            element.innerHTML = ""
+            return new Table(
+                element,
+                headers,
+                customTableFunction,
+                pageSize,
+                rows,
+            )
+        }
+
+        ns.TableFactory = {
+            create,
+        };
+
+    })(window.App = window.App || {})
+
+
+</script>
