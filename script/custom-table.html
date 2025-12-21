@@ -1,0 +1,72 @@
+<script>
+    const customTable = {
+        tableData: [],
+        tableHeaders: {},
+        currentPage: 1,
+        pageSize: 20,
+        tdFunction: null,
+        renderTableId: '',
+    };
+    function initTable(
+        headers,
+        rows,
+        customTableFunction,
+        tableData,
+    ) {
+        customTable.tableData = rows;
+        customTable.tableHeaders = headers;
+        customTable.tdFunction = customTableFunction;
+        customTable.renderTableId = tableData.tableId;
+    }
+
+    function skipPage() {
+        customTable.currentPage = 1;
+    }
+
+    function renderTable() {
+        const table = document.getElementById(customTable.renderTableId);
+        table.innerHTML = "";
+
+        // Header
+        const headerRow = document.createElement("tr");
+        customTable.tableHeaders.forEach(h => {
+            const th = document.createElement("th");
+            th.textContent = h;
+            headerRow.appendChild(th);
+        });
+        table.appendChild(headerRow);
+
+        // Вычисляем диапазон строк
+        const start = (customTable.currentPage - 1) * customTable.pageSize;
+        const end = start + customTable.pageSize;
+        const pageRows = customTable.tableData.slice(start, end);
+
+        pageRows.forEach(row => {
+            const tr = document.createElement("tr");
+            row.forEach((cell, index) => {
+                const td = document.createElement("td");
+                customTable.tdFunction(td, cell, index, ...arguments);
+                tr.appendChild(td);
+            });
+            table.appendChild(tr);
+        });
+
+        // Обновить инфо
+        const pageInfo = document.getElementById("pageInfo");
+        pageInfo.textContent = "Стр. " + customTable.currentPage;
+    }
+
+    function nextPage() {
+        if (customTable.currentPage * customTable.pageSize < customTable.tableData.length) {
+            customTable.currentPage++;
+            renderTable();
+        }
+    }
+
+    function prevPage() {
+        if (customTable.currentPage > 1) {
+            customTable.currentPage--;
+            renderTable();
+        }
+    }
+</script>

@@ -222,8 +222,10 @@ function loadEnvironment() {
     Logger.log(GLOBAL)
 }
 
-function include(file) {
-  return HtmlService
-  .createHtmlOutputFromFile(file)
-  .getContent();
+function include(file, data = {}) {
+    const tpl = HtmlService.createTemplateFromFile(file);
+    // прокидываем переменные
+    Object.assign(tpl, data);
+
+    return tpl.evaluate().getContent();
 }
