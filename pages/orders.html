@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<div data-id="<?= pageId ?>">
+    <div class="card shadow p-4">
+        <h4 class="mb-4">
+            <span class="material-icons" style="vertical-align: middle;">filter_list</span>
+            Заказы (страница находится в разработке)
+        </h4>
+
+        <div  style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div class="row g-3" align-items-end style="width: 55%;">
+                <div class="col-md-3">
+                    <label class="material-label">Поиск по названию книги</label>
+                    <input class="form-control" type="text" data-action="inputBookName"></input>
+                </div>
+                <div class="col-md-3">
+                    <label class="material-label">Поиск по номеру книги</label>
+                    <input class="form-control" type="text" data-action="inputBookNumber"></input>
+                </div>
+                <div class="col-md-3 float-right">
+                    <button class="btn btn-primary" data-action="loadDataForOrders">
+                        <span class="material-icons" style="font-size:18px;vertical-align:middle;">search</span>
+                        Показать
+                    </button>
+                </div>
+            </div>
+
+            <div style="width: 35%;">
+                <table data-id="orderTable">
+                    <caption style="caption-side: top;">Таблица заказа</caption>
+                    <colgroup>
+                        <col style="width: 300px;">
+                        <col style="width: 100px;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Название</th>
+                            <th>Номер</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div style="width: 10%;">
+                <button data-id="postBooksOrderBtn" class="btn btn-dark" data-action="postBooksOrderListToGoogleTable">Заказать</button>
+            </div>
+        </div>
+    </div>
+
+    <div data-component="table" data-id="tableForOrders"></div>
+    <?!= include('components/custom-table') ?>
+</div>
+<script>
+    (function (ns) {
+        const amountRowsOnPage = 20;
+        const pageId = "<?= pageId ?>";
+
+        let bookNameFromFilter = '';
+        let bookNumberFromFilter = '';
+
+        let fullData = [];
+        let filteredData = [];
+        let headers = [];
+        let root = null;
+        let tableObject = null;
+        let loaderEl = null;
+
+        let vars = null;
+
+        let booksOrderList = [];
+
+        function init(loader = null) {
+            if (!ns.TableFactory) {
+                console.error('TableFactory not initialized');
+
+                return;
+            }
+
+            if (!ns.VarContainer) {
+                console.error('VarContainer not initialized');
+
+                return;
+            }
+
+            root = document.querySelector(`[data-id="${pageId}"]`);
+
+            vars = ns.VarContainer.create(root);
+
+            root.addEventListener('click', clickHandler);
+            root.addEventListener('input', inputHandler);
+
+            getDataFromGoogleTable();
+        }
+
+        function getDataFromGoogleTable() {
+            loaderEl = loader;
+            loaderEl.show();
+
+            google.script.run.withSuccessHandler(data => {
+                const tableElement = vars.get('tableForOrders').getElement();
+                
+                headers = data.header;
+                fullData = data.rows;
+                filteredData = data.rows;
+
+                let orderHeader = 'Заказ';
+                headers[headers.length + 1] = orderHeader;
+
+                filteredData.forEach(row => {
+                    row[row.length] = "";
+                });
+
+                tableObject = ns.TableFactory.create(
+                    tableElement,
+                    headers,
+                    customTableFunction,
+                    amountRowsOnPage,
+                    filteredData,
+                );
+
+                tableObject.render(filteredData);
+
+                loaderEl.hide();
+                
+            }).getFilteredData();
+        }
+
+        function clickHandler(event) {
+            const action = event.target.dataset.action;
+            
+            if (action === 'loadDataForOrders') {
+                loadDataForOrders();
+            }
+
+            if (action === 'addBookToBooksOrderList') {
+                const row = event.target.closest('tr');
+
+                addBookToBooksOrderList(row);
+                fillOrderTableByBooksList(booksOrderList);
+
+                loadDataForOrders();
+            }
+
+            if (action === 'deleteBookFromBooksOrderList') {
+                const row = event.target.closest('tr');
+
+                deleteBookFromBooksOrderList(row);
+
+                fillOrderTableByBooksList(booksOrderList);
+
+                loadDataForOrders();
+            }
+
+            if (action === 'postBooksOrderListToGoogleTable') {
+                if (!isBooksOrderListEmpty()) {
+                    const isOrderConfirmed = confirm('Вы подтверждаете заказ?');
+
+                    if(isOrderConfirmed) {
+                        postBooksOrderListToGoogleTable();
+                    }
+                } else {
+                    alert('Ваш заказ пуст, необходимо добавить книги!');
+                }
+            }
+        }
+
+        function loadDataForOrders() {
+            const bookNameCellIndex = 2;
+            const bookNumberCellIndex = 7;
+            
+            filteredData = fullData.filter(row => {
+
+                return row[bookNameCellIndex].toLowerCase().includes(bookNameFromFilter.toLowerCase()) &&
+                                                                                String(row[bookNumberCellIndex]).includes(bookNumberFromFilter);
+            });
+
+            tableObject.render(filteredData);
+        }
+
+        function addBookToBooksOrderList(row) {
+            const bookNameCellIndex = 2;
+            const bookNumberCellIndex = 7;
+
+            const bookName = row.cells[bookNameCellIndex].textContent;
+            const bookNumber = row.cells[bookNumberCellIndex].textContent;
+
+            booksOrderList.push({name: bookName, number: bookNumber});
+        }
+
+        function fillOrderTableByBooksList(booksOrderList) {
+            const orderTable = vars.get('orderTable').getElement();
+
+            const tbodyOrderTable = orderTable.querySelector('tbody');
+            tbodyOrderTable.innerHTML = "";
+
+            booksOrderList.forEach(book => {
+                const newRow = tbodyOrderTable.insertRow();
+                const cellWithBookName = newRow.insertCell(0);
+                const cellWithBookNumber = newRow.insertCell(1);
+                const cellWithDeleteBtn = newRow.insertCell(2);
+
+                cellWithBookName.textContent = book.name;
+                cellWithBookNumber.textContent = book.number;
+
+                addDeleteBtnToOrderListRow(cellWithDeleteBtn);
+            });
+        }
+
+        function addDeleteBtnToOrderListRow(cellWithDeleteBtn) {
+            const deleteBookBtn = document.createElement("button");
+
+            deleteBookBtn.setAttribute('data-action', 'deleteBookFromBooksOrderList');
+            deleteBookBtn.className = 'btn btn-danger btn-sm';
+            deleteBookBtn.textContent = 'удалить';
+
+            cellWithDeleteBtn.appendChild(deleteBookBtn);
+        }
+
+        function deleteBookFromBooksOrderList(row) {
+            const bookNumberCellIndex = 1;
+            const bookNumber = row.cells[bookNumberCellIndex].textContent;
+
+            booksOrderList = booksOrderList.filter(book => book.number !== bookNumber);
+        }
+
+        function isBooksOrderListEmpty() {
+            return (booksOrderList.length < 1) ? true : false;
+        }
+
+        function postBooksOrderListToGoogleTable() {
+            const arrayWithBooksForOrder = transformBooksOrderListToArray();
+
+            google.script.run.postBooksOrderListToGoogleTable(arrayWithBooksForOrder);
+        }
+
+        function transformBooksOrderListToArray() {
+            let arrayWithBooks = [];
+
+            booksOrderList.forEach(book => {
+                arrayWithBooks.push([book.name, book.number])
+            });
+
+            return arrayWithBooks;
+        }
+
+        function inputHandler(event) {
+            const action = event.target.dataset.action;
+
+            if (action === 'inputBookName') {
+                bookNameFromFilter = event.target.value;
+            }
+
+            if (action === 'inputBookNumber') {
+                bookNumberFromFilter = event.target.value;
+            }
+        }
+
+        function customTableFunction(td, index, cell, row) {
+            if (index === 5) {
+                if (cell) {
+                    const a = document.createElement("a");
+                    a.href = cell;
+                    a.textContent = "посмотреть";
+                    a.target = "_blank";
+                    td.appendChild(a);
+                } else {
+                    td.textContent = 'нет картинки';
+                }
+
+            } else {
+                td.textContent = cell;
+            }
+
+            if (index === 8) {
+                addOrderButtonToTableForOrdersRow(td, row);
+            }
+        }
+
+        function addOrderButtonToTableForOrdersRow(td, row) {
+            const orderBtn = document.createElement("button");
+
+            const bookNumberCellIndex = 7;
+            const bookNumber = String(row[bookNumberCellIndex]);
+
+            if (!isBookNumberInOrderList(bookNumber)) {
+                orderBtn.disabled = false;
+                orderBtn.textContent = "добавить";
+            } else {
+                orderBtn.disabled = true;
+                orderBtn.textContent = "добавлена";
+            }
+
+            orderBtn.setAttribute('data-action', 'addBookToBooksOrderList');
+            orderBtn.className = 'btn btn-success btn-sm';
+            td.appendChild(orderBtn);
+        }
+
+        function isBookNumberInOrderList(bookNumber) {
+            let result = false;
+
+            booksOrderList.some(bookFromOrderList => {
+                if (bookNumber === bookFromOrderList.number) {
+                    result = true;
+                    
+                    return true;
+                }
+            });
+
+            return result;
+        }
+
+        function destroy() {
+            if (tableObject) {
+                tableObject.destroy()
+            }
+            if (root) {
+                root.removeEventListener('click', clickHandler)
+                root.removeEventListener('input', inputHandler)
+            }
+        }
+
+        ns.Orders = {
+            init,
+            reload: loadDataForOrders,
+            destroy,
+        };
+    })
+
+    (window.App = window.App || {});
+</script>
