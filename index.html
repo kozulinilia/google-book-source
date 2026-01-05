@@ -76,6 +76,7 @@
         const addBookEl = document.querySelector('[data-id="add-book-page"]')
         const editBookEl = document.querySelector('[data-id="edit-book-page"]')
         const aboutEl = document.querySelector('[data-id="about-page"]')
+        const ordersEl = document.querySelector('[data-id="orders-page"]');
         App.Navigation.add("books-page", "Книги", booksListEl, App.BookList, true)
         App.Navigation.add("add-book-page", "Добавить новую", addBookEl, App.AddBook)
         App.Navigation.add("orders-page", "Сделать заказ", ordersEl, App.Orders)
@@ -83,12 +84,6 @@
         App.Navigation.add("about-page", "О нас", aboutEl)
         App.Navigation.init("edit-book-page", navigationEl, loader)
         initPageComponents();
-        
-        const ordersEl = document.querySelector('[data-id="orders-page"]');
-        App.Navigation.add("books-page", "Книги", booksListEl, App.BookList);
-        App.Navigation.add("add-book-page", "Добавить новую", addBookEl, App.AddBook);
-        App.Navigation.add("orders-page", "Создать заказ", ordersEl, App.Orders);
-        App.Navigation.init("books-page", navigationEl, loader);
     }
 </script>
 
