@@ -1,0 +1,80 @@
+<script>
+    (function (ns) {
+        let root = null
+        let pageElements = {};
+        let loader = null
+
+        class Page {
+            constructor(id, name, element, pageApp) {
+                this.id = id
+                this.name = name
+                this.element = element
+                this.pageApp = pageApp
+            }
+        }
+
+        function init(
+            firstPageId,
+            element,
+            loaderClass,
+        ) {
+            root = element
+            Object.keys(pageElements).forEach(key => {
+                let page = pageElements[key]
+                const btn = createNavButton(page.name, page.id)
+                root.appendChild(btn)
+            })
+            root.addEventListener('click', clickHandler)
+            loader = loaderClass
+            selectPage(firstPageId)
+        }
+
+        function clickHandler(event) {
+            selectPage(event.target.dataset.action)
+        }
+
+        function selectPage(id) {
+            hideAll()
+            pageElements[id].element.style.display = "block"
+            pageElements[id].pageApp.init(loader)
+        }
+
+        function add(
+            id,
+            name,
+            element,
+            pageApp,
+        ) {
+            pageElements[id] = new Page(id, name, element, pageApp)
+        }
+
+        function hideAll() {
+            Object.keys(pageElements).forEach(key => {
+                if (pageElements[key]?.element) {
+                    pageElements[key].element.style.display = "none"
+                }
+                if (pageElements[key]?.pageApp) {
+                    pageElements[key].pageApp.destroy()
+                }
+            })
+        }
+
+        function createNavButton(name, id) {
+            const btn = document.createElement('button')
+            btn.setAttribute("data-action", id)
+            btn.innerText = name
+            return btn
+        }
+
+        function destroy() {
+            root.removeEventListener('click', clickHandler)
+        }
+
+        ns.Navigation = {
+            init,
+            add,
+            destroy,
+        };
+    })(window.App = window.App || {});
+
+</script>

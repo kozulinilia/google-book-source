@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<div data-id="<?= pageId ?>">
+    <div class="card shadow p-4">
+        <h4 class="mb-4">
+            <span class="material-icons" style="vertical-align: middle;">filter_list</span>
+            Книжный родник
+        </h4>
+
+        <div class="row g-3" align-items-end>
+            <div class="col-md-3">
+                <label class="material-label">Рубрика</label>
+                <select class="form-select" data-id="theme" data-action="changeFilter">
+                    <option value="">Все</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="material-label">Поиск по названию</label>
+                <input class="form-control" type="text" data-action="changeName"></input>
+            </div>
+            <div class="col-md-3">
+                <label class="material-label">Поиск по автору</label>
+                <input class="form-control" type="text" data-action="changeAuthor"></input>
+            </div>
+            <div class="col-md-3 float-right">
+                <button class="btn btn-primary" data-action="loadData">
+                    <span class="material-icons" style="font-size:18px;vertical-align:middle;">search</span>
+                    Показать
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div data-component="table" data-id="table1"></div>
+    <?!= include('components/custom-table') ?>
+</div>
+<script>
+    (function (ns) {
+        let fullData = [];   // Полный набор данных (после фильтра)
+        let filteredData = [];
+        let headers = [];    // Заголовки
+        let currentPage = 1;
+        const pageSize = 20; // Кол-во строк на страницу
+        const pageId = "<?= pageId ?>"
+        let root = null
+        let authorName = ''
+        let bookName = ''
+        let theme = 'Все'
+        let themeEl = null
+        let tableObject = null
+        let loaderEl = null
+
+        function init(loader = null) {
+            if (!ns.TableFactory) {
+                console.error('TableFactory not initialized');
+                return;
+            }
+            root = document.querySelector(`[data-id="${pageId}"]`)
+            themeEl = root.querySelector(`[data-id="theme"]`)
+            loaderEl = loader
+            root.addEventListener('click', clickHandler)
+            root.addEventListener('change', changeHandler)
+            root.addEventListener('input', inputHandler)
+            loaderEl.show()
+            google.script.run.withSuccessHandler(data => {
+                populateDropdowns(data, "filterA");
+            }).getDropdownValues();
+            google.script.run.withSuccessHandler(data => {
+                headers = data.header;
+                fullData = data.rows;
+                filteredData = data.rows;
+                currentPage = 1;
+                const tableElement = root.querySelector(`[data-id="table1"]`)
+                tableObject = ns.TableFactory.create(
+                    tableElement,
+                    headers,
+                    customTableFunction,
+                    pageSize,
+                    filteredData,
+                )
+                tableObject.render(filteredData)
+                loaderEl.hide()
+            }).getFilteredData()
+        }
+
+        function clickHandler(event) {
+            const action = event.target.dataset.action
+            if (action === 'loadData') {
+                loadData()
+            }
+        }
+
+        function inputHandler(event) {
+            const action = event.target.dataset.action
+            if (action === 'changeName') {
+                bookName = event.target.value
+            }
+            if (action === 'changeAuthor') {
+                authorName = event.target.value
+            }
+        }
+
+        function changeHandler(event) {
+            const action = event.target.dataset.action
+            if (action === 'changeFilter') {
+                theme = event.target.value
+                authorName = ''
+                bookName = ''
+                tableObject.skipPage()
+                loadData()
+            }
+        }
+
+        function populateDropdowns(data) {
+            data.forEach(v => {
+                const opt = document.createElement("option");
+                opt.setAttribute("data-action", "changeFilter")
+                opt.value = v;
+                opt.textContent = v;
+                themeEl.appendChild(opt);
+            });
+        }
+
+        function loadData() {
+            currentPage = 1
+            filteredData = fullData.filter(item => {
+                return item[0].includes(theme) && item[1].includes(authorName) && item[2].includes(bookName);
+            });
+            tableObject.render(filteredData)
+        }
+
+        function customTableFunction(td, index, cell) {
+            if (index === 5) {
+                if (cell) {
+                    const a = document.createElement("a");
+                    a.href = cell;
+                    a.textContent = "посмотреть"
+                    a.target = "_blank";
+                    td.appendChild(a);
+                } else {
+                    td.textContent = 'нет картинки';
+                }
+
+            } else {
+                td.textContent = cell;
+            }
+        }
+
+        function destroy() {
+            if (tableObject) {
+                tableObject.destroy()
+            }
+            root.removeEventListener('click', clickHandler)
+            root.removeEventListener('change', changeHandler)
+            root.removeEventListener('input', inputHandler)
+        }
+
+        ns.BookList = {
+            init,
+            reload: loadData,
+            destroy,
+        };
+    })(window.App = window.App || {});
+</script>
