@@ -17,8 +17,12 @@
             firstPageId,
             element,
             loaderClass,
+            isHidden = false
         ) {
             root = element
+            if (isHidden) {
+                root.style.display = "none"
+            }
             Object.keys(pageElements).forEach(key => {
                 let page = pageElements[key]
                 const btn = createNavButton(page.name, page.id)
