@@ -1,0 +1,76 @@
+<script>
+    (function (ns) {
+        class ReactVariable {
+            constructor(
+                element
+            ) {
+                this.element = element
+                if (['DIV', 'SPAN'].includes(element.nodeName)) {
+                    this.setKey = "innerText"
+                }
+                if (element.nodeName === "INPUT") {
+                    this.setKey = "value"
+                    this.element.addEventListener('input', this.setEvent)
+                }
+                if (element.nodeName === "SELECT") {
+                    this.setKey = "value"
+                    this.element.addEventListener('change', this.setEvent)
+                }
+                this.value = this.element[this.setKey] ?? ''
+
+            }
+
+            setEvent = (event) => {
+                this.value = event.target.value
+            }
+
+            set = (value) => {
+                this.value = value
+                this.element[this.setKey] = value
+            }
+
+            get = () => {
+                return this.value
+            }
+
+            getElement = () => {
+                return this.element
+            }
+
+            show = () => {
+                this.element.style.display = 'block'
+            }
+
+            hide = () => {
+                this.element.style.display = 'none'
+            }
+
+            destroy = () => {
+                if (this.element.nodeName === 'INPUT') {
+                    this.element.removeEventListener('input', this.setEvent)
+                }
+                if (this.element.nodeName === 'SELECT') {
+                    this.element.removeEventListener('change', this.setEvent)
+                }
+            }
+        }
+
+        function create(
+            root
+        ) {
+            const elements = root.querySelectorAll('[data-id]')
+            const vars = new Map()
+            elements.forEach(element => {
+                vars.set(element.getAttribute("data-id"), new ReactVariable(element, element.value))
+            })
+
+            return vars
+        }
+
+        ns.VarContainer = {
+            create,
+        };
+
+    })(window.App = window.App || {})
+
+</script>

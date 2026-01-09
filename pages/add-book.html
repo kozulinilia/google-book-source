@@ -17,27 +17,27 @@
         <div class="row g-3" data-id="add-book-block" style="display: none" align-items-end>
             <div class="col-md-3">
                 <label class="material-label">Автор</label>
-                <input data-id="new-author" data-action="changeAuthor" class="form-control" type="text"></input>
+                <input data-id="new-author" class="form-control" type="text"></input>
             </div>
             <div class="col-md-3">
                 <label class="material-label">Название</label>
-                <input data-id="new-name" data-action="changeName" class="form-control" type="text"></input>
+                <input data-id="new-name" class="form-control" type="text"></input>
             </div>
             <div class="col-md-3">
                 <label class="material-label">Год</label>
-                <input data-id="new-year" data-action="changeYear" class="form-control" type="number"></input>
+                <input data-id="new-year" class="form-control" type="number"></input>
             </div>
             <div class="col-md-3">
                 <label class="material-label">Аннотация</label>
-                <input data-id="new-annotation" data-action="changeAnnotation" class="form-control" type="text"></input>
+                <input data-id="new-annotation" class="form-control" type="text"></input>
             </div>
             <div class="col-md-3">
                 <label class="material-label">Номер коробки</label>
-                <input data-id="new-box-num" data-action="changeBoxNum" class="form-control" type="number"></input>
+                <input data-id="new-box-num" class="form-control" type="number"></input>
             </div>
             <div class="col-md-3">
                 <label class="material-label">Рубрика</label>
-                <select data-id="new-theme" data-action="changeTheme" class="form-select">
+                <select data-id="new-theme" class="form-select">
                 </select>
             </div>
             <div class="row g-3" align-items-end>
@@ -57,45 +57,22 @@
     </div>
     <div data-id="log-list"></div>
 </div>
+<?!= include('components/variable-container') ?>
 <script>
     (function (ns) {
         const pageId = "<?= pageId ?>"
         let root = null
-        let logListEl = null
-        let addBookEl = null
-        let newBookEl = null
-        let newBookBtnEl = null
-        let newAuthorEl = null
-        let newNameEl = null
-        let newYearEl = null
-        let newAnnotationEl = null
-        let newBoxNumEl = null
-        let newThemeEl = null
-        let author = ''
-        let name = ''
-        let year = ''
-        let annotation = ''
-        let boxNum = ''
-        let bookId = ''
-        let theme = ''
-        let errorFieldEl = ''
         let loaderEl = null
+        let vars = null
 
         function init(loader = null) {
             root = document.querySelector(`[data-id="${pageId}"]`)
-            logListEl = root.querySelector('[data-id="log-list"]')
-            addBookEl = root.querySelector('[data-id="add-book-block"]')
-            newBookEl = root.querySelector('[data-id="new-book-id"]')
-            newBookBtnEl = root.querySelector('[data-id="new-book-button"]')
-            errorFieldEl = root.querySelector('[data-id="error-field"]')
-            newAuthorEl = root.querySelector('[data-id="new-author"]')
-            newNameEl = root.querySelector('[data-id="new-name"]')
-            newYearEl = root.querySelector('[data-id="new-year"]')
-            newAnnotationEl = root.querySelector('[data-id="new-annotation"]')
-            newBoxNumEl = root.querySelector('[data-id="new-box-num"]')
-            newThemeEl = root.querySelector('[data-id="new-theme"]')
+            if (!ns.VarContainer) {
+                console.error('VarContainer not initialized');
+                return;
+            }
+            vars = ns.VarContainer.create(root)
             loaderEl = loader
-            root.addEventListener('input', inputHandler)
             root.addEventListener('click', clickHandler)
             google.script.run.withSuccessHandler(data => {
                 populateDropdowns(data, "newTheme");
@@ -105,37 +82,11 @@
         function addNewBook() {
             loaderEl.show()
             google.script.run.withSuccessHandler(id => {
-                newBookEl.innerText = id
-                show(addBookEl);
-                hide(newBookBtnEl);
+                vars.get("new-book-id").set(id)
+                vars.get("add-book-block").show()
+                vars.get("new-book-button").hide()
                 loaderEl.hide()
             }).addNewBook();
-        }
-
-        function inputHandler(event) {
-            const action = event.target.dataset.action
-            switch (action) {
-                case "changeAuthor":
-                    author = event.target.value
-                    break;
-                case "changeName":
-                    name = event.target.value
-                    break;
-                case "changeYear":
-                    year = event.target.value
-                    break;
-                case "changeAnnotation":
-                    annotation = event.target.value
-                    break;
-                case "changeBoxNum":
-                    boxNum = event.target.value
-                    break;
-                case "changeTheme":
-                    theme = event.target.value
-                    break;
-                default:
-                    console.error('[inputHandler] Unknown action ' + action)
-            }
         }
 
         function clickHandler(event) {
@@ -158,21 +109,21 @@
         function saveNewBook() {
             loaderEl.show()
             const book = {
-                author,
-                name,
-                year,
-                annotation,
-                boxNum,
-                id: newBookEl.innerText,
-                theme
+                author: vars.get("new-author").get(),
+                name: vars.get("new-name").get(),
+                year: vars.get("new-year").get(),
+                annotation: vars.get("new-annotation").get(),
+                boxNum: vars.get("new-box-num").get(),
+                id: vars.get("new-book-id").get(),
+                theme: vars.get("new-theme").get(),
             };
             google.script.run.withSuccessHandler(result => {
                 if (result) {
                     addLog(`${book.name} ${book.id}`);
                     clearAddFields();
-                    hide(addBookEl, false);
-                    show(newBookBtnEl, true);
-                    newBookEl.innerText = ''
+                    vars.get("add-book-block").hide()
+                    vars.get("new-book-button").show()
+                    vars.get("new-book-id").set('')
                     loaderEl.hide()
                     showError("", false);
                 }
@@ -186,48 +137,50 @@
 
         function cancelNewBook() {
             loaderEl.show()
-            let bookId = newBookEl.innerText
+            let bookId = vars.get("new-book-id").get()
             google.script.run.withSuccessHandler(result => {
                 clearAddFields();
-                hide(addBookEl, false);
-                show(newBookBtnEl, true);
+                vars.get("add-book-block").hide()
+                vars.get("new-book-button").show()
                 loaderEl.hide()
             })
                 .removeRowById(bookId)
         }
 
         function clearAddFields() {
-            newAuthorEl.value = '';
-            newNameEl.value = '';
-            newYearEl.value = '';
-            newAnnotationEl.value = '';
-            newBoxNumEl.value = '';
-            newBookEl.innerText = '';
-            newThemeEl.value = '';
-        }
-
-        function show(element) {
-            element.style.display = 'block'
-        }
-
-        function hide(element) {
-            element.style.display = 'none'
+            vars.get("new-author").set('')
+            vars.get("new-name").set('')
+            vars.get("new-year").set('')
+            vars.get("new-annotation").set('')
+            vars.get("new-box-num").set('')
+            vars.get("new-book-id").set('')
+            vars.get("new-theme").set('')
         }
 
         function showError(error, show) {
-            errorFieldEl.style.display = show ? 'block' : 'none';
-            errorFieldEl.innerText = error;
+            vars.get("error-field").set(error);
+            if (show) {
+                vars.get("error-field").show()
+            } else {
+                vars.get("error-field").hide()
+            }
         }
 
         function addLog(id) {
             const newEl = document.createElement("div");
             newEl.innerText = id + " добавлена";
-            logListEl.appendChild(newEl);
+            vars.get("log-list").getElement().appendChild(newEl)
         }
 
         function destroy() {
-            root.removeEventListener('input', inputHandler)
-            root.removeEventListener('click', clickHandler)
+            if (root) {
+                root.removeEventListener('click', clickHandler)
+            }
+            if (vars) {
+                vars.forEach((value, key) => {
+                    value.destroy()
+                })
+            }
         }
 
         function populateDropdowns(data) {
@@ -236,7 +189,7 @@
                 opt.setAttribute("data-action", "changeFilter")
                 opt.value = value
                 opt.textContent = value
-                newThemeEl.appendChild(opt)
+                vars.get("new-theme").getElement().appendChild(opt)
             });
         }
 

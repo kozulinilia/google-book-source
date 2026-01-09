@@ -54,13 +54,7 @@
         }
     }
 
-    function initPageComponents() {
-        App.AddBook.init(loader)
-        App.BookList.init(loader)
-    }
-
     function createNavigationPages(navigationEl) {
-        initPageComponents()
         const booksListEl = document.querySelector('[data-id="books-page"]')
         const addBookEl = document.querySelector('[data-id="add-book-page"]')
         App.Navigation.add("books-page", "Книги", booksListEl, App.BookList)

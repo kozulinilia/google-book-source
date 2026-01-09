@@ -39,6 +39,7 @@
 
         function selectPage(id) {
             hideAll()
+            destroyAll()
             pageElements[id].element.style.display = "block"
             pageElements[id].pageApp.init(loader)
         }
@@ -57,6 +58,11 @@
                 if (pageElements[key]?.element) {
                     pageElements[key].element.style.display = "none"
                 }
+            })
+        }
+
+        function destroyAll() {
+            Object.keys(pageElements).forEach(key => {
                 if (pageElements[key]?.pageApp) {
                     pageElements[key].pageApp.destroy()
                 }
