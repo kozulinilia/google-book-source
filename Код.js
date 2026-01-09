@@ -7,6 +7,7 @@ const ANNOTATION_ROW = 8;
 const BOX_ROW = 11;
 const THEME_ROW = 2;
 const LINK_ROW = 10;
+const DATE_ROW = 15;
 const GLOBAL = {};
 const FREE_STATUS = 'free';
 
@@ -95,8 +96,8 @@ function addNewBook(id = null) {
 
 function saveNewBook(book) {
     book.link = getImageLinkFromFolder(book.id);
+    book.date = getNowDate()
     let newRow = createRow(book);
-    Logger.log(book);
     replaceRowById(book.id, newRow);
 
     return true;
@@ -119,7 +120,7 @@ function createBlankRow(id) {
 
 function createRow(param) {
     const row = [];
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 16; i++) {
         switch (i) {
             case THEME_ROW:
                 row.push(param.theme);
@@ -147,6 +148,9 @@ function createRow(param) {
                 break;
             case LINK_ROW:
                 row.push(param.link);
+                break;
+            case DATE_ROW:
+                row.push(param.date);
                 break;
             default:
                 row.push('');
@@ -228,4 +232,14 @@ function include(file, data = {}) {
     Object.assign(tpl, data);
 
     return tpl.evaluate().getContent();
+}
+
+function getNowDate() {
+    const now = new Date();
+
+    const day = String(now.getDate()).padStart(2, '0')
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const year = now.getFullYear()
+
+    return `${day}.${month}.${year}`
 }
