@@ -15,11 +15,11 @@
             </div>
             <div class="col-md-3">
                 <label class="material-label">Поиск по названию</label>
-                <input class="form-control" type="text" data-action="changeName"></input>
+                <input data-id="name" class="form-control" type="text"></input>
             </div>
             <div class="col-md-3">
                 <label class="material-label">Поиск по автору</label>
-                <input class="form-control" type="text" data-action="changeAuthor"></input>
+                <input data-id="author" class="form-control" type="text"></input>
             </div>
             <div class="col-md-3 float-right">
                 <button class="btn btn-primary" data-action="loadData">
@@ -32,35 +32,34 @@
 
     <div data-component="table" data-id="table1"></div>
     <?!= include('components/custom-table') ?>
+    <?!= include('components/variable-container') ?>
 </div>
 <script>
     (function (ns) {
-        const ALL = 'Все'
         let fullData = [];   // Полный набор данных (после фильтра)
         let filteredData = [];
         let headers = [];    // Заголовки
-        let currentPage = 1;
         const pageSize = 20; // Кол-во строк на страницу
         const pageId = "<?= pageId ?>"
         let root = null
-        let authorName = ''
-        let bookName = ''
-        let theme = ''
-        let themeEl = null
         let tableObject = null
         let loaderEl = null
+        let vars = null
 
         function init(loader = null) {
             if (!ns.TableFactory) {
                 console.error('TableFactory not initialized');
                 return;
             }
+            if (!ns.VarContainer) {
+                console.error('VarContainer not initialized');
+                return;
+            }
             root = document.querySelector(`[data-id="${pageId}"]`)
-            themeEl = root.querySelector(`[data-id="theme"]`)
+            vars = ns.VarContainer.create(root)
             loaderEl = loader
             root.addEventListener('click', clickHandler)
             root.addEventListener('change', changeHandler)
-            root.addEventListener('input', inputHandler)
             loaderEl.show()
             google.script.run.withSuccessHandler(data => {
                 populateDropdowns(data, "filterA");
@@ -69,7 +68,6 @@
                 headers = data.header;
                 fullData = data.rows;
                 filteredData = data.rows;
-                currentPage = 1;
                 const tableElement = root.querySelector(`[data-id="table1"]`)
                 tableObject = ns.TableFactory.create(
                     tableElement,
@@ -91,22 +89,11 @@
             }
         }
 
-        function inputHandler(event) {
-            const action = event.target.dataset.action
-            if (action === 'changeName') {
-                bookName = event.target.value
-            }
-            if (action === 'changeAuthor') {
-                authorName = event.target.value
-            }
-        }
-
         function changeHandler(event) {
             const action = event.target.dataset.action
             if (action === 'changeFilter') {
-                theme = event.target.value === ALL ? '' : event.target.value
-                authorName = ''
-                bookName = ''
+                vars.get('author').set('')
+                vars.get('name').set('')
                 tableObject.skipPage()
                 loadData()
             }
@@ -118,14 +105,16 @@
                 opt.setAttribute("data-action", "changeFilter")
                 opt.value = v;
                 opt.textContent = v;
-                themeEl.appendChild(opt);
+                vars.get('theme').getElement().appendChild(opt);
             });
         }
 
         function loadData() {
-            currentPage = 1
             filteredData = fullData.filter(item => {
-                return item[0].includes(theme) && item[1].includes(authorName) && item[2].includes(bookName);
+                return item[0]
+                    .includes(vars.get('theme').get()) && item[1]
+                    .includes(vars.get('author').get()) && item[2]
+                    .includes(vars.get('name').get());
             });
             tableObject.render(filteredData)
         }
@@ -151,9 +140,15 @@
             if (tableObject) {
                 tableObject.destroy()
             }
-            root.removeEventListener('click', clickHandler)
-            root.removeEventListener('change', changeHandler)
-            root.removeEventListener('input', inputHandler)
+            if (root) {
+                root.removeEventListener('click', clickHandler)
+                root.removeEventListener('change', changeHandler)
+            }
+            if (vars) {
+                vars.forEach((value, key) => {
+                    value.destroy()
+                })
+            }
         }
 
         ns.BookList = {
