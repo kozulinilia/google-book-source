@@ -78,9 +78,9 @@
         const aboutEl = document.querySelector('[data-id="about-page"]')
         App.Navigation.add("books-page", "Книги", booksListEl, App.BookList, true)
         App.Navigation.add("add-book-page", "Добавить новую", addBookEl, App.AddBook)
+        App.Navigation.add("orders-page", "Сделать заказ", ordersEl, App.Orders)
         App.Navigation.add("edit-book-page", "Список книг", editBookEl, App.EditBook)
         App.Navigation.add("about-page", "О нас", aboutEl)
-        App.Navigation.add("orders-page", "Сделать заказ", ordersEl, App.Orders)
         App.Navigation.init("edit-book-page", navigationEl, loader)
     }
 </script>
