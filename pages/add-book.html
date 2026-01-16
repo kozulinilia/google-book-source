@@ -37,8 +37,8 @@
             </div>
             <div class="col-md-3">
                 <label class="material-label">Рубрика</label>
-                <select data-id="new-theme" class="form-select">
-                </select>
+                <select data-id="theme-value" data-action="changeTheme" class="form-select"></select>
+                <div data-id="new-theme"></div>
             </div>
             <div class="row g-3" align-items-end>
                 <div class="col-md-3 float-right">
@@ -74,6 +74,7 @@
             vars = ns.VarContainer.create(root)
             loaderEl = loader
             root.addEventListener('click', clickHandler)
+            root.addEventListener('change', changeHandler)
             google.script.run.withSuccessHandler(data => {
                 populateDropdowns(data, "newTheme");
             }).getFullThemes();
@@ -100,6 +101,22 @@
                     break
                 case 'addNewBook':
                     addNewBook()
+                    break
+                default:
+                    console.error('[clickHandler] Unknown action ' + action)
+            }
+        }
+
+        const changeHandler = (event) => {
+            const action = event.target.dataset.action
+            const value = event.target.value
+            switch (action) {
+                case 'changeTheme':
+                    const previousValue = vars.get('new-theme').get()
+                    const themes = previousValue ? previousValue.split(', ') : []
+                    themes.push(value)
+                    vars.get('new-theme').set(themes.join(', '))
+                    vars.get('theme-value').set('')
                     break
                 default:
                     console.error('[clickHandler] Unknown action ' + action)
@@ -175,6 +192,7 @@
         function destroy() {
             if (root) {
                 root.removeEventListener('click', clickHandler)
+                root.removeEventListener('change', changeHandler)
             }
             if (vars) {
                 vars.forEach((value, key) => {
@@ -189,7 +207,7 @@
                 opt.setAttribute("data-action", "changeFilter")
                 opt.value = value
                 opt.textContent = value
-                vars.get("new-theme").getElement().appendChild(opt)
+                vars.get("theme-value").getElement().appendChild(opt)
             });
         }
 
