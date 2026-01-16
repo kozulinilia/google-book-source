@@ -15,7 +15,7 @@ function doGet(e) {
     return HtmlService
         .createTemplateFromFile("index")
         .evaluate()
-        .setTitle("Фильтры из таблицы");
+        .setTitle("Книжный родник");
 }
 
 function getFilteredData(filterTheme = false) {

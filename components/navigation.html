@@ -5,11 +5,12 @@
         let loader = null
 
         class Page {
-            constructor(id, name, element, pageApp) {
+            constructor(id, name, element, pageApp, hide) {
                 this.id = id
                 this.name = name
                 this.element = element
                 this.pageApp = pageApp
+                this.hide = hide
             }
         }
 
@@ -25,8 +26,10 @@
             }
             Object.keys(pageElements).forEach(key => {
                 let page = pageElements[key]
-                const btn = createNavButton(page.name, page.id)
-                root.appendChild(btn)
+                if (!page.hide) {
+                    const btn = createNavButton(page.name, page.id)
+                    root.appendChild(btn)
+                }
             })
             root.addEventListener('click', clickHandler)
             loader = loaderClass
@@ -38,19 +41,25 @@
         }
 
         function selectPage(id) {
+            if (!pageElements[id]) {
+                return
+            }
             hideAll()
             destroyAll()
             pageElements[id].element.style.display = "block"
-            pageElements[id].pageApp.init(loader)
+            if (pageElements[id].pageApp) {
+                pageElements[id].pageApp.init(loader)
+            }
         }
 
         function add(
             id,
             name,
             element,
-            pageApp,
+            pageApp = null,
+            hide = false,
         ) {
-            pageElements[id] = new Page(id, name, element, pageApp)
+            pageElements[id] = new Page(id, name, element, pageApp, hide)
         }
 
         function hideAll() {
@@ -72,6 +81,8 @@
         function createNavButton(name, id) {
             const btn = document.createElement('button')
             btn.setAttribute("data-action", id)
+            btn.className = "btn btn-secondary"
+            btn.style = "margin-right:5px;"
             btn.innerText = name
             return btn
         }
