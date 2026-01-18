@@ -53,22 +53,22 @@
 
     class Loader {
         constructor(element) {
-            this.element = element
+            this.element = element;
         }
 
         show() {
-            this.element.style.display = "block"
+            this.element.style.display = "block";
         }
 
         hide() {
-            this.element.style.display = "none"
+            this.element.style.display = "none";
         }
     }
 
     function initPageComponents() {
-        App.AddBook.init(loader)
-        App.BookList.init(loader)
-        App.Orders.init(loader)
+        App.AddBook.init(loader);
+        App.BookList.init(loader);
+        App.Orders.init(loader);
     }
 
     function createNavigationPages(navigationEl) {
@@ -82,6 +82,13 @@
         App.Navigation.add("edit-book-page", "Список книг", editBookEl, App.EditBook)
         App.Navigation.add("about-page", "О нас", aboutEl)
         App.Navigation.init("edit-book-page", navigationEl, loader)
+        initPageComponents();
+        
+        const ordersEl = document.querySelector('[data-id="orders-page"]');
+        App.Navigation.add("books-page", "Книги", booksListEl, App.BookList);
+        App.Navigation.add("add-book-page", "Добавить новую", addBookEl, App.AddBook);
+        App.Navigation.add("orders-page", "Создать заказ", ordersEl, App.Orders);
+        App.Navigation.init("books-page", navigationEl, loader);
     }
 </script>
 
