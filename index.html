@@ -53,22 +53,22 @@
 
     class Loader {
         constructor(element) {
-            this.element = element;
+            this.element = element
         }
 
         show() {
-            this.element.style.display = "block";
+            this.element.style.display = "block"
         }
 
         hide() {
-            this.element.style.display = "none";
+            this.element.style.display = "none"
         }
     }
 
     function initPageComponents() {
-        App.AddBook.init(loader);
-        App.BookList.init(loader);
-        App.Orders.init(loader);
+        App.AddBook.init(loader)
+        App.BookList.init(loader)
+        App.Orders.init(loader)
     }
 
     function createNavigationPages(navigationEl) {
