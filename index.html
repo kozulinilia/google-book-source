@@ -19,7 +19,10 @@
     <?!= include('pages/book-list', {pageId: 'books-page'}) ?>
     <?!= include('pages/add-book', {pageId: 'add-book-page'}) ?>
     <?!= include('pages/orders', {pageId: 'orders-page'}) ?>
+<<<<<<< HEAD
     <?!= include('pages/about-page', {pageId: 'about-page'}) ?>
+=======
+>>>>>>> f876b424467e0c91a87ded9b4541266fa994494d
 </div>
 </body>
 <?!= include('components/navigation', {dataId: 'navigation'}) ?>
@@ -70,6 +73,7 @@
 
     function createNavigationPages(navigationEl) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         const booksListEl = document.querySelector('[data-id="books-page"]')
         const addBookEl = document.querySelector('[data-id="add-book-page"]')
         const ordersEl = document.querySelector('[data-id="orders-page"]')
@@ -85,6 +89,8 @@
 >>>>>>> c974a71 (BS-03 refactor: rename order page in navigator in index.html;)
         App.Navigation.init("books-page", navigationEl, loader)
 =======
+=======
+>>>>>>> f876b424467e0c91a87ded9b4541266fa994494d
         initPageComponents();
         const booksListEl = document.querySelector('[data-id="books-page"]');
         const addBookEl = document.querySelector('[data-id="add-book-page"]');
@@ -93,7 +99,10 @@
         App.Navigation.add("add-book-page", "Добавить новую", addBookEl, App.AddBook);
         App.Navigation.add("orders-page", "Создать заказ", ordersEl, App.Orders);
         App.Navigation.init("books-page", navigationEl, loader);
+<<<<<<< HEAD
 >>>>>>> f876b42 (BS-03 refactor: little refactoring in index.html;)
+=======
+>>>>>>> f876b424467e0c91a87ded9b4541266fa994494d
     }
 </script>
 
