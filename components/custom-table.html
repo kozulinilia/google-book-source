@@ -86,7 +86,7 @@
                     const tr = document.createElement("tr");
                     row.forEach((cell, index) => {
                         const td = document.createElement("td");
-                        this.tdFunction(td, index, cell);
+                        this.tdFunction(td, index, cell, row);
                         tr.appendChild(td);
                     });
                     this.customTable.appendChild(tr);

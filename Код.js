@@ -25,15 +25,7 @@ function getFilteredData(filterTheme = false) {
 
     const data = sheet.getDataRange().getValues();
     const rawHeader = data.shift();
-    const header = [
-        rawHeader[2],
-        rawHeader[5],
-        rawHeader[6],
-        rawHeader[7],
-        rawHeader[8],
-        rawHeader[10],
-        rawHeader[12]
-    ];
+    const header = convertOutputBookRow(rawHeader);
 
     const result = data.filter(row => {
         const matchTheme = filterTheme ? row[THEME_ROW].includes(filterTheme) : true;
@@ -41,15 +33,7 @@ function getFilteredData(filterTheme = false) {
 
         return matchTheme && matchStatus;
     })
-        .map(row => [
-            row[2],
-            row[5],
-            row[6],
-            row[7],
-            row[8],
-            row[10],
-            row[12],
-        ]);
+        .map(row => convertOutputBookRow(row));
 
     return {header, rows: result};
 }
@@ -69,6 +53,19 @@ function getDropdownValues() {
     const valuesTheme = [...new Set(Array.from(themes.keys()))];
 
     return valuesTheme;
+}
+
+function convertOutputBookRow(row) {
+    return [
+        row[THEME_ROW],
+        row[AUTHOR_ROW],
+        row[NAME_ROW],
+        row[YEAR_ROW],
+        row[ANNOTATION_ROW],
+        row[LINK_ROW],
+        row[BOX_ROW],
+        row[BOOK_ID_ROW],
+    ]
 }
 
 function addNewBook(id = null) {
@@ -96,6 +93,14 @@ function addNewBook(id = null) {
 
 function saveNewBook(book) {
     book.link = getImageLinkFromFolder(book.id);
+    book.date = getNowDate()
+    let newRow = createRow(book);
+    replaceRowById(book.id, newRow);
+
+    return true;
+}
+
+function editBook(book) {
     book.date = getNowDate()
     let newRow = createRow(book);
     replaceRowById(book.id, newRow);

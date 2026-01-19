@@ -37,8 +37,9 @@
                 return this.element
             }
 
-            show = () => {
-                this.element.style.display = 'block'
+            show = (inline = false) => {
+                console.log({inline})
+                this.element.style.display = inline ? 'inline' : 'block'
             }
 
             hide = () => {

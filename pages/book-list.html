@@ -35,6 +35,9 @@
 </div>
 <script>
     (function (ns) {
+        const THEME_ROW = 0
+        const AUTHOR_ROW = 1
+        const NAME_ROW = 2
         let fullData = [];   // Полный набор данных (после фильтра)
         let filteredData = [];
         let headers = [];    // Заголовки
@@ -110,10 +113,9 @@
 
         function loadData() {
             filteredData = fullData.filter(item => {
-                return item[0]
-                    .includes(vars.get('theme').get()) && item[1]
-                    .includes(vars.get('author').get()) && item[2]
-                    .includes(vars.get('name').get());
+                return item[THEME_ROW].includes(vars.get('theme').get())
+                    && item[AUTHOR_ROW].includes(vars.get('author').get())
+                    && item[NAME_ROW].includes(vars.get('name').get());
             });
             tableObject.render(filteredData)
         }

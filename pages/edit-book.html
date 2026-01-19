@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<div data-id="<?= pageId ?>">
+    <div class="card shadow p-4">
+
+
+        <div data-id="search-book-block" align-items-end>
+            <h4 class="mb-4">Список Книг</h4>
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="material-label">Рубрика</label>
+                    <select class="form-select" data-id="theme" data-action="changeFilter">
+                        <option value="">Все</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="material-label">Поиск по названию</label>
+                    <input data-id="name" class="form-control" type="text"></input>
+                </div>
+                <div class="col-md-3">
+                    <label class="material-label">Поиск по автору</label>
+                    <input data-id="author" class="form-control" type="text"></input>
+                </div>
+                <div class="col-md-3">
+                    <label class="material-label">Поиск по номеру</label>
+                    <input data-id="number" class="form-control" type="text"></input>
+                </div>
+                <div class="col-md-3 float-right">
+                    <button class="btn btn-primary" data-action="loadData">
+                        <span class="material-icons" style="font-size:18px;vertical-align:middle;">search</span>
+                        Показать
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div data-id="edit-book-block" style="display: none" align-items-end>
+            <h4 class="mb-4">Редактирование</h4>
+            <div class="row g-2">
+                <div class="col-md-1">
+                    <label class="material-label">Номер</label>
+                    <input data-id="new-book-id" class="form-control" disabled></input>
+                </div>
+                <div class="col-md-3">
+                    <label class="material-label">Автор</label>
+                    <input data-id="new-author" class="form-control" type="text"></input>
+                </div>
+                <div class="col-md-4">
+                    <label class="material-label">Название</label>
+                    <input data-id="new-name" class="form-control" type="text"></input>
+                </div>
+                <div class="col-md-1">
+                    <label class="material-label">Год</label>
+                    <input data-id="new-year" class="form-control" type="number"></input>
+                </div>
+                <div class="col-md-1">
+                    <label class="material-label">Коробка</label>
+                    <input data-id="new-box-num" class="form-control" type="number"></input>
+                </div>
+                <div class="col-md-2">
+                    <label class="material-label">Рубрика</label>
+                    <select data-id="theme-value" data-action="changeTheme" class="form-select"></select>
+                    <div data-id="new-theme"></div>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="material-label">Аннотация</label>
+                    <input data-id="new-annotation" class="form-control" type="text"></input>
+                </div>
+                <div class="row g-3" align-items-end>
+                    <div class="col-md-3 float-right">
+                        <button class="btn btn-primary" data-action="confirmEditBook">
+                            <span class="material-icons" style="font-size:18px;vertical-align:middle;">search</span>
+                            Сохранить
+                        </button>
+                        <button class="btn btn-danger" data-action="cancelEditBook">
+                            <span class="material-icons" style="font-size:18px;vertical-align:middle;">search</span>
+                            Отмена
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <span data-id="error-field" style="color: crimson;display: none"></span>
+        </div>
+    </div>
+    <span data-id="error-field" style="color: crimson;display: none"></span>
+
+    <div data-component="table" data-id="table1"></div>
+    <?!= include('components/custom-table') ?>
+    <?!= include('components/variable-container') ?>
+</div>
+<script>
+    (function (ns) {
+        const THEME_ROW = 0
+        const AUTHOR_ROW = 1
+        const NAME_ROW = 2
+        const YEAR_ROW = 3
+        const ANNOTATION_ROW = 4
+        const LINK_ROW = 5
+        const BOX_ROW = 6
+        const NUMBER_ROW = 7
+        let fullData = [];   // Полный набор данных (после фильтра)
+        let fullDataMap = null
+        let filteredData = [];
+        let headers = [];    // Заголовки
+        const pageSize = 20; // Кол-во строк на страницу
+        const pageId = "<?= pageId ?>"
+        let root = null
+        let tableObject = null
+        let loaderEl = null
+        let vars = null
+        let link = ''
+        let editedTheme = false
+
+        function init(loader = null) {
+            if (!ns.TableFactory) {
+                console.error('TableFactory not initialized');
+                return;
+            }
+            if (!ns.VarContainer) {
+                console.error('VarContainer not initialized');
+                return;
+            }
+            root = document.querySelector(`[data-id="${pageId}"]`)
+            vars = ns.VarContainer.create(root)
+            vars.get("edit-book-block").hide()
+            loaderEl = loader
+            root.addEventListener('click', clickHandler)
+            root.addEventListener('change', changeHandler)
+            loaderEl.show()
+            google.script.run.withSuccessHandler(data => {
+                populateDropdowns(data, "filterA");
+            }).getDropdownValues();
+            google.script.run.withSuccessHandler(data => {
+                populateDropdowns(data, "theme-value");
+            }).getFullThemes();
+            google.script.run.withSuccessHandler(data => {
+                headers = data.header;
+                fullData = data.rows;
+                filteredData = data.rows;
+                fullDataMap = new Map()
+                fullData.forEach(row => {
+                    fullDataMap.set(row[NUMBER_ROW], row)
+                })
+                const tableElement = root.querySelector(`[data-id="table1"]`)
+                tableObject = ns.TableFactory.create(
+                    tableElement,
+                    headers,
+                    customTableFunction,
+                    pageSize,
+                    filteredData,
+                )
+                tableObject.render(filteredData)
+                loaderEl.hide()
+            }).getFilteredData()
+        }
+
+        function clickHandler(event) {
+            const action = event.target.dataset.action
+            switch (action) {
+                case 'loadData':
+                    tableObject.skipPage()
+                    loadData()
+                    break;
+                case 'editBook':
+                    const id = event.target.dataset.number
+                    const row = fullDataMap.get(Number(id))
+                    console.log({row})
+                    vars.get('new-author').set(row[AUTHOR_ROW])
+                    vars.get('new-name').set(row[NAME_ROW])
+                    vars.get('new-year').set(row[YEAR_ROW])
+                    vars.get('new-annotation').set(row[ANNOTATION_ROW])
+                    vars.get('new-box-num').set(row[BOX_ROW])
+                    vars.get('new-theme').set(row[THEME_ROW])
+                    vars.get("new-book-id").set(id)
+                    link = row[LINK_ROW]
+                    editedTheme = false
+                    vars.get("edit-book-block").show()
+                    vars.get("search-book-block").hide()
+                    break;
+                case 'confirmEditBook':
+                    loaderEl.show()
+                    const book = {
+                        author: vars.get("new-author").get(),
+                        name: vars.get("new-name").get(),
+                        year: vars.get("new-year").get(),
+                        annotation: vars.get("new-annotation").get(),
+                        boxNum: vars.get("new-box-num").get(),
+                        id: vars.get("new-book-id").get(),
+                        theme: vars.get("new-theme").get(),
+                        link
+                    };
+                    google.script.run.withSuccessHandler(result => {
+                        if (result) {
+                            vars.get("edit-book-block").hide()
+                            loaderEl.hide()
+                            showError("", false);
+                            vars.get("search-book-block").show(true)
+                            init(loader)
+                        }
+                    })
+                        .withFailureHandler(error => {
+                            showError(error, true);
+                            loaderEl.hide()
+                        })
+                        .editBook(book);
+                    break;
+                case "cancelEditBook":
+                    vars.get("edit-book-block").hide()
+                    vars.get("search-book-block").show(true)
+                    break;
+            }
+        }
+
+        function showError(error, show) {
+            vars.get("error-field").set(error);
+            if (show) {
+                vars.get("error-field").show()
+            } else {
+                vars.get("error-field").hide()
+            }
+        }
+
+        function changeHandler(event) {
+            const action = event.target.dataset.action
+            const value = event.target.value
+            switch (action) {
+                case 'changeFilter':
+                    vars.get('author').set('')
+                    vars.get('name').set('')
+                    tableObject.skipPage()
+                    loadData()
+                    break;
+                case 'changeTheme':
+                    if (!editedTheme) {
+                        vars.get('new-theme').set('')
+                        editedTheme = true
+                    }
+                    const previousValue = vars.get('new-theme').get()
+                    const themes = previousValue ? previousValue.split(', ') : []
+                    themes.push(value)
+                    vars.get('new-theme').set(themes.join(', '))
+                    vars.get('theme-value').set('')
+                    break;
+                default:
+                    console.error('[clickHandler] Unknown action ' + action)
+            }
+        }
+
+        function populateDropdowns(data, id) {
+            data.forEach(v => {
+                const opt = document.createElement("option");
+                opt.setAttribute("data-action", "changeFilter")
+                opt.value = v;
+                opt.textContent = v;
+                vars.get(id).getElement().appendChild(opt);
+            });
+        }
+
+        function loadData() {
+            filteredData = fullData.filter(item => {
+                return item[THEME_ROW].includes(vars.get('theme').get())
+                    && item[AUTHOR_ROW].includes(vars.get('author').get())
+                    && item[NAME_ROW].includes(vars.get('name').get())
+                    && (!vars.get('number').get() || Number(item[NUMBER_ROW]) === Number(vars.get('number').get()))
+
+            });
+            tableObject.render(filteredData)
+        }
+
+        function customTableFunction(td, index, cell, row) {
+            if (index === 5) {
+                const linkEl = document.createElement("div")
+                linkEl.style = "display: flex;flex-direction: column;"
+                if (cell) {
+                    const viewBook = document.createElement("a")
+                    viewBook.href = cell
+                    viewBook.textContent = "посмотреть"
+                    viewBook.target = "_blank"
+                    linkEl.appendChild(viewBook)
+                } else {
+                    linkEl.textContent = 'нет картинки';
+                }
+                const editBook = document.createElement("a")
+                editBook.href = '#'
+                editBook.setAttribute('data-number', row[NUMBER_ROW])
+                editBook.setAttribute('data-action', 'editBook')
+                editBook.textContent = "редактировать"
+                linkEl.appendChild(editBook)
+                td.appendChild(linkEl)
+            } else {
+                td.textContent = cell;
+            }
+        }
+
+        function destroy() {
+            if (tableObject) {
+                tableObject.destroy()
+            }
+            if (root) {
+                root.removeEventListener('click', clickHandler)
+                root.removeEventListener('change', changeHandler)
+            }
+            if (vars) {
+                vars.forEach((value, key) => {
+                    value.destroy()
+                })
+            }
+        }
+
+        ns.EditBook = {
+            init,
+            reload: loadData,
+            destroy,
+        };
+    })(window.App = window.App || {});
+</script>
