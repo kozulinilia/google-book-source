@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <div data-id="<?= pageId ?>">
     <div class="card shadow p-4">
-
-
         <div data-id="search-book-block" align-items-end>
             <h4 class="mb-4">Список Книг</h4>
             <div class="row g-2">
@@ -85,9 +83,7 @@
     </div>
     <span data-id="error-field" style="color: crimson;display: none"></span>
 
-    <div data-component="table" data-id="table1"></div>
-    <?!= include('components/custom-table') ?>
-    <?!= include('components/variable-container') ?>
+    <div data-component="table" data-id="table2"></div>
 </div>
 <script>
     (function (ns) {
@@ -129,7 +125,7 @@
             root.addEventListener('change', changeHandler)
             loaderEl.show()
             google.script.run.withSuccessHandler(data => {
-                populateDropdowns(data, "filterA");
+                populateDropdowns(data, "theme");
             }).getDropdownValues();
             google.script.run.withSuccessHandler(data => {
                 populateDropdowns(data, "theme-value");
@@ -142,7 +138,7 @@
                 fullData.forEach(row => {
                     fullDataMap.set(row[NUMBER_ROW], row)
                 })
-                const tableElement = root.querySelector(`[data-id="table1"]`)
+                const tableElement = root.querySelector(`[data-id="table2"]`)
                 tableObject = ns.TableFactory.create(
                     tableElement,
                     headers,
@@ -165,7 +161,6 @@
                 case 'editBook':
                     const id = event.target.dataset.number
                     const row = fullDataMap.get(Number(id))
-                    console.log({row})
                     vars.get('new-author').set(row[AUTHOR_ROW])
                     vars.get('new-name').set(row[NAME_ROW])
                     vars.get('new-year').set(row[YEAR_ROW])

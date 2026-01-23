@@ -15,49 +15,54 @@
             </div>
         </div>
         <div class="row g-3" data-id="add-book-block" style="display: none" align-items-end>
-            <div class="col-md-3">
-                <label class="material-label">Автор</label>
-                <input data-id="new-author" class="form-control" type="text"></input>
-            </div>
-            <div class="col-md-3">
-                <label class="material-label">Название</label>
-                <input data-id="new-name" class="form-control" type="text"></input>
-            </div>
-            <div class="col-md-3">
-                <label class="material-label">Год</label>
-                <input data-id="new-year" class="form-control" type="number"></input>
-            </div>
-            <div class="col-md-3">
-                <label class="material-label">Аннотация</label>
-                <input data-id="new-annotation" class="form-control" type="text"></input>
-            </div>
-            <div class="col-md-3">
-                <label class="material-label">Номер коробки</label>
-                <input data-id="new-box-num" class="form-control" type="number"></input>
-            </div>
-            <div class="col-md-3">
-                <label class="material-label">Рубрика</label>
-                <select data-id="theme-value" data-action="changeTheme" class="form-select"></select>
-                <div data-id="new-theme"></div>
-            </div>
-            <div class="row g-3" align-items-end>
-                <div class="col-md-3 float-right">
-                    <button class="btn btn-primary" data-action="saveNewBook">
-                        <span class="material-icons" style="font-size:18px;vertical-align:middle;">search</span>
-                        Сохранить
-                    </button>
-                    <button class="btn btn-danger" data-action="cancelNewBook">
-                        <span class="material-icons" style="font-size:18px;vertical-align:middle;">search</span>
-                        Отмена
-                    </button>
+            <div class="row g-2">
+                <div class="col-md-1">
+                    <label class="material-label">Номер</label>
+                    <input data-id="new-book-id" class="form-control" disabled></input>
+                </div>
+                <div class="col-md-3">
+                    <label class="material-label">Автор</label>
+                    <input data-id="new-author" class="form-control" type="text"></input>
+                </div>
+                <div class="col-md-4">
+                    <label class="material-label">Название</label>
+                    <input data-id="new-name" class="form-control" type="text"></input>
+                </div>
+                <div class="col-md-1">
+                    <label class="material-label">Год</label>
+                    <input data-id="new-year" class="form-control" type="number"></input>
+                </div>
+                <div class="col-md-1">
+                    <label class="material-label">Коробка</label>
+                    <input data-id="new-box-num" class="form-control" type="number"></input>
+                </div>
+                <div class="col-md-2">
+                    <label class="material-label">Рубрика</label>
+                    <select data-id="theme-value" data-action="changeTheme" class="form-select"></select>
+                    <div data-id="new-theme"></div>
                 </div>
             </div>
-            <span data-id="error-field" style="color: crimson;display: none"></span>
+            <div class="row g-3">
+                <div class="col-md-7">
+                    <label class="material-label">Аннотация</label>
+                    <textarea rows="5" data-id="new-annotation" class="form-control"></textarea>
+                </div>
+                <div class="row g-3" align-items-end>
+                    <div class="col-md-3 float-right">
+                        <button class="btn btn-primary" data-action="saveNewBook">
+                            Сохранить
+                        </button>
+                        <button class="btn btn-danger" data-action="cancelNewBook">
+                            Отмена
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
+        <span data-id="error-field" style="color: crimson;display: none"></span>
+        <div data-id="log-list"></div>
     </div>
-    <div data-id="log-list"></div>
 </div>
-<?!= include('components/variable-container') ?>
 <script>
     (function (ns) {
         const pageId = "<?= pageId ?>"

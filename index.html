@@ -23,6 +23,8 @@
 </div>
 </body>
 <?!= include('components/navigation', {dataId: 'navigation'}) ?>
+<?!= include('components/custom-table') ?>
+<?!= include('components/variable-container') ?>
 <script>
     let loader = null
     const env = "dev"
@@ -40,7 +42,7 @@
             return
         }
         if (!App.Navigation) {
-            console.error('BookList not initialized', App);
+            console.error('Navigation not initialized', App);
         }
     };
 

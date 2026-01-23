@@ -16,6 +16,10 @@
                     this.setKey = "value"
                     this.element.addEventListener('change', this.setEvent)
                 }
+                if (element.nodeName === "TEXTAREA") {
+                    this.setKey = "value"
+                    this.element.addEventListener('change', this.setEvent)
+                }
                 this.value = this.element[this.setKey] ?? ''
 
             }

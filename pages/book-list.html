@@ -30,8 +30,6 @@
     </div>
 
     <div data-component="table" data-id="table1"></div>
-    <?!= include('components/custom-table') ?>
-    <?!= include('components/variable-container') ?>
 </div>
 <script>
     (function (ns) {
@@ -64,7 +62,7 @@
             root.addEventListener('change', changeHandler)
             loaderEl.show()
             google.script.run.withSuccessHandler(data => {
-                populateDropdowns(data, "filterA");
+                populateDropdowns(data, "theme");
             }).getDropdownValues();
             google.script.run.withSuccessHandler(data => {
                 headers = data.header;
