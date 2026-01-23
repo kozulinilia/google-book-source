@@ -254,9 +254,10 @@
 
         function loadData() {
             filteredData = fullData.filter(item => {
-                return item[THEME_ROW].includes(vars.get('theme').get())
-                    && item[AUTHOR_ROW].includes(vars.get('author').get())
-                    && item[NAME_ROW].includes(vars.get('name').get())
+
+                return item[THEME_ROW].includes(vars.get('theme').get().toLowerCase())
+                    && (item[AUTHOR_ROW].toLowerCase()).includes(vars.get('author').get().toLowerCase())
+                    && (item[NAME_ROW].toLowerCase()).includes(vars.get('name').get().toLowerCase())
                     && (!vars.get('number').get() || Number(item[NUMBER_ROW]) === Number(vars.get('number').get()))
 
             });
