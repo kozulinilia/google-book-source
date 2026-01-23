@@ -55,6 +55,23 @@ function getDropdownValues() {
     return valuesTheme;
 }
 
+function getDropdownValuesByKey(key) {
+    loadEnvironment();
+    const ss = SpreadsheetApp.openById(GLOBAL.tableId);
+    const sheet = ss.getSheetByName(GLOBAL.booksSheet);
+
+    const data = sheet.getDataRange().getValues();
+    var themes = new Map();
+
+    data.forEach(item => {
+        var subThemes = item[key].split(', ');
+        subThemes.forEach(theme => themes.set(theme, 1));
+    })
+    const valuesTheme = [...new Set(Array.from(themes.keys()))];
+
+    return valuesTheme;
+}
+
 function convertOutputBookRow(row) {
     return [
         row[THEME_ROW],

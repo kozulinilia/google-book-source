@@ -22,7 +22,8 @@
                 </div>
                 <div class="col-md-3">
                     <label class="material-label">Автор</label>
-                    <input data-id="new-author" class="form-control" type="text"></input>
+                    <input list="author-source"  data-id="new-author" class="form-control" type="text"></input>
+                    <datalist id="author-source" data-id="author-list"></datalist>
                 </div>
                 <div class="col-md-4">
                     <label class="material-label">Название</label>
@@ -65,6 +66,7 @@
 </div>
 <script>
     (function (ns) {
+        const AUTHOR_BACK_ROW = 5
         const pageId = "<?= pageId ?>"
         let root = null
         let loaderEl = null
@@ -81,8 +83,11 @@
             root.addEventListener('click', clickHandler)
             root.addEventListener('change', changeHandler)
             google.script.run.withSuccessHandler(data => {
-                populateDropdowns(data, "newTheme");
+                populateDropdowns(data, "newTheme", "changeFilter");
             }).getFullThemes();
+            google.script.run.withSuccessHandler(data => {
+                populateDropdowns(data, "author-list", "selectAuthor");
+            }).getDropdownValuesByKey(AUTHOR_BACK_ROW)
         }
 
         function addNewBook() {
@@ -123,6 +128,9 @@
                     vars.get('new-theme').set(themes.join(', '))
                     vars.get('theme-value').set('')
                     break
+                case 'selectAuthor':
+                    vars.get('new-author').set(value)
+                    break;
                 default:
                     console.error('[clickHandler] Unknown action ' + action)
             }
@@ -206,13 +214,13 @@
             }
         }
 
-        function populateDropdowns(data) {
-            data.forEach(value => {
+        function populateDropdowns(data, id, functionName) {
+            data.forEach(v => {
                 const opt = document.createElement("option");
-                opt.setAttribute("data-action", "changeFilter")
-                opt.value = value
-                opt.textContent = value
-                vars.get("theme-value").getElement().appendChild(opt)
+                opt.setAttribute("data-action", functionName)
+                opt.value = v;
+                opt.textContent = v;
+                vars.get(id).getElement().appendChild(opt);
             });
         }
 
