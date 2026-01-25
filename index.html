@@ -16,35 +16,40 @@
 <div class="container">
     <div data-id="navigation"></div>
     <div data-id="loader" class="loader" style="display:none;"></div>
+
     <?!= include('pages/book-list', {pageId: 'books-page'}) ?>
     <?!= include('pages/add-book', {pageId: 'add-book-page'}) ?>
     <?!= include('pages/edit-book', {pageId: 'edit-book-page'}) ?>
     <?!= include('pages/orders', {pageId: 'orders-page'}) ?>
     <?!= include('pages/about-page', {pageId: 'about-page'}) ?>
+    <?!= include('components/navigation', {dataId: 'navigation'}) ?>
 </div>
 </body>
+<<<<<<< HEAD
 <?!= include('components/navigation', {dataId: 'navigation'}) ?>
 <?!= include('components/custom-table') ?>
 <?!= include('components/variable-container') ?>
+=======
+>>>>>>> 2504ace (BS-03 refactor: little refactoring in index.html)
 <script>
-    let loader = null
-    const env = "dev"
+    let loader = null;
+    const env = "dev";
     window.onload = function () {
         window.App = window.App || {}
-        const navigationEl = document.querySelector('[data-id="navigation"]')
-        loader = new Loader(document.querySelector(`[data-id="loader"]`))
-        createNavigationPages(navigationEl)
+        const navigationEl = document.querySelector('[data-id="navigation"]');
+        loader = new Loader(document.querySelector(`[data-id="loader"]`));
+        createNavigationPages(navigationEl);
         if (!App.BookList) {
             console.error('BookList not initialized', App);
-            return
+            return;
         }
         if (!App.AddBook) {
             console.error('AddBook not initialized', App);
-            return
+            return;
         }
         if (!App.Orders) {
             console.error('Orders not initialized', App);
-            return
+            return;
         }
         if (!App.Navigation) {
             console.error('Navigation not initialized', App);
@@ -53,22 +58,22 @@
 
     class Loader {
         constructor(element) {
-            this.element = element
+            this.element = element;
         }
 
         show() {
-            this.element.style.display = "block"
+            this.element.style.display = "block";
         }
 
         hide() {
-            this.element.style.display = "none"
+            this.element.style.display = "none";
         }
     }
 
     function initPageComponents() {
-        App.AddBook.init(loader)
-        App.BookList.init(loader)
-        App.Orders.init(loader)
+        App.AddBook.init(loader);
+        App.BookList.init(loader);
+        App.Orders.init(loader);
     }
 
     function createNavigationPages(navigationEl) {
