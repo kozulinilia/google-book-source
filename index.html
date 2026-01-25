@@ -16,32 +16,33 @@
 <div class="container">
     <div data-id="navigation"></div>
     <div data-id="loader" class="loader" style="display:none;"></div>
+
     <?!= include('pages/book-list', {pageId: 'books-page'}) ?>
     <?!= include('pages/add-book', {pageId: 'add-book-page'}) ?>
     <?!= include('pages/orders', {pageId: 'orders-page'}) ?>
     <?!= include('pages/about-page', {pageId: 'about-page'}) ?>
+    <?!= include('components/navigation', {dataId: 'navigation'}) ?>
 </div>
 </body>
-<?!= include('components/navigation', {dataId: 'navigation'}) ?>
 <script>
-    let loader = null
-    const env = "dev"
+    let loader = null;
+    const env = "dev";
     window.onload = function () {
         window.App = window.App || {}
-        const navigationEl = document.querySelector('[data-id="navigation"]')
-        loader = new Loader(document.querySelector(`[data-id="loader"]`))
-        createNavigationPages(navigationEl)
+        const navigationEl = document.querySelector('[data-id="navigation"]');
+        loader = new Loader(document.querySelector(`[data-id="loader"]`));
+        createNavigationPages(navigationEl);
         if (!App.BookList) {
             console.error('BookList not initialized', App);
-            return
+            return;
         }
         if (!App.AddBook) {
             console.error('AddBook not initialized', App);
-            return
+            return;
         }
         if (!App.Orders) {
             console.error('Orders not initialized', App);
-            return
+            return;
         }
         if (!App.Navigation) {
             console.error('BookList not initialized', App);
@@ -50,36 +51,36 @@
 
     class Loader {
         constructor(element) {
-            this.element = element
+            this.element = element;
         }
 
         show() {
-            this.element.style.display = "block"
+            this.element.style.display = "block";
         }
 
         hide() {
-            this.element.style.display = "none"
+            this.element.style.display = "none";
         }
     }
 
     function initPageComponents() {
-        App.AddBook.init(loader)
-        App.BookList.init(loader)
-        App.Orders.init(loader)
+        App.AddBook.init(loader);
+        App.BookList.init(loader);
+        App.Orders.init(loader);
     }
 
     function createNavigationPages(navigationEl) {
-        const booksListEl = document.querySelector('[data-id="books-page"]')
-        const addBookEl = document.querySelector('[data-id="add-book-page"]')
-        const ordersEl = document.querySelector('[data-id="orders-page"]')
-        const aboutEl = document.querySelector('[data-id="about-page"]')
+        const booksListEl = document.querySelector('[data-id="books-page"]');
+        const addBookEl = document.querySelector('[data-id="add-book-page"]');
+        const ordersEl = document.querySelector('[data-id="orders-page"]');
+        const aboutEl = document.querySelector('[data-id="about-page"]');
 
-        App.Navigation.add("books-page", "Книги", booksListEl, App.BookList)
-        App.Navigation.add("add-book-page", "Добавить новую", addBookEl, App.AddBook)
-        App.Navigation.add("orders-page", "Создать заказ", ordersEl, App.Orders)
-        App.Navigation.add("about-page", "О нас", aboutEl)
+        App.Navigation.add("books-page", "Книги", booksListEl, App.BookList);
+        App.Navigation.add("add-book-page", "Добавить новую", addBookEl, App.AddBook);
+        App.Navigation.add("orders-page", "Создать заказ", ordersEl, App.Orders);
+        App.Navigation.add("about-page", "О нас", aboutEl);
 
-        App.Navigation.init("books-page", navigationEl, loader)
+        App.Navigation.init("books-page", navigationEl, loader);
     }
 </script>
 
