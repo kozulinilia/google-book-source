@@ -220,6 +220,7 @@ function deleteRowById(id) {
     id = id.toString()
     updateByTextFinder(id)
     moveImageToTrash(getImageLinkFromFolder(id).getId())
+    return true;
 }
 
 function moveImageToTrash(fileId) {
