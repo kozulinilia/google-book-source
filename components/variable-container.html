@@ -24,6 +24,10 @@
                     this.setKey = "value"
                     this.element.addEventListener('change', this.setEvent)
                 }
+                if (element.nodeName === "BUTTON") {
+                    this.setKey = "innerText"
+                    this.element.addEventListener('change', this.setEvent)
+                }
                 this.value = this.element[this.setKey] ?? ''
 
             }

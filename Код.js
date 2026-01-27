@@ -109,7 +109,7 @@ function addNewBook(id = null) {
 }
 
 function saveNewBook(book) {
-    book.link = getImageLinkFromFolder(book.id);
+    book.link = getImageLinkFromFolder(book.id).getUrl();
     book.date = getNowDate()
     let newRow = createRow(book);
     replaceRowById(book.id, newRow);
@@ -199,6 +199,52 @@ function replaceRowById(id, newRow) {
     throw new Error("Строка с ID не найдена");
 }
 
+function updateByTextFinder(id) {
+    loadEnvironment();
+    const ss = SpreadsheetApp.openById(GLOBAL.tableId);
+    const sh = ss.getSheetByName(GLOBAL.booksSheet);
+
+    const cell = sh
+        .getRange('M:M')
+        .createTextFinder(id)
+        .matchEntireCell(true)
+        .findNext();
+
+    if (!cell) return false;
+
+    sh.getRange(cell.getRow(), STATE_ROW + 1).setValue('delete');
+    return true;
+}
+
+function deleteRowById(id) {
+    id = id.toString()
+    updateByTextFinder(id)
+    moveImageToTrash(getImageLinkFromFolder(id).getId())
+}
+
+function moveImageToTrash(fileId) {
+    loadEnvironment();
+    const targetFolder = DriveApp.getFolderById(GLOBAL.imgTrashDir);
+    Logger.log('moveImageToTrash', fileId)
+    const file = DriveApp.getFileById(fileId)
+    Logger.log('file', file)
+    const previousParents = file.getParents()
+    let parents = []
+    while (previousParents.hasNext()) {
+        parents.push(previousParents.next().getId());
+    }
+    parents = parents.join(',')
+    Drive.Files.update(
+        {},
+        fileId,
+        null,
+        {
+            addParents: targetFolder.getId(),
+            removeParents: parents
+        }
+    );
+}
+
 function getImageLinkFromFolder(imageId) {
     loadEnvironment();
     const folder = DriveApp.getFolderById(GLOBAL.imgDir);
@@ -208,7 +254,7 @@ function getImageLinkFromFolder(imageId) {
         const file = files.next();
 
         if (file.getName() === imageId + ".jpg") {
-            return file.getUrl();
+            return file;
         }
     }
     throw new Error("Изображение не найдено");
@@ -245,6 +291,7 @@ function loadEnvironment() {
     GLOBAL.booksSheet = PropertiesService.getScriptProperties().getProperty('BOOKS_SHEET')
     GLOBAL.themesSheet = PropertiesService.getScriptProperties().getProperty('THEME_SHEET')
     GLOBAL.imgDir = PropertiesService.getScriptProperties().getProperty('BOOK_IMAGE_DIR')
+    GLOBAL.imgTrashDir = PropertiesService.getScriptProperties().getProperty('BOOK_TRASH_DIR')
     Logger.log(GLOBAL)
 }
 

@@ -84,7 +84,30 @@
     <span data-id="error-field" style="color: crimson;display: none"></span>
 
     <div data-component="table" data-id="table2"></div>
+    <div data-id="delete-modal" class="custom-modal">
+        <div class="custom-modal-content">
+            <button data-id="closeModal">×</button>
+            <p>Вы уверены, что хотите удалить книгу</p>
+            <button class="btn btn-danger" data-action="submitDelete">Удалить</button>
+            <button class="btn btn-primary" data-action="cancelDelete">Отмена</button>
+        </div>
+    </div>
 </div>
+<style>
+    .custom-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .5);
+    }
+
+    .custom-modal-content {
+        background: white;
+        margin: 10% auto;
+        padding: 20px;
+        width: 400px;
+    }
+</style>
 <script>
     (function (ns) {
         const THEME_ROW = 0
@@ -107,6 +130,7 @@
         let vars = null
         let link = ''
         let editedTheme = false
+        let deletedBookId = 0
 
         function init(loader = null) {
             if (!ns.TableFactory) {
@@ -153,29 +177,25 @@
 
         function clickHandler(event) {
             const action = event.target.dataset.action
+            let id = 0
+            let row = 0
+            let book = {}
             switch (action) {
                 case 'loadData':
                     tableObject.skipPage()
                     loadData()
                     break;
                 case 'editBook':
-                    const id = event.target.dataset.number
-                    const row = fullDataMap.get(Number(id))
-                    vars.get('new-author').set(row[AUTHOR_ROW])
-                    vars.get('new-name').set(row[NAME_ROW])
-                    vars.get('new-year').set(row[YEAR_ROW])
-                    vars.get('new-annotation').set(row[ANNOTATION_ROW])
-                    vars.get('new-box-num').set(row[BOX_ROW])
-                    vars.get('new-theme').set(row[THEME_ROW])
-                    vars.get("new-book-id").set(id)
-                    link = row[LINK_ROW]
+                    id = event.target.dataset.value
+                    row = fullDataMap.get(Number(id))
+                    assignFields(row, id)
                     editedTheme = false
                     vars.get("edit-book-block").show()
                     vars.get("search-book-block").hide()
                     break;
                 case 'confirmEditBook':
                     loaderEl.show()
-                    const book = {
+                    book = {
                         author: vars.get("new-author").get(),
                         name: vars.get("new-name").get(),
                         year: vars.get("new-year").get(),
@@ -184,7 +204,7 @@
                         id: vars.get("new-book-id").get(),
                         theme: vars.get("new-theme").get(),
                         link
-                    };
+                    }
                     google.script.run.withSuccessHandler(result => {
                         if (result) {
                             vars.get("edit-book-block").hide()
@@ -204,7 +224,43 @@
                     vars.get("edit-book-block").hide()
                     vars.get("search-book-block").show(true)
                     break;
+                case "deleteBook":
+                    vars.get("delete-modal").show()
+                    deletedBookId = event.target.dataset.value
+                    break;
+                case "submitDelete":
+                    vars.get("delete-modal").hide()
+                    loaderEl.show()
+                    console.log('submitDelete', {deletedBookId})
+                    google.script.run
+                        .withSuccessHandler(result => {
+                        if (result) {
+                            loaderEl.hide()
+                            showError("", false);
+                            init(loader)
+                        }
+                    })
+                        .withFailureHandler(error => {
+                            showError(error, true);
+                            loaderEl.hide()
+                        })
+                        .deleteRowById(deletedBookId);
+                    break;
+                case "cancelDelete":
+                    vars.get("delete-modal").hide()
+                    break;
             }
+        }
+
+        function assignFields(row, id) {
+            vars.get('new-author').set(row[AUTHOR_ROW])
+            vars.get('new-name').set(row[NAME_ROW])
+            vars.get('new-year').set(row[YEAR_ROW])
+            vars.get('new-annotation').set(row[ANNOTATION_ROW])
+            vars.get('new-box-num').set(row[BOX_ROW])
+            vars.get('new-theme').set(row[THEME_ROW])
+            vars.get("new-book-id").set(id)
+            link = row[LINK_ROW]
         }
 
         function showError(error, show) {
@@ -277,16 +333,21 @@
                 } else {
                     linkEl.textContent = 'нет картинки';
                 }
-                const editBook = document.createElement("a")
-                editBook.href = '#'
-                editBook.setAttribute('data-number', row[NUMBER_ROW])
-                editBook.setAttribute('data-action', 'editBook')
-                editBook.textContent = "редактировать"
-                linkEl.appendChild(editBook)
+                linkEl.appendChild(createLinkAction(row[NUMBER_ROW], 'editBook', "редактировать"))
+                linkEl.appendChild(createLinkAction(row[NUMBER_ROW], 'deleteBook', "удалить"))
                 td.appendChild(linkEl)
             } else {
                 td.textContent = cell;
             }
+        }
+
+        function createLinkAction(value, id, label) {
+            const element = document.createElement("a")
+            element.href = '#'
+            element.setAttribute('data-value', value)
+            element.setAttribute('data-action', id)
+            element.textContent = label
+            return element
         }
 
         function destroy() {
