@@ -10,6 +10,7 @@ const LINK_ROW = 10;
 const DATE_ROW = 15;
 const GLOBAL = {};
 const FREE_STATUS = 'free';
+const DELETED_STATUS = 'deleted'
 
 function doGet(e) {
     return HtmlService
@@ -209,17 +210,22 @@ function updateByTextFinder(id) {
         .createTextFinder(id)
         .matchEntireCell(true)
         .findNext();
-
-    if (!cell) return false;
-
-    sh.getRange(cell.getRow(), STATE_ROW + 1).setValue('delete');
+    if (!cell) {
+        return false;
+    }
+    sh.getRange(cell.getRow(), STATE_ROW + 1).setValue(DELETED_STATUS);
     return true;
 }
 
 function deleteRowById(id) {
     id = id.toString()
     updateByTextFinder(id)
-    moveImageToTrash(getImageLinkFromFolder(id).getId())
+    try {
+        const file = getImageLinkFromFolder(id);
+        moveImageToTrash(file.getId())
+    } catch (e) {
+    }
+
     return true;
 }
 

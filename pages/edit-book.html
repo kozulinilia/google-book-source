@@ -86,10 +86,12 @@
     <div data-component="table" data-id="table2"></div>
     <div data-id="delete-modal" class="custom-modal">
         <div class="custom-modal-content">
-            <button data-id="closeModal">×</button>
-            <p>Вы уверены, что хотите удалить книгу</p>
-            <button class="btn btn-danger" data-action="submitDelete">Удалить</button>
-            <button class="btn btn-primary" data-action="cancelDelete">Отмена</button>
+            <div>Вы уверены, что хотите удалить книгу</div>
+            <div style="font-size:20px" data-id="del-book-name"></div>
+            <div style="margin-top:25px;">
+                <button class="btn btn-danger" data-action="submitDelete">Удалить</button>
+                <button class="btn btn-primary" data-action="cancelDelete">Отмена</button>
+            </div>
         </div>
     </div>
 </div>
@@ -225,13 +227,14 @@
                     vars.get("search-book-block").show(true)
                     break;
                 case "deleteBook":
-                    vars.get("delete-modal").show()
                     deletedBookId = event.target.dataset.value
+                    row = fullDataMap.get(Number(deletedBookId))
+                    vars.get("del-book-name").set(row[NAME_ROW])
+                    vars.get("delete-modal").show()
                     break;
                 case "submitDelete":
                     vars.get("delete-modal").hide()
                     loaderEl.show()
-                    console.log('submitDelete', {deletedBookId})
                     google.script.run
                         .withSuccessHandler(result => {
                         if (result) {
