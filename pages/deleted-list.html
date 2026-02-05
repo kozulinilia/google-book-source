@@ -2,7 +2,7 @@
 <div data-id="<?= pageId ?>">
     <div class="card shadow p-4">
         <h4 class="mb-4">
-            Список Книг
+            Список Удаленных книг
         </h4>
 
         <div class="row g-3" align-items-end>
@@ -45,7 +45,7 @@
         let tableObject = null
         let loaderEl = null
         let vars = null
-        const FREE_STATUS = 'free'
+        const DELETED_STATUS = 'deleted'
 
         function init(loader = null) {
             if (!ns.TableFactory) {
@@ -64,7 +64,7 @@
             loaderEl.show()
             google.script.run.withSuccessHandler(data => {
                 populateDropdowns(data, "theme");
-            }).getDropdownValues(FREE_STATUS);
+            }).getDropdownValues(DELETED_STATUS);
             google.script.run.withSuccessHandler(data => {
                 headers = data.header;
                 fullData = data.rows;
@@ -79,7 +79,7 @@
                 )
                 tableObject.render(filteredData)
                 loaderEl.hide()
-            }).getFilteredData()
+            }).getFilteredData(false, DELETED_STATUS)
         }
 
         function clickHandler(event) {
@@ -151,7 +151,7 @@
             }
         }
 
-        ns.BookList = {
+        ns.DeletedBookList = {
             init,
             reload: loadData,
             destroy,

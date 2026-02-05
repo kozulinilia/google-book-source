@@ -18,6 +18,7 @@
     <?!= include('pages/book-list', {pageId: 'books-page'}) ?>
     <?!= include('pages/add-book', {pageId: 'add-book-page'}) ?>
     <?!= include('pages/edit-book', {pageId: 'edit-book-page'}) ?>
+    <?!= include('pages/deleted-list', {pageId: 'deleted-list-page'}) ?>
     <?!= include('pages/about-page', {pageId: 'about-page'}) ?>
 </div>
 </body>
@@ -63,10 +64,12 @@
         const booksListEl = document.querySelector('[data-id="books-page"]')
         const addBookEl = document.querySelector('[data-id="add-book-page"]')
         const editBookEl = document.querySelector('[data-id="edit-book-page"]')
+        const deletedListEl = document.querySelector('[data-id="deleted-list-page"]')
         const aboutEl = document.querySelector('[data-id="about-page"]')
         App.Navigation.add("books-page", "Книги", booksListEl, App.BookList, true)
         App.Navigation.add("add-book-page", "Добавить новую", addBookEl, App.AddBook)
         App.Navigation.add("edit-book-page", "Список книг", editBookEl, App.EditBook)
+        App.Navigation.add("deleted-list-page", "Удаленные книги", deletedListEl, App.DeletedBookList)
         App.Navigation.add("about-page", "О нас", aboutEl)
         App.Navigation.init("edit-book-page", navigationEl, loader)
     }

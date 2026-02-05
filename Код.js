@@ -19,7 +19,7 @@ function doGet(e) {
         .setTitle("Книжный родник");
 }
 
-function getFilteredData(filterTheme = false) {
+function getFilteredData(filterTheme = false, status = FREE_STATUS) {
     loadEnvironment();
     const ss = SpreadsheetApp.openById(GLOBAL.tableId);
     const sheet = ss.getSheetByName(GLOBAL.booksSheet);
@@ -30,7 +30,7 @@ function getFilteredData(filterTheme = false) {
 
     const result = data.filter(row => {
         const matchTheme = filterTheme ? row[THEME_ROW].includes(filterTheme) : true;
-        const matchStatus = row[STATE_ROW] === FREE_STATUS;
+        const matchStatus = row[STATE_ROW] === status;
 
         return matchTheme && matchStatus;
     })
@@ -39,7 +39,7 @@ function getFilteredData(filterTheme = false) {
     return {header, rows: result};
 }
 
-function getDropdownValues() {
+function getDropdownValues(state) {
     loadEnvironment();
     const ss = SpreadsheetApp.openById(GLOBAL.tableId);
     const sheet = ss.getSheetByName(GLOBAL.booksSheet);
@@ -47,7 +47,7 @@ function getDropdownValues() {
     const data = sheet.getDataRange().getValues();
     var themes = new Map();
 
-    data.filter(v => v[STATE_ROW] === 'free').forEach(item => {
+    data.filter(v => v[STATE_ROW] === state).forEach(item => {
         var subThemes = item[THEME_ROW].split(', ');
         subThemes.forEach(theme => themes.set(theme, 1));
     })
