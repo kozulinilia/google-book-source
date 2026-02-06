@@ -319,3 +319,37 @@ function getNowDate() {
 
     return `${day}.${month}.${year}`
 }
+
+function postBooksOrderListToGoogleTable(arrayWithBooksForOrder) {
+    loadEnvironment();
+    const ss = SpreadsheetApp.openById(GLOBAL.tableId);
+    const sheet = ss.getSheetByName(GLOBAL.booksSheet);
+
+    clearOrderTableInGoogleTables(sheet);
+
+    createHeaderForOrderTableInGoogleTables(sheet);
+
+    saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder);
+}
+
+function clearOrderTableInGoogleTables(sheet) {
+    const cellsForClearing = sheet.getRange(2, 17, 30, 2);
+    let emptyArrayForClearing = [];
+
+    for (let i = 0; i < 30; i++) {
+        emptyArrayForClearing.push(['', '']);
+    }
+
+    cellsForClearing.setValues(emptyArrayForClearing);
+}
+
+function createHeaderForOrderTableInGoogleTables(sheet) {
+    const headerCells = sheet.getRange(2, 17, 1, 2);
+    headerCells.setValues([['Название', 'Номер']]);
+}
+
+function saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder) {
+    const cellsWithBooks = sheet.getRange(3, 17, arrayWithBooksForOrder.length, arrayWithBooksForOrder[0].length);
+
+    cellsWithBooks.setValues(arrayWithBooksForOrder);
+}
