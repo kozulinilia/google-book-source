@@ -1,0 +1,43 @@
+<script>
+    (function (ns) {
+        class Logger {
+            constructor(
+                element
+            ) {
+                this.root = element
+            }
+            sendMessage(message, type = null) {
+                const div = document.createElement('div')
+                div.innerText = message
+                switch (type) {
+                    case 'error':
+                        div.style = "color: crimson;"
+                        break;
+                    case 'success':
+                        div.style = "color: #5e9c45;"
+                        break;
+                }
+
+                this.root.appendChild(div)
+            }
+            clearLogs() {
+                this.root.innerHTML = ''
+            }
+        }
+
+        function create(
+            element
+        ) {
+            element.innerHTML = ""
+            return new Logger(
+                element
+            )
+        }
+
+        ns.LoggerFactory = {
+            create,
+        };
+
+    })(window.App = window.App || {})
+
+</script>

@@ -28,11 +28,8 @@
             <div class="row g-3" style="flex-grow: 1;">
                 <div style="display: flex; align-items: flex-start">
                     <div class="col-md-3" style="width: 50%;">
-                        <span data-id="error-field" style="color: crimson;display: none"></span>
                         <label class="material-label">Библиотека</label>
-                        <select class="form-select" data-id="library" data-action="chooseLibrary">
-                            <option value="" disabled selected hidden>Выбрать библиотеку</option>
-                        </select>
+                        <h4 data-id="selected-lib"></h4>
                     </div>
                     <div class="col-md-2 float-right" style="margin-left: auto;">
                         <button data-id="postBooksOrderBtn" class="btn btn-dark" data-action="postBooksOrderListToGoogleTable">Заказать</button>
@@ -91,8 +88,10 @@
         let orderId = 0;
 
         let libraryForOrder = '';
+        let selectedLibrary = {};
 
-        function init(loader = null) {
+        function init(loader, libId = null) {
+            console.log('init lib', libId)
             loadNavigation(ns)
             if (!ns.TableFactory) {
                 console.error('TableFactory not initialized');
@@ -397,6 +396,13 @@
             });
 
             return result;
+        }
+
+        function searchLib(libId) {
+            google.script.run.withSuccessHandler(data => {
+                selectedLibrary = data;
+                console.log({selectedLibrary})
+            }).findOneLib(libId);
         }
 
         function destroy() {
