@@ -83,7 +83,7 @@
             root.addEventListener('click', clickHandler)
             root.addEventListener('change', changeHandler)
             google.script.run.withSuccessHandler(data => {
-                populateDropdowns(data, "newTheme", "changeFilter");
+                populateDropdowns(data, "theme-value", "changeFilter");
             }).getFullThemes();
             google.script.run.withSuccessHandler(data => {
                 populateDropdowns(data, "author-list", "selectAuthor");
