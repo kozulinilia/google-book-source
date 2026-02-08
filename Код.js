@@ -319,3 +319,20 @@ function getNowDate() {
 
     return `${day}.${month}.${year}`
 }
+
+function getDoubleImages() {
+    loadEnvironment()
+    const folder = DriveApp.getFolderById(GLOBAL.imgDir);
+    const files = folder.getFiles();
+    const doubleFileIds = []
+    const filesMap = new Map()
+    while (files.hasNext()) {
+        const file = files.next();
+        if (filesMap.get(file.getName())) {
+            doubleFileIds.push(file.getName())
+        } else {
+            filesMap.set(file.getName(), file.getName())
+        }
+    }
+    return doubleFileIds
+}

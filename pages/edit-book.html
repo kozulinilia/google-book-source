@@ -4,7 +4,7 @@
         <div data-id="search-book-block" align-items-end>
             <h4 class="mb-4">Список Книг</h4>
             <div class="row g-2">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="material-label">Рубрика</label>
                     <select class="form-select" data-id="theme" data-action="changeFilter">
                         <option value="">Все</option>
@@ -14,13 +14,17 @@
                     <label class="material-label">Поиск по названию</label>
                     <input data-id="name" class="form-control" type="text"></input>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="material-label">Поиск по автору</label>
                     <input data-id="author" class="form-control" type="text"></input>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-1">
                     <label class="material-label">Поиск по номеру</label>
-                    <input data-id="number" class="form-control" type="text"></input>
+                    <input data-id="number" class="form-control" type="number"></input>
+                </div>
+                <div class="col-md-1">
+                    <label class="material-label">Поиск по ящику</label>
+                    <input data-id="number-box" class="form-control" type="number"></input>
                 </div>
                 <div class="col-md-3 float-right">
                     <button class="btn btn-primary" data-action="loadData">
@@ -28,6 +32,10 @@
                         Показать
                     </button>
                 </div>
+            </div>
+            <div style="float:right;">
+                <button class="btn btn-primary" data-action="findDoubles">Найти дублирующиеся фото</button>
+                <div data-id="duplicate-img"></div>
             </div>
         </div>
 
@@ -253,6 +261,11 @@
                 case "cancelDelete":
                     vars.get("delete-modal").hide()
                     break;
+                case "findDoubles":
+                    findDuplicateImages();
+                    break;
+                default:
+                    console.error('[clickHandler] Unknown action ' + action)
             }
         }
 
@@ -298,7 +311,7 @@
                     vars.get('theme-value').set('')
                     break;
                 default:
-                    console.error('[clickHandler] Unknown action ' + action)
+                    console.error('[changeHandler] Unknown action ' + action)
             }
         }
 
@@ -318,7 +331,15 @@
                 return item[THEME_ROW].includes(vars.get('theme').get().toLowerCase())
                     && (item[AUTHOR_ROW].toLowerCase()).includes(vars.get('author').get().toLowerCase())
                     && (item[NAME_ROW].toLowerCase()).includes(vars.get('name').get().toLowerCase())
-                    && (!vars.get('number').get() || Number(item[NUMBER_ROW]) === Number(vars.get('number').get()))
+                    && (
+                        !vars.get('number').get()
+                        || Number(item[NUMBER_ROW]) === Number(vars.get('number').get())
+
+                    )
+                && (
+                    !vars.get('number-box').get()
+                    || Number(item[NUMBER_ROW]) === Number(vars.get('number-box').get())
+                    )
 
             });
             tableObject.render(filteredData)
@@ -352,6 +373,28 @@
             element.setAttribute('data-action', id)
             element.textContent = label
             return element
+        }
+
+        function findDuplicateImages() {
+            loaderEl.show()
+            google.script.run
+                .withSuccessHandler(result => {
+                    const duplImgsEl = vars.get("duplicate-img").getElement()
+                    duplImgsEl.innerHTML = ""
+                    if (result) {
+                        result.forEach(id => {
+                            const div = document.createElement('div')
+                            div.innerText = id
+                            duplImgsEl.appendChild(div)
+                        })
+                    }
+                    loaderEl.hide()
+                })
+                .withFailureHandler(error => {
+                    showError(error, true);
+                    loaderEl.hide()
+                })
+                .getDoubleImages();
         }
 
         function destroy() {
