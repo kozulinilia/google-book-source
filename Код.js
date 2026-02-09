@@ -297,6 +297,8 @@ function loadEnvironment() {
     GLOBAL.tableId = PropertiesService.getScriptProperties().getProperty('TABLE_ID')
     GLOBAL.booksSheet = PropertiesService.getScriptProperties().getProperty('BOOKS_SHEET')
     GLOBAL.themesSheet = PropertiesService.getScriptProperties().getProperty('THEME_SHEET')
+    GLOBAL.offersSheet = PropertiesService.getScriptProperties().getProperty('OFFERS_SHEET')
+    GLOBAL.recipientsSheet = PropertiesService.getScriptProperties().getProperty('RECIPIENTS_SHEET')
     GLOBAL.imgDir = PropertiesService.getScriptProperties().getProperty('BOOK_IMAGE_DIR')
     GLOBAL.imgTrashDir = PropertiesService.getScriptProperties().getProperty('BOOK_TRASH_DIR')
     Logger.log(GLOBAL)
@@ -323,33 +325,36 @@ function getNowDate() {
 function postBooksOrderListToGoogleTable(arrayWithBooksForOrder) {
     loadEnvironment();
     const ss = SpreadsheetApp.openById(GLOBAL.tableId);
-    const sheet = ss.getSheetByName(GLOBAL.booksSheet);
+    const sheet = ss.getSheetByName(GLOBAL.offersSheet);
 
     clearOrderTableInGoogleTables(sheet);
-
-    createHeaderForOrderTableInGoogleTables(sheet);
 
     saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder);
 }
 
 function clearOrderTableInGoogleTables(sheet) {
-    const cellsForClearing = sheet.getRange(2, 17, 30, 2);
+    const cellsForClearing = sheet.getRange(2, 2, 30, 3);
     let emptyArrayForClearing = [];
 
     for (let i = 0; i < 30; i++) {
-        emptyArrayForClearing.push(['', '']);
+        emptyArrayForClearing.push(['', '', '']);
     }
 
     cellsForClearing.setValues(emptyArrayForClearing);
 }
 
-function createHeaderForOrderTableInGoogleTables(sheet) {
-    const headerCells = sheet.getRange(2, 17, 1, 2);
-    headerCells.setValues([['Название', 'Номер']]);
-}
-
 function saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder) {
-    const cellsWithBooks = sheet.getRange(3, 17, arrayWithBooksForOrder.length, arrayWithBooksForOrder[0].length);
+    const cellsWithBooks = sheet.getRange(2, 2, arrayWithBooksForOrder.length, arrayWithBooksForOrder[0].length);
 
     cellsWithBooks.setValues(arrayWithBooksForOrder);
+}
+
+function getDropdownValuesOfLibraries() {
+    loadEnvironment();
+    const ss = SpreadsheetApp.openById(GLOBAL.tableId);
+    const sheet = ss.getSheetByName(GLOBAL.recipientsSheet);
+
+    const data = sheet.getDataRange().getValues();
+
+    return data;
 }

@@ -6,7 +6,7 @@
             Заказы (страница находится в разработке)
         </h4>
 
-        <div  style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start">
             <div class="row g-3" align-items-end style="width: 55%;">
                 <div class="col-md-3">
                     <label class="material-label">Поиск по названию книги</label>
@@ -24,7 +24,21 @@
                 </div>
             </div>
 
-            <div style="width: 35%;">
+            <div style="width: 50%;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start">
+                    <div class="col-md-3" style="width: 60%">
+                        <label class="material-label">Библиотека</label>
+                        <select class="form-select" data-id="library" data-action="chooseLibrary">
+                            <option value="">Выбрать библиотеку</option>
+                        </select>
+                    </div>
+                    <div style="width: 10%">
+
+                    </div>
+                    <div style="width: 15%">
+                        <button data-id="postBooksOrderBtn" class="btn btn-dark" data-action="postBooksOrderListToGoogleTable">Заказать</button>
+                    </div>
+                </div>
                 <table data-id="orderTable">
                     <caption style="caption-side: top;">Таблица заказа</caption>
                     <colgroup>
@@ -42,9 +56,6 @@
                     </tbody>
                 </table>
             </div>
-            <div style="width: 10%;">
-                <button data-id="postBooksOrderBtn" class="btn btn-dark" data-action="postBooksOrderListToGoogleTable">Заказать</button>
-            </div>
         </div>
     </div>
 
@@ -53,6 +64,8 @@
 </div>
 <script>
     (function (ns) {
+        const IN_ORDER_STATUS = 'in order';
+
         const amountRowsOnPage = 20;
         const pageId = "<?= pageId ?>";
 
@@ -69,6 +82,9 @@
         let vars = null;
 
         let booksOrderList = [];
+        let orderId = 0;
+
+        let libraryForOrder = '';
 
         function init(loader = null) {
             if (!ns.TableFactory) {
@@ -89,11 +105,14 @@
 
             root.addEventListener('click', clickHandler);
             root.addEventListener('input', inputHandler);
+            root.addEventListener('change', changeHandler);
 
-            getDataFromGoogleTable();
+            getListOfBooksFromGoogleTable();
+
+            getListOfLibrariesFromGoogleTable();
         }
 
-        function getDataFromGoogleTable() {
+        function getListOfBooksFromGoogleTable() {
             loaderEl = loader;
             loaderEl.show();
 
@@ -126,6 +145,24 @@
             }).getFilteredData();
         }
 
+        function getListOfLibrariesFromGoogleTable() {
+            google.script.run.withSuccessHandler(data => {
+                fillDropdownValuesOfLibraries(data);
+            }).getDropdownValuesOfLibraries();
+        }
+
+        function fillDropdownValuesOfLibraries(listOflibraries) {
+            for (let i = 1; i < listOflibraries.length; i++) {
+                const option = document.createElement("option");
+
+                option.setAttribute("data-action", "chooseLibrary")
+                option.value = listOflibraries[i][1];
+                option.textContent = listOflibraries[i][1];
+
+                vars.get('library').getElement().appendChild(option);
+            }
+        }
+
         function clickHandler(event) {
             const action = event.target.dataset.action;
             
@@ -153,6 +190,12 @@
             }
 
             if (action === 'postBooksOrderListToGoogleTable') {
+                if (!libraryForOrder) {
+                    alert('Необходимо выбрать библиотеку!');
+
+                    return;
+                }
+
                 if (!isBooksOrderListEmpty()) {
                     const isOrderConfirmed = confirm('Вы подтверждаете заказ?');
 
@@ -161,7 +204,13 @@
                     }
                 } else {
                     alert('Ваш заказ пуст, необходимо добавить книги!');
+
+                    return;
                 }
+
+                booksOrderList = [];
+                fillOrderTableByBooksList(booksOrderList);
+                loadDataForOrders();
             }
         }
 
@@ -238,7 +287,7 @@
             let arrayWithBooks = [];
 
             booksOrderList.forEach(book => {
-                arrayWithBooks.push([book.name, book.number])
+                arrayWithBooks.push([libraryForOrder, book.number, IN_ORDER_STATUS])
             });
 
             return arrayWithBooks;
@@ -254,6 +303,15 @@
             if (action === 'inputBookNumber') {
                 bookNumberFromFilter = event.target.value;
             }
+        }
+
+        function changeHandler(event) {
+            const action = event.target.dataset.action;
+
+            if (action === 'chooseLibrary') {
+                libraryForOrder = vars.get('library').get();
+            }
+
         }
 
         function customTableFunction(td, index, cell, row) {
@@ -312,11 +370,12 @@
 
         function destroy() {
             if (tableObject) {
-                tableObject.destroy()
+                tableObject.destroy();
             }
             if (root) {
-                root.removeEventListener('click', clickHandler)
-                root.removeEventListener('input', inputHandler)
+                root.removeEventListener('click', clickHandler);
+                root.removeEventListener('input', inputHandler);
+                root.removeEventListener('change', inputHandler);
             }
         }
 
