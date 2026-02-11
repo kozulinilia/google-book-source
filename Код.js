@@ -10,7 +10,8 @@ const LINK_ROW = 10;
 const DATE_ROW = 15;
 const GLOBAL = {};
 const FREE_STATUS = 'free';
-const DELETED_STATUS = 'deleted'
+const DELETED_STATUS = 'deleted';
+const NEW_ORDER_STATUS = 'new'
 
 function doGet(e) {
     return HtmlService
@@ -330,23 +331,46 @@ function postBooksOrderListToGoogleTable(arrayWithBooksForOrder) {
     clearOrderTableInGoogleTables(sheet);
 
     saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder);
+
+    changeBooksStatusInMainGoogleTable(arrayWithBooksForOrder);
 }
 
 function clearOrderTableInGoogleTables(sheet) {
-    const cellsForClearing = sheet.getRange(2, 2, 30, 3);
+    const cellsForClearing = sheet.getRange(2, 1, 30, 4);
     let emptyArrayForClearing = [];
 
     for (let i = 0; i < 30; i++) {
-        emptyArrayForClearing.push(['', '', '']);
+        emptyArrayForClearing.push(['', '', '', '']);
     }
 
     cellsForClearing.setValues(emptyArrayForClearing);
 }
 
 function saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder) {
-    const cellsWithBooks = sheet.getRange(2, 2, arrayWithBooksForOrder.length, arrayWithBooksForOrder[0].length);
+    const cellsWithBooks = sheet.getRange(2, 1, 1, 4);
 
     cellsWithBooks.setValues(arrayWithBooksForOrder);
+}
+
+function changeBooksStatusInMainGoogleTable(arrayWithBooksForOrder) {
+    const indexOneArrayElement = 0;
+    const indexListOrderedBooksNumbers = 2;
+    const splitDelimeter = ', ';
+
+    const arrayWithOrderedBooksNumbers = arrayWithBooksForOrder[indexOneArrayElement][indexListOrderedBooksNumbers].split(splitDelimeter);
+
+    const ss = SpreadsheetApp.openById(GLOBAL.tableId);
+    const sheet = ss.getSheetByName(GLOBAL.booksSheet);
+
+    const data = sheet.getDataRange().getValues();
+
+    const cell = sheet.getRange(2, 16, 1, 1);
+
+    for (let i = 1; i < data.length; i++) {
+        if (arrayWithOrderedBooksNumbers.includes(String(data[i][BOOK_ID_ROW]))) {
+            sheet.getRange(i + 1, STATE_ROW + 1, 1, 1).setValue(DELETED_STATUS);
+        }
+    }
 }
 
 function getDropdownValuesOfLibraries() {

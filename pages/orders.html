@@ -27,9 +27,10 @@
             <div style="width: 50%;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start">
                     <div class="col-md-3" style="width: 60%">
+                        <span data-id="error-field" style="color: crimson;display: none"></span>
                         <label class="material-label">Библиотека</label>
                         <select class="form-select" data-id="library" data-action="chooseLibrary">
-                            <option value="">Выбрать библиотеку</option>
+                            <option value="" disabled selected hidden>Выбрать библиотеку</option>
                         </select>
                     </div>
                     <div style="width: 10%">
@@ -64,7 +65,7 @@
 </div>
 <script>
     (function (ns) {
-        const IN_ORDER_STATUS = 'in order';
+        const NEW_ORDER_STATUS = 'new';
 
         const amountRowsOnPage = 20;
         const pageId = "<?= pageId ?>";
@@ -152,6 +153,18 @@
         }
 
         function fillDropdownValuesOfLibraries(listOflibraries) {
+            const librarySelect = vars.get('library').getElement();
+
+            librarySelect.innerHTML = '';
+
+            const libraryOption = document.createElement("option");
+
+            libraryOption.disabled = true;
+            libraryOption.selected = true;
+            libraryOption.value = '';
+            libraryOption.textContent = 'Выбрать библиотеку';
+            librarySelect.appendChild(libraryOption);
+
             for (let i = 1; i < listOflibraries.length; i++) {
                 const option = document.createElement("option");
 
@@ -159,7 +172,7 @@
                 option.value = listOflibraries[i][1];
                 option.textContent = listOflibraries[i][1];
 
-                vars.get('library').getElement().appendChild(option);
+                librarySelect.appendChild(option);
             }
         }
 
@@ -196,21 +209,21 @@
                     return;
                 }
 
-                if (!isBooksOrderListEmpty()) {
-                    const isOrderConfirmed = confirm('Вы подтверждаете заказ?');
-
-                    if(isOrderConfirmed) {
-                        postBooksOrderListToGoogleTable();
-                    }
-                } else {
+                if (isBooksOrderListEmpty()) {
                     alert('Ваш заказ пуст, необходимо добавить книги!');
+
+                    return;
+                }
+
+                if (confirm('Вы подтверждаете заказ?')) {
+                    postBooksOrderListToGoogleTable();
+                } else {
 
                     return;
                 }
 
                 booksOrderList = [];
                 fillOrderTableByBooksList(booksOrderList);
-                loadDataForOrders();
             }
         }
 
@@ -280,17 +293,28 @@
         function postBooksOrderListToGoogleTable() {
             const arrayWithBooksForOrder = transformBooksOrderListToArray();
 
-            google.script.run.postBooksOrderListToGoogleTable(arrayWithBooksForOrder);
+            google.script.run.withSuccessHandler(() => {
+                getListOfBooksFromGoogleTable();
+                loadDataForOrders();
+            }).postBooksOrderListToGoogleTable(arrayWithBooksForOrder);
         }
 
         function transformBooksOrderListToArray() {
-            let arrayWithBooks = [];
+            let stringWithNumbersOrderedBooks = '';
 
             booksOrderList.forEach(book => {
-                arrayWithBooks.push([libraryForOrder, book.number, IN_ORDER_STATUS])
+                stringWithNumbersOrderedBooks += book.number + ', ';
             });
 
-            return arrayWithBooks;
+            const randomOrderNumber = getOrderNumber();
+
+            const resultArrayWithOrder = [[randomOrderNumber, libraryForOrder, stringWithNumbersOrderedBooks, NEW_ORDER_STATUS]];
+
+            return resultArrayWithOrder;
+        }
+
+        function getOrderNumber() {
+            return Math.floor(Math.random() * 100) + 1;
         }
 
         function inputHandler(event) {
