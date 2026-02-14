@@ -7,16 +7,16 @@
         </h4>
 
         <div style="display: flex; justify-content: space-between; align-items: flex-start">
-            <div class="row g-3" align-items-end style="width: 55%;">
-                <div class="col-md-3">
+            <div class="row g-3" style="width: 50%;">
+                <div class="col-md-4">
                     <label class="material-label">Поиск по названию книги</label>
                     <input class="form-control" type="text" data-action="inputBookName"></input>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="material-label">Поиск по номеру книги</label>
                     <input class="form-control" type="text" data-action="inputBookNumber"></input>
                 </div>
-                <div class="col-md-3 float-right">
+                <div class="col-md-4 float-right">
                     <button class="btn btn-primary" data-action="loadDataForOrders">
                         <span class="material-icons" style="font-size:18px;vertical-align:middle;">search</span>
                         Показать
@@ -24,40 +24,50 @@
                 </div>
             </div>
 
-            <div style="width: 50%;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start">
-                    <div class="col-md-3" style="width: 60%">
+            <div class="row g-3" style="flex-grow: 1;">
+                <div style="display: flex; align-items: flex-start">
+                    <div class="col-md-3" style="width: 50%;">
                         <span data-id="error-field" style="color: crimson;display: none"></span>
                         <label class="material-label">Библиотека</label>
                         <select class="form-select" data-id="library" data-action="chooseLibrary">
                             <option value="" disabled selected hidden>Выбрать библиотеку</option>
                         </select>
                     </div>
-                    <div style="width: 10%">
-
-                    </div>
-                    <div style="width: 15%">
+                    <div class="col-md-2 float-right" style="margin-left: auto;">
                         <button data-id="postBooksOrderBtn" class="btn btn-dark" data-action="postBooksOrderListToGoogleTable">Заказать</button>
                     </div>
                 </div>
-                <table data-id="orderTable">
-                    <caption style="caption-side: top;">Таблица заказа</caption>
-                    <colgroup>
-                        <col style="width: 300px;">
-                        <col style="width: 100px;">
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th>Название</th>
-                            <th>Номер</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                <div style="display: flex; justify-content: space-between;">
+                    <table data-id="orderTable">
+                        <caption style="caption-side: top;">Таблица заказа</caption>
+                        <colgroup>
+                            <col style="width: 300px;">
+                            <col style="width: 100px;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Номер</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div>
+                        <label for="orderComment" style="display: block;">Комментарий к заказу</label>
+                        <textarea data-id="orderComment" name="orderComment" rows="4" cols="50"
+                            placeholder="Введите комментарий для заказа..." style="margin-top: 5px;"></textarea>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-start">
+        <div>1 block</div>
+        <div>2 block</div>
+        <div>3 block</div>
     </div>
 
     <div data-component="table" data-id="tableForOrders"></div>
@@ -296,25 +306,25 @@
             google.script.run.withSuccessHandler(() => {
                 getListOfBooksFromGoogleTable();
                 loadDataForOrders();
-            }).postBooksOrderListToGoogleTable(arrayWithBooksForOrder);
+            }).postBooksOrderListToGoogleTable(arrayWithBooksForOrder, getStringWithNumbersOrderedBooks());
         }
 
         function transformBooksOrderListToArray() {
+            const defaultOrderNUmber = 0;
+
+            const resultArrayWithOrder = [defaultOrderNUmber, libraryForOrder, booksOrderList.length, NEW_ORDER_STATUS];
+
+            return resultArrayWithOrder;
+        }
+
+        function getStringWithNumbersOrderedBooks() {
             let stringWithNumbersOrderedBooks = '';
 
             booksOrderList.forEach(book => {
                 stringWithNumbersOrderedBooks += book.number + ', ';
             });
 
-            const randomOrderNumber = getOrderNumber();
-
-            const resultArrayWithOrder = [[randomOrderNumber, libraryForOrder, stringWithNumbersOrderedBooks, NEW_ORDER_STATUS]];
-
-            return resultArrayWithOrder;
-        }
-
-        function getOrderNumber() {
-            return Math.floor(Math.random() * 100) + 1;
+            return stringWithNumbersOrderedBooks;
         }
 
         function inputHandler(event) {
