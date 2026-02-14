@@ -11,6 +11,7 @@ const DATE_ROW = 15;
 const GLOBAL = {};
 const FREE_STATUS = 'free';
 const DELETED_STATUS = 'deleted';
+const RESERVED_STATUS = 'reserved';
 const NEW_ORDER_STATUS = 'new'
 
 function doGet(e) {
@@ -323,41 +324,50 @@ function getNowDate() {
     return `${day}.${month}.${year}`
 }
 
-function postBooksOrderListToGoogleTable(arrayWithBooksForOrder) {
+function postBooksOrderListToGoogleTable(arrayWithBooksForOrder, stringWithNumbersOrderedBooks) {
     loadEnvironment();
     const ss = SpreadsheetApp.openById(GLOBAL.tableId);
     const sheet = ss.getSheetByName(GLOBAL.offersSheet);
 
-    clearOrderTableInGoogleTables(sheet);
-
     saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder);
 
-    changeBooksStatusInMainGoogleTable(arrayWithBooksForOrder);
-}
-
-function clearOrderTableInGoogleTables(sheet) {
-    const cellsForClearing = sheet.getRange(2, 1, 30, 4);
-    let emptyArrayForClearing = [];
-
-    for (let i = 0; i < 30; i++) {
-        emptyArrayForClearing.push(['', '', '', '']);
-    }
-
-    cellsForClearing.setValues(emptyArrayForClearing);
+    changeBooksStatusInMainGoogleTable(stringWithNumbersOrderedBooks);
 }
 
 function saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder) {
-    const cellsWithBooks = sheet.getRange(2, 1, 1, 4);
+    const nextOrderNumber = getNextOrderNUmber(sheet);
 
-    cellsWithBooks.setValues(arrayWithBooksForOrder);
+    const indexOrderNumber = 0;
+
+    arrayWithBooksForOrder[indexOrderNumber] = nextOrderNumber;
+
+    sheet.appendRow(arrayWithBooksForOrder);
 }
 
-function changeBooksStatusInMainGoogleTable(arrayWithBooksForOrder) {
-    const indexOneArrayElement = 0;
-    const indexListOrderedBooksNumbers = 2;
+function getNextOrderNUmber(sheet) {
+    let nextOrderNumber;
+
+    const ordersNumbers = sheet.getRange("A2:A" + sheet.getLastRow()).getValues();
+
+    return getMaxValueOfOrdersNumbers(ordersNumbers) + 1;
+}
+
+function getMaxValueOfOrdersNumbers(ordersNumbers) {
+    let maxNumber = 0;
+
+    ordersNumbers.forEach(number => {
+        if (number >= maxNumber) {
+            maxNumber = number;
+        }
+    });
+
+    return Number(maxNumber);
+}
+
+function changeBooksStatusInMainGoogleTable(stringWithNumbersOrderedBooks) {
     const splitDelimeter = ', ';
 
-    const arrayWithOrderedBooksNumbers = arrayWithBooksForOrder[indexOneArrayElement][indexListOrderedBooksNumbers].split(splitDelimeter);
+    const arrayWithOrderedBooksNumbers = stringWithNumbersOrderedBooks.split(splitDelimeter);
 
     const ss = SpreadsheetApp.openById(GLOBAL.tableId);
     const sheet = ss.getSheetByName(GLOBAL.booksSheet);
@@ -368,7 +378,7 @@ function changeBooksStatusInMainGoogleTable(arrayWithBooksForOrder) {
 
     for (let i = 1; i < data.length; i++) {
         if (arrayWithOrderedBooksNumbers.includes(String(data[i][BOOK_ID_ROW]))) {
-            sheet.getRange(i + 1, STATE_ROW + 1, 1, 1).setValue(DELETED_STATUS);
+            sheet.getRange(i + 1, STATE_ROW + 1, 1, 1).setValue(RESERVED_STATUS);
         }
     }
 }
