@@ -63,13 +63,6 @@
             </div>
         </div>
     </div>
-
-    <div style="display: flex; justify-content: space-between; align-items: flex-start">
-        <div>1 block</div>
-        <div>2 block</div>
-        <div>3 block</div>
-    </div>
-
     <div data-component="table" data-id="tableForOrders"></div>
     <?!= include('components/custom-table') ?>
 </div>
@@ -311,8 +304,9 @@
 
         function transformBooksOrderListToArray() {
             const defaultOrderNUmber = 0;
-
-            const resultArrayWithOrder = [defaultOrderNUmber, libraryForOrder, booksOrderList.length, NEW_ORDER_STATUS];
+            const orderComment = vars.get('orderComment').get();
+            
+            const resultArrayWithOrder = [defaultOrderNUmber, libraryForOrder, booksOrderList.length, NEW_ORDER_STATUS, orderComment];
 
             return resultArrayWithOrder;
         }
