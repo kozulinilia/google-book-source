@@ -17,6 +17,7 @@
     <div data-id="loader" class="loader" style="display:none;"></div>
     <?!= include('pages/book-list', {pageId: 'books-page'}) ?>
     <?!= include('pages/add-book', {pageId: 'add-book-page'}) ?>
+    <?!= include('pages/orders', {pageId: 'orders-page'}) ?>
     <?!= include('pages/edit-book', {pageId: 'edit-book-page'}) ?>
     <?!= include('pages/deleted-list', {pageId: 'deleted-list-page'}) ?>
     <?!= include('pages/about-page', {pageId: 'about-page'}) ?>
@@ -41,6 +42,10 @@
             console.error('AddBook not initialized', App);
             return
         }
+        if (!App.Orders) {
+            console.error('Orders not initialized', App);
+            return
+        }
         if (!App.Navigation) {
             console.error('Navigation not initialized', App);
         }
@@ -63,11 +68,13 @@
     function createNavigationPages(navigationEl) {
         const booksListEl = document.querySelector('[data-id="books-page"]')
         const addBookEl = document.querySelector('[data-id="add-book-page"]')
+        const ordersEl = document.querySelector('[data-id="orders-page"]')
         const editBookEl = document.querySelector('[data-id="edit-book-page"]')
         const deletedListEl = document.querySelector('[data-id="deleted-list-page"]')
         const aboutEl = document.querySelector('[data-id="about-page"]')
         App.Navigation.add("books-page", "Книги", booksListEl, App.BookList, true)
         App.Navigation.add("add-book-page", "Добавить новую", addBookEl, App.AddBook)
+        App.Navigation.add("orders-page", "Сделать заказ", ordersEl, App.Orders)
         App.Navigation.add("edit-book-page", "Список книг", editBookEl, App.EditBook)
         App.Navigation.add("deleted-list-page", "Удаленные книги", deletedListEl, App.DeletedBookList)
         App.Navigation.add("about-page", "О нас", aboutEl)
