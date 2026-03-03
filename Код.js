@@ -13,6 +13,7 @@ const FREE_STATUS = 'free';
 const DELETED_STATUS = 'deleted';
 const RESERVED_STATUS = 'reserved';
 const NEW_ORDER_STATUS = 'new'
+const ORDER_COLUMN_NUMBER = 15;
 
 function getFilteredData(filterTheme = false, status = FREE_STATUS) {
     loadEnvironment();
@@ -252,18 +253,6 @@ function getFullThemes() {
     return themes;
 }
 
-function loadEnvironment() {
-    GLOBAL.tableId = PropertiesService.getScriptProperties().getProperty('TABLE_ID')
-    GLOBAL.booksSheet = PropertiesService.getScriptProperties().getProperty('BOOKS_SHEET')
-    GLOBAL.themesSheet = PropertiesService.getScriptProperties().getProperty('THEME_SHEET')
-    GLOBAL.offersSheet = PropertiesService.getScriptProperties().getProperty('OFFERS_SHEET')
-    GLOBAL.recipientsSheet = PropertiesService.getScriptProperties().getProperty('RECIPIENTS_SHEET')
-    GLOBAL.imgDir = PropertiesService.getScriptProperties().getProperty('BOOK_IMAGE_DIR')
-    GLOBAL.imgTrashDir = PropertiesService.getScriptProperties().getProperty('BOOK_TRASH_DIR')
-    GLOBAL.librarySheet = PropertiesService.getScriptProperties().getProperty('LIBRARY_SHEET')
-    GLOBAL.messagesSheet = PropertiesService.getScriptProperties().getProperty('MESSAGES_SHEET')
-}
-
 function getNowDate() {
     const now = new Date();
 
@@ -277,16 +266,19 @@ function getNowDate() {
 function postBooksOrderListToGoogleTable(arrayWithBooksForOrder, stringWithNumbersOrderedBooks) {
     loadEnvironment();
     const ss = SpreadsheetApp.openById(GLOBAL.tableId);
-    const sheet = ss.getSheetByName(GLOBAL.offersSheet);
+    const sheet = ss.getSheetByName(GLOBAL.ordersSheet);
+    if (!sheet) {
+        throw Error(GLOBAL.ordersSheet + ' не существует')
+    }
 
-    saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder);
-
-    changeBooksStatusInMainGoogleTable(stringWithNumbersOrderedBooks);
-}
-
-function saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder) {
     const nextOrderNumber = getNextOrderNUmber(sheet);
 
+    saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder, nextOrderNumber);
+
+    changeBooksStatusAndOrderNumberInMainGoogleTable(stringWithNumbersOrderedBooks, nextOrderNumber);
+}
+
+function saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder, nextOrderNumber) {
     const indexOrderNumber = 0;
 
     arrayWithBooksForOrder[indexOrderNumber] = nextOrderNumber;
@@ -295,8 +287,6 @@ function saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder) {
 }
 
 function getNextOrderNUmber(sheet) {
-    let nextOrderNumber;
-
     const ordersNumbers = sheet.getRange("A2:A" + sheet.getLastRow()).getValues();
 
     return getMaxValueOfOrdersNumbers(ordersNumbers) + 1;
@@ -314,10 +304,11 @@ function getMaxValueOfOrdersNumbers(ordersNumbers) {
     return Number(maxNumber);
 }
 
-function changeBooksStatusInMainGoogleTable(stringWithNumbersOrderedBooks) {
+function changeBooksStatusAndOrderNumberInMainGoogleTable(stringWithNumbersOrderedBooks, nextOrderNumber) {
     const splitDelimeter = ', ';
 
     const arrayWithOrderedBooksNumbers = stringWithNumbersOrderedBooks.split(splitDelimeter);
+    arrayWithOrderedBooksNumbers.pop();
 
     const ss = SpreadsheetApp.openById(GLOBAL.tableId);
     const sheet = ss.getSheetByName(GLOBAL.booksSheet);
@@ -328,9 +319,18 @@ function changeBooksStatusInMainGoogleTable(stringWithNumbersOrderedBooks) {
 
     for (let i = 1; i < data.length; i++) {
         if (arrayWithOrderedBooksNumbers.includes(String(data[i][BOOK_ID_ROW]))) {
-            sheet.getRange(i + 1, STATE_ROW + 1, 1, 1).setValue(RESERVED_STATUS);
+            changeBookStatusToReserved(sheet, i);
+            addOrderNumberToBook(sheet, i, nextOrderNumber);
         }
     }
+}
+
+function changeBookStatusToReserved(sheet, bookRowIndex) {
+    sheet.getRange(bookRowIndex + 1, STATE_ROW + 1, 1, 1).setValue(RESERVED_STATUS);
+}
+
+function addOrderNumberToBook(sheet, bookRowIndex, nextOrderNumber) {
+    sheet.getRange(bookRowIndex + 1, ORDER_COLUMN_NUMBER + 1, 1, 1).setValue(nextOrderNumber);
 }
 
 function getDropdownValuesOfLibraries() {
@@ -341,4 +341,57 @@ function getDropdownValuesOfLibraries() {
     const data = sheet.getDataRange().getValues();
 
     return data;
+}
+
+function getOrdersTableData(orderStatus) {
+    loadEnvironment();
+    const sheet = getSheetByCustomName(GLOBAL.ordersSheet);
+    if (!sheet) {
+        return []
+    }
+    const data = sheet.getDataRange().getValues();
+
+    const filteredData = data.filter(row => {
+        const statusIndex = 3;
+
+        return row[statusIndex] === orderStatus;
+    });
+
+    return filteredData;
+}
+
+function getListOfBooksInOrder(orderNumber) {
+    loadEnvironment();
+    const ss = SpreadsheetApp.openById(GLOBAL.tableId);
+    const sheet = ss.getSheetByName(GLOBAL.booksSheet);
+    const data = sheet.getDataRange().getValues();
+
+    let listOfBooksInOrder = [];
+
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][ORDER_COLUMN_NUMBER] === Number(orderNumber)) {
+            listOfBooksInOrder.push({bookName: data[i][NAME_ROW], author: data[i][AUTHOR_ROW]});
+        }
+    }
+
+    return listOfBooksInOrder;
+}
+
+function getInformationAboutOrder(orderNumber) {
+    const orderIdColumn = 0;
+
+    loadEnvironment();
+    const ss = SpreadsheetApp.openById(GLOBAL.tableId);
+    const sheet = ss.getSheetByName(GLOBAL.ordersSheet);
+    const data = sheet.getDataRange().getValues();
+
+    let infoAboutOrder = [];
+
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][orderIdColumn] === Number(orderNumber)) {
+            infoAboutOrder = data[i];
+        }
+    }
+
+    return infoAboutOrder;
 }
