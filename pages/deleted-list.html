@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<div data-id="<?= pageId ?>">
+<div data-id="root">
+    <div data-id="navigation"></div>
     <div class="card shadow p-4">
         <h4 class="mb-4">
             Список Удаленных книг
@@ -31,6 +32,9 @@
 
     <div data-component="table" data-id="table1"></div>
 </div>
+<?!= include('components/custom-table') ?>
+<?!= include('components/variable-container') ?>
+<?!= include('components/navigation') ?>
 <script>
     (function (ns) {
         const THEME_ROW = 0
@@ -40,7 +44,6 @@
         let filteredData = [];
         let headers = [];    // Заголовки
         const pageSize = 20; // Кол-во строк на страницу
-        const pageId = "<?= pageId ?>"
         let root = null
         let tableObject = null
         let loaderEl = null
@@ -48,6 +51,7 @@
         const DELETED_STATUS = 'deleted'
 
         function init(loader = null) {
+            loadNavigation(ns)
             if (!ns.TableFactory) {
                 console.error('TableFactory not initialized');
                 return;
@@ -56,12 +60,12 @@
                 console.error('VarContainer not initialized');
                 return;
             }
-            root = document.querySelector(`[data-id="${pageId}"]`)
+            root = document.querySelector(`[data-id="root"]`)
             vars = ns.VarContainer.create(root)
             loaderEl = loader
             root.addEventListener('click', clickHandler)
             root.addEventListener('change', changeHandler)
-            loaderEl.show()
+            loaderEl.show('deleted-list/init')
             google.script.run.withSuccessHandler(data => {
                 populateDropdowns(data, "theme");
             }).getDropdownValues(DELETED_STATUS);
@@ -78,7 +82,7 @@
                     filteredData,
                 )
                 tableObject.render(filteredData)
-                loaderEl.hide()
+                loaderEl.hide('deleted-list/init')
             }).getFilteredData(false, DELETED_STATUS)
         }
 

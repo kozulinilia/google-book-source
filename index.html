@@ -1,88 +1,181 @@
 <!DOCTYPE html>
-<html>
-
 <head>
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"/>
 
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-
-    <?!= include('styles/main'); ?>
 </head>
+<html>
+<div id="app"></div>
+<div data-id="loader" class="loader" style="display:none;"></div>
+</html>
 
-<body>
-<div class="container-fluid">
-    <div data-id="navigation"></div>
-    <div data-id="loader" class="loader" style="display:none;"></div>
-    <?!= include('pages/book-list', {pageId: 'books-page'}) ?>
-    <?!= include('pages/add-book', {pageId: 'add-book-page'}) ?>
-    <?!= include('pages/orders', {pageId: 'orders-page'}) ?>
-    <?!= include('pages/edit-book', {pageId: 'edit-book-page'}) ?>
-    <?!= include('pages/deleted-list', {pageId: 'deleted-list-page'}) ?>
-    <?!= include('pages/about-page', {pageId: 'about-page'}) ?>
-</div>
-</body>
-<?!= include('components/navigation', {dataId: 'navigation'}) ?>
-<?!= include('components/custom-table') ?>
-<?!= include('components/variable-container') ?>
 <script>
-    let loader = null
-    const env = "dev"
-    window.onload = function () {
-        window.App = window.App || {}
-        const navigationEl = document.querySelector('[data-id="navigation"]')
-        loader = new Loader(document.querySelector(`[data-id="loader"]`))
-        createNavigationPages(navigationEl)
-        if (!App.BookList) {
-            console.error('BookList not initialized', App);
-            return
-        }
-        if (!App.AddBook) {
-            console.error('AddBook not initialized', App);
-            return
-        }
-        if (!App.Orders) {
-            console.error('Orders not initialized', App);
-            return
-        }
-        if (!App.Navigation) {
-            console.error('Navigation not initialized', App);
-        }
-    };
-
     class Loader {
         constructor(element) {
             this.element = element
+            this.loaders = new Map()
         }
 
-        show() {
+        show(name) {
+            if (this.loaders.has(name)) {
+                throw new Error('loader ' + name + ' already exists')
+            }
             this.element.style.display = "block"
+            this.loaders.set(name, true)
         }
 
-        hide() {
-            this.element.style.display = "none"
+        hide(name) {
+            this.loaders.delete(name)
+            if (this.loaders.size === 0) {
+                this.element.style.display = "none"
+            }
         }
     }
 
-    function createNavigationPages(navigationEl) {
-        const booksListEl = document.querySelector('[data-id="books-page"]')
-        const addBookEl = document.querySelector('[data-id="add-book-page"]')
-        const ordersEl = document.querySelector('[data-id="orders-page"]')
-        const editBookEl = document.querySelector('[data-id="edit-book-page"]')
-        const deletedListEl = document.querySelector('[data-id="deleted-list-page"]')
-        const aboutEl = document.querySelector('[data-id="about-page"]')
-        App.Navigation.add("books-page", "Книги", booksListEl, App.BookList, true)
-        App.Navigation.add("add-book-page", "Добавить новую", addBookEl, App.AddBook)
-        App.Navigation.add("orders-page", "Сделать заказ", ordersEl, App.Orders)
-        App.Navigation.add("edit-book-page", "Список книг", editBookEl, App.EditBook)
-        App.Navigation.add("deleted-list-page", "Удаленные книги", deletedListEl, App.DeletedBookList)
-        App.Navigation.add("about-page", "О нас", aboutEl)
-        App.Navigation.init("edit-book-page", navigationEl, loader)
+    const app = document.getElementById('app')
+    let previousPage = null
+    const routerPages = {
+        'add-book': {name: 'pages/add-book', component: 'AddBook', admin: true, label: 'Добавить книгу'},
+        'book-list': {name: 'pages/book-list', component: 'BookList', admin: false, label: "Список книг"},
+        'deleted-list': {name: 'pages/deleted-list', component: 'DeletedBookList', admin: true, label: "Удаленные"},
+        'orders': {name: 'pages/orders', component: 'Orders', admin: true, label: "Заказы"},
+        'edit-book': {name: 'pages/edit-book', component: 'EditBook', admin: true, label: "Редактировать"},
+        'about-page': {name: 'pages/about-page', component: 'AboutPage', admin: false, label: "О нас"},
     }
+
+    const loader = new Loader(document.querySelector(`[data-id="loader"]`))
+    function navigate(page, params = {}) {
+        const query = new URLSearchParams({ page, ...params }).toString();
+        google.script.history.push(
+            { page, ...params },
+            '',
+            '?' + query
+        );
+
+        router(page, params);
+    }
+
+    function executeScripts(container) {
+        const scripts = container.querySelectorAll("script");
+
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement("script");
+
+            if (oldScript.src) {
+                newScript.src = oldScript.src;
+            } else {
+                newScript.textContent = oldScript.textContent;
+            }
+
+            document.body.appendChild(newScript);
+            oldScript.remove();
+        });
+    }
+
+    function renderHtml(html) {
+        app.innerHTML = html;
+        executeScripts(app);
+    }
+
+    function router(page, params = {}) {
+        const pageEL = routerPages[page]
+        if (!pageEL) {
+            console.error('unknown page ' + page)
+            return
+        }
+        if (previousPage) {
+            window.App[previousPage.component].destroy()
+        }
+        previousPage = pageEL
+
+        loader.show(page)
+        google.script.run
+            .withSuccessHandler(function(html) {
+                renderHtml(html);
+                window.App[pageEL.component].init(loader)
+                if (window.onPageLoad) {
+                    window.onPageLoad(params);
+                }
+                loader.hide(page)
+            })
+            .loadPage(pageEL.name);
+    }
+
+
+    // Back / Forward
+    google.script.history.setChangeHandler(function(e) {
+        const state = e.state || {};
+        router(state.page || 'edit-book', state);
+    });
+
+    // Direct link
+    google.script.url.getLocation(function(location) {
+        const params = location.parameter || {};
+        router(params.page || 'edit-book', params);
+    });
+
+    function loadNavigation(ns) {
+        let navigation = document.querySelector(`[data-id="navigation"]`)
+        ns.Navigation.init(navigation, true)
+    }
+
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+<style>
+    body {
+        background: #f5f5f5;
+        padding: 20px;
+    }
 
-</html>
+    .card {
+        border-radius: 12px;
+    }
+
+    .material-label {
+        font-weight: 500;
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+    table {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table-bordered {
+        border: 1px solid #dee2e6;
+    }
+
+    .loader {
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        margin-top: -20px;
+        margin-left: -20px;
+        z-index: 9999;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .table-bordered td,
+    .table-bordered th {
+        border: 1px solid #dee2e6;
+    }
+</style>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<div data-id="<?= pageId ?>">
+<div data-id="root">
+    <div data-id="navigation"></div>
     <div class="card shadow p-4">
         <div data-id="search-book-block" align-items-end>
             <h4 class="mb-4">Список Книг</h4>
@@ -118,6 +119,9 @@
         width: 400px;
     }
 </style>
+<?!= include('components/custom-table') ?>
+<?!= include('components/variable-container') ?>
+<?!= include('components/navigation') ?>
 <script>
     (function (ns) {
         const THEME_ROW = 0
@@ -133,7 +137,6 @@
         let filteredData = [];
         let headers = [];    // Заголовки
         const pageSize = 20; // Кол-во строк на страницу
-        const pageId = "<?= pageId ?>"
         let root = null
         let tableObject = null
         let loaderEl = null
@@ -144,6 +147,7 @@
         const FREE_STATUS = 'free'
 
         function init(loader = null) {
+            loadNavigation(ns)
             if (!ns.TableFactory) {
                 console.error('TableFactory not initialized');
                 return;
@@ -152,19 +156,19 @@
                 console.error('VarContainer not initialized');
                 return;
             }
-            root = document.querySelector(`[data-id="${pageId}"]`)
+            root = document.querySelector(`[data-id="root"]`)
             vars = ns.VarContainer.create(root)
             vars.get("edit-book-block").hide()
             loaderEl = loader
             root.addEventListener('click', clickHandler)
             root.addEventListener('change', changeHandler)
-            loaderEl.show()
             google.script.run.withSuccessHandler(data => {
                 populateDropdowns(data, "theme");
             }).getDropdownValues(FREE_STATUS);
             google.script.run.withSuccessHandler(data => {
                 populateDropdowns(data, "theme-value");
             }).getFullThemes();
+            loaderEl.show('edit-book/init')
             google.script.run.withSuccessHandler(data => {
                 headers = data.header;
                 fullData = data.rows;
@@ -182,7 +186,7 @@
                     filteredData,
                 )
                 tableObject.render(filteredData)
-                loaderEl.hide()
+                loaderEl.hide('edit-book/init')
             }).getFilteredData()
         }
 
@@ -205,7 +209,7 @@
                     vars.get("search-book-block").hide()
                     break;
                 case 'confirmEditBook':
-                    loaderEl.show()
+                    loaderEl.show('edit-book/confirmEditBook')
                     book = {
                         author: vars.get("new-author").get(),
                         name: vars.get("new-name").get(),
@@ -219,7 +223,7 @@
                     google.script.run.withSuccessHandler(result => {
                         if (result) {
                             vars.get("edit-book-block").hide()
-                            loaderEl.hide()
+                            loaderEl.hide('edit-book/confirmEditBook')
                             showError("", false);
                             vars.get("search-book-block").show(true)
                             init(loader)
@@ -227,7 +231,7 @@
                     })
                         .withFailureHandler(error => {
                             showError(error, true);
-                            loaderEl.hide()
+                            loaderEl.hide('edit-book/confirmEditBook')
                         })
                         .editBook(book);
                     break;
@@ -243,18 +247,18 @@
                     break;
                 case "submitDelete":
                     vars.get("delete-modal").hide()
-                    loaderEl.show()
+                    loaderEl.show('edit-book/submitDelete')
                     google.script.run
                         .withSuccessHandler(result => {
                         if (result) {
-                            loaderEl.hide()
+                            loaderEl.hide('edit-book/submitDelete')
                             showError("", false);
                             init(loader)
                         }
                     })
                         .withFailureHandler(error => {
                             showError(error, true);
-                            loaderEl.hide()
+                            loaderEl.hide('edit-book/submitDelete')
                         })
                         .deleteRowById(deletedBookId);
                     break;
@@ -376,7 +380,7 @@
         }
 
         function findDuplicateImages() {
-            loaderEl.show()
+            loaderEl.show('edit-book/findDuplicateImages')
             google.script.run
                 .withSuccessHandler(result => {
                     const duplImgsEl = vars.get("duplicate-img").getElement()
@@ -388,11 +392,11 @@
                             duplImgsEl.appendChild(div)
                         })
                     }
-                    loaderEl.hide()
+                    loaderEl.hide('edit-book/findDuplicateImages')
                 })
                 .withFailureHandler(error => {
                     showError(error, true);
-                    loaderEl.hide()
+                    loaderEl.hide('edit-book/findDuplicateImages')
                 })
                 .getDoubleImages();
         }

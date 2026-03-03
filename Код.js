@@ -14,13 +14,6 @@ const DELETED_STATUS = 'deleted';
 const RESERVED_STATUS = 'reserved';
 const NEW_ORDER_STATUS = 'new'
 
-function doGet(e) {
-    return HtmlService
-        .createTemplateFromFile("index")
-        .evaluate()
-        .setTitle("Книжный родник");
-}
-
 function getFilteredData(filterTheme = false, status = FREE_STATUS) {
     loadEnvironment();
     const ss = SpreadsheetApp.openById(GLOBAL.tableId);
@@ -304,14 +297,6 @@ function loadEnvironment() {
     GLOBAL.imgDir = PropertiesService.getScriptProperties().getProperty('BOOK_IMAGE_DIR')
     GLOBAL.imgTrashDir = PropertiesService.getScriptProperties().getProperty('BOOK_TRASH_DIR')
     Logger.log(GLOBAL)
-}
-
-function include(file, data = {}) {
-    const tpl = HtmlService.createTemplateFromFile(file);
-    // прокидываем переменные
-    Object.assign(tpl, data);
-
-    return tpl.evaluate().getContent();
 }
 
 function getNowDate() {
