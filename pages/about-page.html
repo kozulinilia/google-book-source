@@ -1,4 +1,5 @@
-<div data-id="<?= pageId ?>">
+<div data-id="root">
+    <div data-id="navigation"></div>
     <div class="card shadow p-4">
         <h3> Цель проекта:</h3>
         <p>
@@ -104,3 +105,17 @@
         </p>
     </div>
 </div>
+<script>
+    (function (ns) {
+        function init(loader = null) {
+            loadNavigation(ns)
+        }
+        function destroy() {
+        }
+
+        ns.AboutPage = {
+            init,
+            destroy,
+        };
+    })(window.App = window.App || {});
+</script>

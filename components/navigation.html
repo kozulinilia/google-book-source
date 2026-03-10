@@ -1,8 +1,6 @@
 <script>
     (function (ns) {
         let root = null
-        let pageElements = {};
-        let loader = null
 
         class Page {
             constructor(id, name, element, pageApp, hide) {
@@ -15,51 +13,34 @@
         }
 
         function init(
-            firstPageId,
             element,
-            loaderClass,
-            isHidden = false
+            isAdmin
         ) {
             root = element
-            if (isHidden) {
-                root.style.display = "none"
-            }
-            Object.keys(pageElements).forEach(key => {
-                let page = pageElements[key]
-                if (!page.hide) {
-                    const btn = createNavButton(page.name, page.id)
+            Object.keys(routerPages).forEach(page => {
+                let pageEl = routerPages[page]
+                if (isAdmin || pageEl.admin) {
+                    const btn = createNavButton(pageEl.label, page)
                     root.appendChild(btn)
                 }
             })
             root.addEventListener('click', clickHandler)
-            loader = loaderClass
-            selectPage(firstPageId)
         }
 
         function clickHandler(event) {
-            selectPage(event.target.dataset.action)
-        }
-
-        function selectPage(id) {
-            if (!pageElements[id]) {
-                return
-            }
-            hideAll()
-            destroyAll()
-            pageElements[id].element.style.display = "block"
-            if (pageElements[id].pageApp) {
-                pageElements[id].pageApp.init(loader)
+            const action = event.target.dataset.action
+            if (action === 'selectPage') {
+                navigate(event.target.dataset.value)
             }
         }
 
         function add(
-            id,
             name,
             element,
             pageApp = null,
             hide = false,
         ) {
-            pageElements[id] = new Page(id, name, element, pageApp, hide)
+            pageElements[name] = new Page(name, element, pageApp, hide)
         }
 
         function hideAll() {
@@ -78,12 +59,13 @@
             })
         }
 
-        function createNavButton(name, id) {
+        function createNavButton(label, name) {
             const btn = document.createElement('button')
-            btn.setAttribute("data-action", id)
+            btn.setAttribute("data-value", name)
+            btn.setAttribute("data-action", 'selectPage')
             btn.className = "btn btn-secondary"
             btn.style = "margin-right:5px;"
-            btn.innerText = name
+            btn.innerText = label
             return btn
         }
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<div data-id="<?= pageId ?>">
+<div data-id="root">
+    <div data-id="navigation"></div>
     <div class="card shadow p-4">
         <h4 class="mb-4">
             Добавить книгу
@@ -64,16 +65,18 @@
         <div data-id="log-list"></div>
     </div>
 </div>
+<?!= include('components/variable-container') ?>
+<?!= include('components/navigation') ?>
 <script>
     (function (ns) {
         const AUTHOR_BACK_ROW = 5
-        const pageId = "<?= pageId ?>"
         let root = null
         let loaderEl = null
         let vars = null
 
         function init(loader = null) {
-            root = document.querySelector(`[data-id="${pageId}"]`)
+            loadNavigation(ns)
+            root = document.querySelector(`[data-id="root"]`)
             if (!ns.VarContainer) {
                 console.error('VarContainer not initialized');
                 return;
@@ -91,12 +94,12 @@
         }
 
         function addNewBook() {
-            loaderEl.show()
+            loaderEl.show('add-book/addNewBook')
             google.script.run.withSuccessHandler(id => {
                 vars.get("new-book-id").set(id)
                 vars.get("add-book-block").show()
                 vars.get("new-book-button").hide()
-                loaderEl.hide()
+                loaderEl.hide('add-book/addNewBook')
             }).addNewBook();
         }
 
@@ -137,7 +140,7 @@
         }
 
         function saveNewBook() {
-            loaderEl.show()
+            loaderEl.show('add-book/saveNewBook')
             const book = {
                 author: vars.get("new-author").get(),
                 name: vars.get("new-name").get(),
@@ -154,25 +157,25 @@
                     vars.get("add-book-block").hide()
                     vars.get("new-book-button").show()
                     vars.get("new-book-id").set('')
-                    loaderEl.hide()
+                    loaderEl.hide('add-book/saveNewBook')
                     showError("", false);
                 }
             })
                 .withFailureHandler(error => {
                     showError(error, true);
-                    loaderEl.hide()
+                    loaderEl.hide('add-book/saveNewBook')
                 })
                 .saveNewBook(book);
         }
 
         function cancelNewBook() {
-            loaderEl.show()
+            loaderEl.show('add-book/cancelNewBook')
             let bookId = vars.get("new-book-id").get()
             google.script.run.withSuccessHandler(result => {
                 clearAddFields();
                 vars.get("add-book-block").hide()
                 vars.get("new-book-button").show()
-                loaderEl.hide()
+                loaderEl.hide('add-book/cancelNewBook')
             })
                 .removeRowById(bookId)
         }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<div data-id="<?= pageId ?>">
+<div data-id="root">
+    <div data-id="navigation"></div>
     <div class="card shadow p-4">
         <h4 class="mb-4">
             <span class="material-icons" style="vertical-align: middle;">filter_list</span>
@@ -65,13 +66,14 @@
     </div>
     <div data-component="table" data-id="tableForOrders"></div>
     <?!= include('components/custom-table') ?>
+    <?!= include('components/variable-container') ?>
+    <?!= include('components/navigation') ?>
 </div>
 <script>
     (function (ns) {
         const NEW_ORDER_STATUS = 'new';
 
         const amountRowsOnPage = 20;
-        const pageId = "<?= pageId ?>";
 
         let bookNameFromFilter = '';
         let bookNumberFromFilter = '';
@@ -91,6 +93,7 @@
         let libraryForOrder = '';
 
         function init(loader = null) {
+            loadNavigation(ns)
             if (!ns.TableFactory) {
                 console.error('TableFactory not initialized');
 
@@ -103,7 +106,7 @@
                 return;
             }
 
-            root = document.querySelector(`[data-id="${pageId}"]`);
+            root = document.querySelector(`[data-id="root"]`);
 
             vars = ns.VarContainer.create(root);
 
@@ -118,7 +121,7 @@
 
         function getListOfBooksFromGoogleTable() {
             loaderEl = loader;
-            loaderEl.show();
+            loaderEl.show('orders/getListOfBooksFromGoogleTable');
 
             google.script.run.withSuccessHandler(data => {
                 const tableElement = vars.get('tableForOrders').getElement();
@@ -144,7 +147,7 @@
 
                 tableObject.render(filteredData);
 
-                loaderEl.hide();
+                loaderEl.hide('orders/getListOfBooksFromGoogleTable');
                 
             }).getFilteredData();
         }
