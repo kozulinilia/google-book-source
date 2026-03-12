@@ -140,16 +140,23 @@
         }
 
         function saveNewBook() {
-            loaderEl.show('add-book/saveNewBook')
+            const name = vars.get("new-name").get()
+            const boxNum = vars.get("new-box-num").get()
+
+            if (!name || !boxNum) {
+                showError("Название и номер коробки должны быть заполнены", true)
+                return
+            }
             const book = {
                 author: vars.get("new-author").get(),
-                name: vars.get("new-name").get(),
+                name,
                 year: vars.get("new-year").get(),
                 annotation: vars.get("new-annotation").get(),
-                boxNum: vars.get("new-box-num").get(),
+                boxNum,
                 id: vars.get("new-book-id").get(),
                 theme: vars.get("new-theme").get(),
             };
+            loaderEl.show('add-book/saveNewBook')
             google.script.run.withSuccessHandler(result => {
                 if (result) {
                     addLog(`${book.name} ${book.id}`);

@@ -29,8 +29,10 @@
                 </div>
                 <div class="col-md-3 float-right">
                     <button class="btn btn-primary" data-action="loadData">
-                        <span class="material-icons" style="font-size:18px;vertical-align:middle;">search</span>
                         Показать
+                    </button>
+                    <button class="btn btn-danger hidden" data-id="reset-btn" data-action="resetSearch">
+                        Сбросить
                     </button>
                 </div>
             </div>
@@ -197,6 +199,7 @@
             let book = {}
             switch (action) {
                 case 'loadData':
+                    vars.get('reset-btn').show()
                     tableObject.skipPage()
                     loadData()
                     break;
@@ -268,6 +271,9 @@
                 case "findDoubles":
                     findDuplicateImages();
                     break;
+                case "resetSearch":
+                    resetSearch();
+                    break;
                 default:
                     console.error('[clickHandler] Unknown action ' + action)
             }
@@ -331,20 +337,21 @@
 
         function loadData() {
             filteredData = fullData.filter(item => {
+                const bookId = vars.get('number').get()
+                const boxNum = vars.get('number-box').get()
 
                 return item[THEME_ROW].includes(vars.get('theme').get().toLowerCase())
                     && (item[AUTHOR_ROW].toLowerCase()).includes(vars.get('author').get().toLowerCase())
                     && (item[NAME_ROW].toLowerCase()).includes(vars.get('name').get().toLowerCase())
                     && (
-                        !vars.get('number').get()
-                        || Number(item[NUMBER_ROW]) === Number(vars.get('number').get())
+                        !bookId
+                        || Number(item[NUMBER_ROW]) === Number(bookId)
 
                     )
                 && (
-                    !vars.get('number-box').get()
-                    || Number(item[NUMBER_ROW]) === Number(vars.get('number-box').get())
+                    !boxNum
+                    || Number(item[BOX_ROW]) === Number(boxNum)
                     )
-
             });
             tableObject.render(filteredData)
         }
@@ -399,6 +406,21 @@
                     loaderEl.hide('edit-book/findDuplicateImages')
                 })
                 .getDoubleImages();
+        }
+
+        function resetSearch() {
+            clearSearchFields()
+            tableObject.skipPage()
+            loadData()
+            vars.get('reset-btn').hide()
+        }
+
+        function clearSearchFields() {
+            vars.get('author').set('')
+            vars.get('name').set('')
+            vars.get('number').set('')
+            vars.get('number-box').set('')
+            vars.get('theme').set('')
         }
 
         function destroy() {
