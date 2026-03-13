@@ -28,6 +28,9 @@
                     this.setKey = "innerText"
                     this.element.addEventListener('change', this.setEvent)
                 }
+                if (element.nodeName === "IMG") {
+                    this.setKey = "src"
+                }
                 this.value = this.element[this.setKey] ?? ''
 
             }
