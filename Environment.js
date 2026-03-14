@@ -7,5 +7,13 @@ function loadEnvironment() {
     GLOBAL.imgDir = PropertiesService.getScriptProperties().getProperty('BOOK_IMAGE_DIR')
     GLOBAL.imgTrashDir = PropertiesService.getScriptProperties().getProperty('BOOK_TRASH_DIR')
     GLOBAL.vkToken = PropertiesService.getScriptProperties().getProperty('VK_TOKEN')
-    Logger.log(GLOBAL)
+    GLOBAL.settings = PropertiesService.getScriptProperties().getProperty('SETTINGS_SHEET')
+}
+
+function loadSettings(key) {
+
+}
+
+function changeSettings(key, value) {
+
 }
