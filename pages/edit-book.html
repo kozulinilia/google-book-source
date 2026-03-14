@@ -105,22 +105,13 @@
             </div>
         </div>
     </div>
+    <div data-id="image-modal" class="custom-modal hidden">
+        <div class="image-modal-content">
+            <button class="btn btn-danger float-right" data-action="closeImageModal">X</button>
+            <img class="responsive-img" data-id="img" src=""/>
+        </div>
+    </div>
 </div>
-<style>
-    .custom-modal {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, .5);
-    }
-
-    .custom-modal-content {
-        background: white;
-        margin: 10% auto;
-        padding: 20px;
-        width: 400px;
-    }
-</style>
 <?!= include('components/custom-table') ?>
 <?!= include('components/variable-container') ?>
 <?!= include('components/navigation') ?>
@@ -253,12 +244,12 @@
                     loaderEl.show('edit-book/submitDelete')
                     google.script.run
                         .withSuccessHandler(result => {
-                        if (result) {
-                            loaderEl.hide('edit-book/submitDelete')
-                            showError("", false);
-                            init(loader)
-                        }
-                    })
+                            if (result) {
+                                loaderEl.hide('edit-book/submitDelete')
+                                showError("", false);
+                                loadData()
+                            }
+                        })
                         .withFailureHandler(error => {
                             showError(error, true);
                             loaderEl.hide('edit-book/submitDelete')
@@ -273,6 +264,13 @@
                     break;
                 case "resetSearch":
                     resetSearch();
+                    break;
+                case "openImage":
+                    const bookId = event.target.dataset.value
+                    openImageInModal(bookId);
+                    break;
+                case "closeImageModal":
+                    vars.get("image-modal").hide()
                     break;
                 default:
                     console.error('[clickHandler] Unknown action ' + action)
@@ -291,6 +289,11 @@
         }
 
         function showError(error, show) {
+            if (show) {
+                alert(error);
+            }
+            return
+
             vars.get("error-field").set(error);
             if (show) {
                 vars.get("error-field").show()
@@ -304,10 +307,7 @@
             const value = event.target.value
             switch (action) {
                 case 'changeFilter':
-                    vars.get('author').set('')
-                    vars.get('name').set('')
-                    tableObject.skipPage()
-                    loadData()
+                    changeFilter()
                     break;
                 case 'changeTheme':
                     if (!editedTheme) {
@@ -335,6 +335,16 @@
             });
         }
 
+        function changeFilter() {
+            vars.get('author').set('')
+            vars.get('name').set('')
+            tableObject.skipPage()
+            loadData()
+            if (vars.get('theme')) {
+                vars.get('reset-btn').show()
+            }
+        }
+
         function loadData() {
             filteredData = fullData.filter(item => {
                 const bookId = vars.get('number').get()
@@ -348,9 +358,9 @@
                         || Number(item[NUMBER_ROW]) === Number(bookId)
 
                     )
-                && (
-                    !boxNum
-                    || Number(item[BOX_ROW]) === Number(boxNum)
+                    && (
+                        !boxNum
+                        || Number(item[BOX_ROW]) === Number(boxNum)
                     )
             });
             tableObject.render(filteredData)
@@ -360,17 +370,12 @@
             if (index === 5) {
                 const linkEl = document.createElement("div")
                 linkEl.style = "display: flex;flex-direction: column;"
-                if (cell) {
-                    const viewBook = document.createElement("a")
-                    viewBook.href = cell
-                    viewBook.textContent = "посмотреть"
-                    viewBook.target = "_blank"
-                    linkEl.appendChild(viewBook)
-                } else {
-                    linkEl.textContent = 'нет картинки';
-                }
                 linkEl.appendChild(createLinkAction(row[NUMBER_ROW], 'editBook', "редактировать"))
                 linkEl.appendChild(createLinkAction(row[NUMBER_ROW], 'deleteBook', "удалить"))
+                td.appendChild(linkEl)
+            } else if (index === NAME_ROW && row[LINK_ROW]) {
+                const linkEl = document.createElement("div")
+                linkEl.appendChild(createLinkAction(row[LINK_ROW], 'openImage', cell))
                 td.appendChild(linkEl)
             } else {
                 td.textContent = cell;
@@ -379,7 +384,7 @@
 
         function createLinkAction(value, id, label) {
             const element = document.createElement("a")
-            element.href = '#'
+            element.className = 'link'
             element.setAttribute('data-value', value)
             element.setAttribute('data-action', id)
             element.textContent = label
@@ -423,6 +428,22 @@
             vars.get('theme').set('')
         }
 
+        function openImageInModal(bookId) {
+            loaderEl.show('edit-book/openImageInModal')
+            console.log('openImageInModal', bookId)
+            google.script.run
+                .withSuccessHandler(image => {
+                    vars.get("img").set(image)
+                    loaderEl.hide('edit-book/openImageInModal')
+                    vars.get("image-modal").show()
+                })
+                .withFailureHandler(error => {
+                    showError(error, true);
+                    loaderEl.hide('edit-book/openImageInModal')
+                })
+                .getImage(bookId);
+        }
+
         function destroy() {
             if (tableObject) {
                 tableObject.destroy()
@@ -445,3 +466,50 @@
         };
     })(window.App = window.App || {});
 </script>
+<style>
+    .custom-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .5);
+    }
+
+    .custom-modal-content {
+        background: white;
+        margin: 10% auto;
+        padding: 20px;
+        width: 400px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .link {
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .image-modal-content {
+        background: white;
+        width: 80vh;
+        height: 80vh; /* Макс. высота - 80% окна просмотра */
+        overflow-y: auto; /* Прокрутка, если контент не помещается */
+    }
+
+    .responsive-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .parent {
+        position: relative; /* Создает точку отсчета */
+    }
+
+    .child {
+        position: absolute;
+        top: 50px; /* 50px вниз от верхнего края .parent */
+        left: 10px; /* 10px вправо от левого края .parent */
+    }
+
+</style>
