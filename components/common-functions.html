@@ -1,0 +1,53 @@
+<script>
+    (function (ns) {
+        function createBtn(
+            name, type, action, value
+        ) {
+            const btn = document.createElement('button')
+            switch(type) {
+                case 'success':
+                    btn.className = "btn btn-success"
+                    break;
+                case 'danger':
+                    btn.className = "btn btn-danger"
+                    break;
+                case 'primary':
+                    btn.className = "btn btn-primary"
+                    break;
+            }
+            btn.setAttribute('data-action', action)
+            btn.setAttribute('data-value', value)
+            btn.innerText = name
+            return btn
+        }
+
+        function createInput(
+            id, type = 'text', disabled = false, action = null
+        ) {
+            const input = document.createElement('input')
+            input.setAttribute('data-id', id)
+            input.disabled = disabled
+            input.type = type
+            if (action) {
+                input.setAttribute('data-action', action)
+            }
+            return input
+        }
+
+        function asyncCall(funcName, ...args) {
+            return new Promise((resolve, reject) => {
+                google.script.run
+                    .withSuccessHandler(resolve)
+                    .withFailureHandler(reject)[funcName](...args);
+            });
+        }
+
+        ns.Common = {
+            createBtn,
+            asyncCall,
+            createInput
+        };
+
+    })(window.App = window.App || {})
+
+</script>

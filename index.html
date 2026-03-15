@@ -43,6 +43,7 @@
         'deleted-list': {name: 'pages/deleted-list', component: 'DeletedBookList', admin: true, label: "Удаленные"},
         'orders': {name: 'pages/orders', component: 'Orders', admin: true, label: "Заказы"},
         'edit-book': {name: 'pages/edit-book', component: 'EditBook', admin: true, label: "Редактировать"},
+        'libraries': {name: 'pages/library-list', component: 'AddLibrary', admin: true, label: "Библиотеки"},
         'about-page': {name: 'pages/about-page', component: 'AboutPage', admin: false, label: "О нас"},
     }
 
@@ -96,6 +97,7 @@
             .withSuccessHandler(function(html) {
                 renderHtml(html);
                 window.App[pageEL.component].init(loader)
+                console.log('router', params, window.onPageLoad)
                 if (window.onPageLoad) {
                     window.onPageLoad(params);
                 }

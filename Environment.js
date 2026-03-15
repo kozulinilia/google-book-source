@@ -6,6 +6,8 @@ function loadEnvironment() {
     GLOBAL.recipientsSheet = PropertiesService.getScriptProperties().getProperty('RECIPIENTS_SHEET')
     GLOBAL.imgDir = PropertiesService.getScriptProperties().getProperty('BOOK_IMAGE_DIR')
     GLOBAL.imgTrashDir = PropertiesService.getScriptProperties().getProperty('BOOK_TRASH_DIR')
+    GLOBAL.librarySheet = PropertiesService.getScriptProperties().getProperty('LIBRARY_SHEET')
+    GLOBAL.messagesSheet = PropertiesService.getScriptProperties().getProperty('MESSAGES_SHEET')
     GLOBAL.vkToken = PropertiesService.getScriptProperties().getProperty('VK_TOKEN')
     Logger.log(GLOBAL)
 }
