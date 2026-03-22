@@ -50,7 +50,7 @@
         let vars = null
         const FREE_STATUS = 'free'
 
-        function init(loader = null) {
+        function init(loader = null, params = {}) {
             loadNavigation(ns)
             if (!ns.TableFactory) {
                 console.error('TableFactory not initialized');

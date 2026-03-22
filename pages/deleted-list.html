@@ -50,7 +50,7 @@
         let vars = null
         const DELETED_STATUS = 'deleted'
 
-        function init(loader = null) {
+        function init(loader = null, params = {}) {
             loadNavigation(ns)
             if (!ns.TableFactory) {
                 console.error('TableFactory not initialized');

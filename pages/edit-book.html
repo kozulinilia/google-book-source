@@ -139,7 +139,7 @@
         let deletedBookId = 0
         const FREE_STATUS = 'free'
 
-        function init(loader = null) {
+        function init(loader = null, params = {}) {
             loadNavigation(ns)
             if (!ns.TableFactory) {
                 console.error('TableFactory not initialized');
@@ -430,7 +430,6 @@
 
         function openImageInModal(bookId) {
             loaderEl.show('edit-book/openImageInModal')
-            console.log('openImageInModal', bookId)
             google.script.run
                 .withSuccessHandler(image => {
                     vars.get("img").set(image)

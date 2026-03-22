@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <div data-id="root">
     <div data-id="navigation"></div>
-    <div class="card shadow p-4">
+    <h3 data-id="selected-lib" class="hidden"></h3>
+    <div data-id="orders-list-block" class="card shadow p-4">
         <div class="col-md-4 float-right">
             <button class="btn btn-primary" data-action="showTabToMakeOrders" data-id="showTabToMakeOrdersBtn">Новый заказ</button>
         </div>
@@ -100,7 +101,6 @@
                         <select class="form-select" data-id="library" data-action="chooseLibrary">
                             <option value="" disabled selected hidden>Выбрать библиотеку</option>
                         </select>
-                        <h4 data-id="selected-lib"></h4>
                     </div>
                     <div class="col-md-2 float-right" style="margin-left: auto;">
                         <button data-id="postBooksOrderBtn" class="btn btn-dark" data-action="postBooksOrderListToGoogleTable">Заказать</button>
@@ -162,42 +162,32 @@
         let libraryForOrder = '';
         let selectedLibrary = {};
         let orderStatus = null;
-        function init(loader, libId = null) {
-            console.log('init lib', libId)
+        async function init(loader, params = {}) {
+            loaderEl = loader
             loadNavigation(ns)
-            if (!ns.TableFactory) {
-                console.error('TableFactory not initialized');
-
-                return;
-            }
-
-            if (!ns.VarContainer) {
-                console.error('VarContainer not initialized');
-
-                return;
-            }
-
             root = document.querySelector(`[data-id="root"]`);
-
             vars = ns.VarContainer.create(root);
-
             root.addEventListener('click', clickHandler);
             root.addEventListener('input', inputHandler);
             root.addEventListener('change', changeHandler);
-
-            getListOfOrdersFromGoogleTable(NEW_ORDER_STATUS);
+            if (params['type']) {
+                selectedLibrary = parseLibrary(params['library'])
+                vars.get("selected-lib").set(selectedLibrary.name)
+                vars.get("selected-lib").show()
+            }
+            if (params['type'] === 'new') {
+                vars.get("orders-list-block").hide()
+                await showTabToMakeOrders()
+                return;
+            }
+            await getListOfOrdersFromGoogleTable(NEW_ORDER_STATUS);
         }
 
-        function getListOfOrdersFromGoogleTable(orderStatus) {
-            loaderEl = loader;
-            loaderEl.show('orders/getListOfBooksFromGoogleTable');
-
-            google.script.run.withSuccessHandler(data => {
-                fillTableWithOrdersByData(data);
-
-                loaderEl.hide('orders/getListOfBooksFromGoogleTable');
-                
-            }).getOrdersTableData(orderStatus);
+        async function getListOfOrdersFromGoogleTable(orderStatus) {
+            loaderEl.show('orders/getListOfOrdersFromGoogleTable');
+            const data = await ns.Common.asyncCall('getOrdersTableData', orderStatus)
+            fillTableWithOrdersByData(data);
+            loaderEl.hide('orders/getListOfOrdersFromGoogleTable');
         }
 
         function fillTableWithOrdersByData(data) {
@@ -336,7 +326,7 @@
 
         async function clickHandler(event) {
             const action = event.target.dataset.action;
-            
+
             if (action === 'loadDataForOrders') {
                 loadDataForOrders();
             }
@@ -361,7 +351,7 @@
             }
 
             if (action === 'postBooksOrderListToGoogleTable') {
-                if (!libraryForOrder) {
+                if (!selectedLibrary.id) {
                     alert('Необходимо выбрать библиотеку!');
 
                     return;
@@ -385,59 +375,52 @@
             }
 
             if (action === 'showTabToMakeOrders') {
-                vars.get('tabToMakeOrders').getElement().hidden = false;
-                vars.get('showTabToMakeOrdersBtn').getElement().disabled = true;
-
-                getListOfBooksFromGoogleTable();
-
-                getListOfLibrariesFromGoogleTable();
+                await showTabToMakeOrders()
             }
 
             if (action === 'openOrder') {
-                clearOrderDescriptionFields();
-
-                vars.get('orderDescTable').getElement().hidden = false;
-
-                const row = event.target.closest('tr');
-
-                const orderNumber = row.cells[0].textContent;
-
-                const orderDesc = await getOrderDescriptionFromGoogleTable(orderNumber);
-
-                addOrderDescriptionToOrderDescTable(orderDesc);
+                await openOrder(event)
             }
 
             if (action === 'hideOrderDescTable') {
-                hideOrderDescTable();
-            }
-
-            function hideOrderDescTable() {
-                vars.get('orderDescTable').getElement().hidden = true;
+                vars.get('orderDescTable').hide();
             }
 
             if (action === 'showNewOrders') {
-                vars.get('showSentOrders').getElement().disabled = false;
-                vars.get('showNewOrders').getElement().disabled = true;
-
-                hideOrderDescTable();
-
-                getListOfOrdersFromGoogleTable(NEW_ORDER_STATUS);
+                await showNewOrders()
             }
 
             if (action === 'showSentOrders') {
                 vars.get('showNewOrders').getElement().disabled = false;
                 vars.get('showSentOrders').getElement().disabled = true;
 
-                hideOrderDescTable();
+                vars.get('orderDescTable').hide();
 
-                getListOfOrdersFromGoogleTable(SENT_ORDER_STATUS);
+                await getListOfOrdersFromGoogleTable(SENT_ORDER_STATUS);
             }
+        }
+
+        async function showNewOrders() {
+            vars.get('showSentOrders').getElement().disabled = false;
+            vars.get('showNewOrders').getElement().disabled = true;
+
+            vars.get('orderDescTable').hide();
+
+            await getListOfOrdersFromGoogleTable(NEW_ORDER_STATUS);
+        }
+
+        async function showTabToMakeOrders() {
+            vars.get('tabToMakeOrders').getElement().hidden = false;
+            vars.get('showTabToMakeOrdersBtn').getElement().disabled = true;
+
+            await getListOfBooksFromGoogleTable();
+            await getListOfLibrariesFromGoogleTable();
         }
 
         function loadDataForOrders() {
             const bookNameCellIndex = 2;
             const bookNumberCellIndex = 7;
-            
+
             filteredData = fullData.filter(row => {
 
                 return row[bookNameCellIndex].toLowerCase().includes(bookNameFromFilter.toLowerCase()) &&
@@ -481,43 +464,38 @@
             });
         }
 
-        function getListOfBooksFromGoogleTable() {
-            loaderEl = loader;
-            loaderEl.show();
+        async function getListOfBooksFromGoogleTable() {
+            loaderEl.show("orders/getListOfBooksFromGoogleTable");
+            const data = await ns.Common.asyncCall('getFilteredData')
+            const tableElement = vars.get('tableForOrders').getElement();
 
-            google.script.run.withSuccessHandler(data => {
-                const tableElement = vars.get('tableForOrders').getElement();
+            headers = data.header;
+            fullData = data.rows;
+            filteredData = data.rows;
 
-                headers = data.header;
-                fullData = data.rows;
-                filteredData = data.rows;
+            let orderHeader = 'Заказ';
+            headers[headers.length + 1] = orderHeader;
 
-                let orderHeader = 'Заказ';
-                headers[headers.length + 1] = orderHeader;
+            filteredData.forEach(row => {
+                row[row.length] = "";
+            });
 
-                filteredData.forEach(row => {
-                    row[row.length] = "";
-                });
+            tableObject = ns.TableFactory.create(
+                tableElement,
+                headers,
+                customTableFunction,
+                amountRowsOnPage,
+                filteredData,
+            );
 
-                tableObject = ns.TableFactory.create(
-                    tableElement,
-                    headers,
-                    customTableFunction,
-                    amountRowsOnPage,
-                    filteredData,
-                );
+            tableObject.render(filteredData);
 
-                tableObject.render(filteredData);
-
-                loaderEl.hide();
-
-            }).getFilteredData();
+            loaderEl.hide("orders/getListOfBooksFromGoogleTable");
         }
 
-        function getListOfLibrariesFromGoogleTable() {
-            google.script.run.withSuccessHandler(data => {
-                fillDropdownValuesOfLibraries(data);
-            }).getDropdownValuesOfLibraries();
+        async function getListOfLibrariesFromGoogleTable() {
+            const data = await ns.Common.asyncCall('getDropdownValuesOfLibraries')
+            fillDropdownValuesOfLibraries(data);
         }
 
         function clearOrderDescriptionFields() {
@@ -547,12 +525,11 @@
         }
 
         async function getOrderDescriptionFromGoogleTable(orderNumber) {
+            loaderEl.show("orders/getListOfBooksInOrderFromGoogleTable");
             const listOfBooksInOrder = await getListOfBooksInOrderFromGoogleTable(orderNumber);
 
             const infoAboutOrder = await getInformationAboutOrderFromGoogleTable(orderNumber);
-
-            loaderEl = loader;
-            loaderEl.hide();
+            loaderEl.hide("orders/getListOfBooksInOrderFromGoogleTable");
 
             const indexOfLibrary = 1;
             const indexOfOrderComment = 4;
@@ -566,9 +543,6 @@
         }
 
         function getListOfBooksInOrderFromGoogleTable(orderNumber) {
-            loaderEl = loader;
-            loaderEl.show();
-
             return new Promise(resolve => {
                 google.script.run.withSuccessHandler(result => {
                     resolve(result);
@@ -632,8 +606,8 @@
         function transformBooksOrderListToArray() {
             const defaultOrderNUmber = 0;
             const orderComment = vars.get('orderComment').get();
-            
-            const resultArrayWithOrder = [defaultOrderNUmber, libraryForOrder, booksOrderList.length, NEW_ORDER_STATUS, orderComment];
+
+            const resultArrayWithOrder = [defaultOrderNUmber, selectedLibrary.id, booksOrderList.length, NEW_ORDER_STATUS, orderComment];
 
             return resultArrayWithOrder;
         }
@@ -666,6 +640,31 @@
             if (action === 'chooseLibrary') {
                 libraryForOrder = vars.get('library').get();
             }
+
+        }
+
+        function parseLibrary(library) {
+            return {
+                id: library[0],
+                region: library[1],
+                name: library[2],
+                post: library[3],
+                vk: library[4],
+                contact: library[5],
+            }
+        }
+
+        async function openOrder(event) {
+            clearOrderDescriptionFields();
+
+            const row = event.target.closest('tr');
+
+            const orderNumber = row.cells[0].textContent;
+
+            const orderDesc = await getOrderDescriptionFromGoogleTable(orderNumber);
+
+            addOrderDescriptionToOrderDescTable(orderDesc);
+            vars.get('tableForOrders').show()
 
         }
 

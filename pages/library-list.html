@@ -126,7 +126,7 @@
         let msgTable = {}
         let editedLibId = null
 
-        async function init(loader = null) {
+        async function init(loader = null, params = {}) {
             loadNavigation(ns)
             root = document.querySelector(`[data-id="root"]`)
             if (!ns.VarContainer) {
@@ -175,15 +175,13 @@
 
         function libTableView(td, index, cell, row) {
             if (index === CONTROL_ROW) {
-                const div = document.createElement('div')
-                div.class = "display: flex;flex-direction: row;"
-                const editBtn = ns.Common.createBtn('редактировать', 'primary', 'editLib', cell)
-                const msgBtn = ns.Common.createBtn('переписка', 'primary', 'openMessages', cell)
-                const ordersBtn = ns.Common.createBtn('заказы', 'primary', 'openOrders', cell)
-                div.appendChild(editBtn)
-                div.appendChild(msgBtn)
-                div.appendChild(ordersBtn)
-                td.appendChild(div)
+                const buttons = []
+                buttons.push(ns.Common.createBtn('редактировать', 'primary', 'editLib', cell, true))
+                buttons.push(ns.Common.createBtn('переписка', 'primary', 'openMessages', cell, true))
+                buttons.push(ns.Common.createBtn('заказы', 'primary', 'openOrders', cell, true))
+                buttons.push(ns.Common.createBtn('новый заказ', 'primary', 'newOrder', cell, true))
+                const controls = ns.Common.createMultiBtn('действия', 'primary', buttons)
+                td.appendChild(controls)
             } else {
                 td.textContent = cell
             }
@@ -236,8 +234,7 @@
                     break;
                 case 'editLib':
                     editedLibId = Number(event.target.dataset.value)
-                    const row = libTable.fullDataMap.get(editedLibId)
-                    editLib(row)
+                    editLib(editedLibId)
                     break;
                 case 'saveLib':
                     saveLib()
@@ -253,6 +250,11 @@
                     editedLibId = Number(event.target.dataset.value)
                     pushToOrders(editedLibId)
                     break;
+                case 'newOrder':
+                    editedLibId = Number(event.target.dataset.value)
+                    toNewOrder(editedLibId)
+                    break;
+
 
                 default:
                     console.error('[clickHandler] Unknown action ' + action)
@@ -270,7 +272,8 @@
         }
 
 
-        function editLib(library) {
+        function editLib(libId) {
+            const library = getLibById(Number(libId))
             vars.get("edited-region").set(library[REGION_ROW])
             vars.get("edited-name").set(library[NAME_ROW])
             vars.get("edited-post-address").set(library[POST_ROW])
@@ -359,13 +362,10 @@
 
         async function openMessages(libId) {
             const library = libTable.fullDataMap.get(libId)
-            console.log({library, libId, libTable})
             vars.get('selected-lib').set(library[NAME_ROW])
             vars.get("search-block").hide()
             vars.get("lib-table").hide()
-            console.log('libId', libId)
             let messages = await loadMessagesFromDb(libId)
-            console.log('messages', messages)
             messages = messages.map(message => [message.data, message.author, message.message + ' ' + message.vkMessage])
             msgTable.table.render(messages)
             vars.get("msg-table").show()
@@ -384,7 +384,17 @@
         }
 
         async function pushToOrders(libId) {
-            navigate('orders', libId)
+            const library = getLibById(libId)
+            navigate('orders', {type: 'list', library})
+        }
+
+        async function toNewOrder(libId) {
+            const library = getLibById(libId)
+            navigate('orders', {type: 'new', library})
+        }
+
+        function getLibById(libId) {
+            return libTable.fullDataMap.get(libId);
         }
 
         function destroy() {

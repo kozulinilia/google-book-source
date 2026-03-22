@@ -303,5 +303,5 @@ function removeRowById(id) {
 
 function addNewBookWithImage() {
     loadEnvironment()
-    const lastRow getLastRowInSheet(GLOBAL.tableId)
+    const lastRow = getLastRowInSheet(GLOBAL.tableId)
 }
