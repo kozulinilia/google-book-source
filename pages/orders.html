@@ -136,6 +136,7 @@
     <?!= include('components/custom-table') ?>
     <?!= include('components/variable-container') ?>
     <?!= include('components/navigation') ?>
+    <?!= include('components/common-functions') ?>
 </div>
 <script>
     (function (ns) {
@@ -375,38 +376,24 @@
             }
 
             if (action === 'showTabToMakeOrders') {
-                await showTabToMakeOrders()
+                await showTabToMakeOrders();
             }
 
             if (action === 'openOrder') {
-                await openOrder(event)
+                await openOrder(event);
             }
 
             if (action === 'hideOrderDescTable') {
-                vars.get('orderDescTable').hide();
+                vars.get('orderDescTable').getElement().hidden = true;
             }
 
             if (action === 'showNewOrders') {
-                await showNewOrders()
+                await showNewOrders();
             }
 
             if (action === 'showSentOrders') {
-                vars.get('showNewOrders').getElement().disabled = false;
-                vars.get('showSentOrders').getElement().disabled = true;
-
-                vars.get('orderDescTable').hide();
-
-                await getListOfOrdersFromGoogleTable(SENT_ORDER_STATUS);
+                await showSentOrders();
             }
-        }
-
-        async function showNewOrders() {
-            vars.get('showSentOrders').getElement().disabled = false;
-            vars.get('showNewOrders').getElement().disabled = true;
-
-            vars.get('orderDescTable').hide();
-
-            await getListOfOrdersFromGoogleTable(NEW_ORDER_STATUS);
         }
 
         async function showTabToMakeOrders() {
@@ -415,6 +402,24 @@
 
             await getListOfBooksFromGoogleTable();
             await getListOfLibrariesFromGoogleTable();
+        }
+
+        async function showNewOrders() {
+            vars.get('showSentOrders').getElement().disabled = false;
+            vars.get('showNewOrders').getElement().disabled = true;
+
+            vars.get('orderDescTable').getElement().hidden = true;
+
+            await getListOfOrdersFromGoogleTable(NEW_ORDER_STATUS);
+        }
+
+        async function showSentOrders() {
+            vars.get('showNewOrders').getElement().disabled = false;
+            vars.get('showSentOrders').getElement().disabled = true;
+
+            vars.get('orderDescTable').getElement().hidden = true;
+
+            await getListOfOrdersFromGoogleTable(SENT_ORDER_STATUS);
         }
 
         function loadDataForOrders() {
@@ -562,8 +567,6 @@
         function addOrderDescriptionToOrderDescTable(orderDesc) {
             const orderDescTable = vars.get('orderDescTable').getElement().querySelector('table');
 
-            // clearOrderDescriptionFields(orderDescTable);
-
             orderDescTable.rows[0].cells[1].textContent = orderDesc.orderNumber;
             orderDescTable.rows[1].cells[1].textContent = orderDesc.nameOfLibrary;
             orderDescTable.rows[2].cells[1].textContent = orderDesc.orderComment;
@@ -664,8 +667,8 @@
             const orderDesc = await getOrderDescriptionFromGoogleTable(orderNumber);
 
             addOrderDescriptionToOrderDescTable(orderDesc);
-            vars.get('tableForOrders').show()
 
+            vars.get('orderDescTable').getElement().hidden = false;
         }
 
         function destroy() {
