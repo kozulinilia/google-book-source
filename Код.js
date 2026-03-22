@@ -13,7 +13,7 @@ const FREE_STATUS = 'free';
 const DELETED_STATUS = 'deleted';
 const RESERVED_STATUS = 'reserved';
 const NEW_ORDER_STATUS = 'new'
-const ORDER_COLUMN_NUMBER = 15;
+const ORDER_COLUMN_NUMBER = 16;
 
 function getFilteredData(filterTheme = false, status = FREE_STATUS) {
     loadEnvironment();
@@ -345,10 +345,8 @@ function getDropdownValuesOfLibraries() {
 
 function getOrdersTableData(orderStatus) {
     loadEnvironment();
-    const sheet = getSheetByCustomName(GLOBAL.ordersSheet);
-    if (!sheet) {
-        return []
-    }
+    const ss = SpreadsheetApp.openById(GLOBAL.tableId);
+    const sheet = ss.getSheetByName(GLOBAL.ordersSheet);
     const data = sheet.getDataRange().getValues();
 
     const filteredData = data.filter(row => {

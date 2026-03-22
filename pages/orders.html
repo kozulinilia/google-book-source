@@ -162,6 +162,8 @@
         let libraryForOrder = '';
         let selectedLibrary = {};
         let orderStatus = null;
+
+        
         function init(loader, libId = null) {
             console.log('init lib', libId)
             loadNavigation(ns)
@@ -327,8 +329,8 @@
                 const option = document.createElement("option");
 
                 option.setAttribute("data-action", "chooseLibrary")
-                option.value = listOflibraries[i][1];
-                option.textContent = listOflibraries[i][1];
+                option.value = listOflibraries[i][2];
+                option.textContent = listOflibraries[i][2];
 
                 librarySelect.appendChild(option);
             }
