@@ -5,412 +5,411 @@
         <h4 class="mb-4">
             Библиотеки
         </h4>
-        <a data-id="return-lib-list" data-action="returnToLibs">К списку библиотек</a>
         <div data-id="search-block">
-            <div class="col-md-3 float-right">
-                <div class="flex flex-row">
-                    <input data-id="search-lib" class="form-control" type="text"></input>
+            <div class="row g-2">
+                <div class="col-md-3 float-right">
+                    <input data-id="search-lib" class="form-control" type="text"/>
+                </div>
+                <div class="col-md-3 float-right">
                     <button class="btn btn-primary" data-action="searchLib">
-                        <span class="material-icons" style="font-size:18px;vertical-align:middle;">search</span>
                         Поиск
                     </button>
                 </div>
             </div>
-            <div class="row g-3" align-items-end>
+            <div class="row g-3 align-items-end mt-3">
                 <div class="col-md-3 float-right">
                     <button class="btn btn-primary" data-action="addNewLib">
                         Новая библиотека
                     </button>
                 </div>
             </div>
-        </div>
 
-        <div class="row g-3" data-id="add-library-block" style="display: none" align-items-end>
-            <div class="row g-2">
-                <div class="col-md-2">
-                    <label class="material-label">Регион</label>
-                    <input data-id="new-region" class="form-control" type="text"></input>
+            <div class="row g-3" data-id="add-library-block" style="display: none" align-items-end>
+                <div class="row g-2">
+                    <div class="col-md-2">
+                        <label class="material-label">Регион</label>
+                        <input data-id="new-region" class="form-control" type="text"></input>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="material-label">Название библиотеки</label>
+                        <input data-id="new-name" class="form-control" type="text"></input>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="material-label">Почтовый адрес</label>
+                        <input data-id="new-post-address" class="form-control" type="text"></input>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="material-label">VK</label>
+                        <input data-id="new-vk-address" class="form-control" type="text"></input>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="material-label">Имя библиотекаря</label>
+                        <input data-id="new-contact" class="form-control" type="text"></input>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <label class="material-label">Название библиотеки</label>
-                    <input data-id="new-name" class="form-control" type="text"></input>
-                </div>
-                <div class="col-md-4">
-                    <label class="material-label">Почтовый адрес</label>
-                    <input data-id="new-post-address" class="form-control" type="text"></input>
-                </div>
-                <div class="col-md-3">
-                    <label class="material-label">VK</label>
-                    <input data-id="new-vk-address" class="form-control" type="text"></input>
-                </div>
-                <div class="col-md-3">
-                    <label class="material-label">Имя библиотекаря</label>
-                    <input data-id="new-contact" class="form-control" type="text"></input>
+                <div class="row g-3" align-items-end>
+                    <div class="col-md-3 float-right">
+                        <button class="btn btn-success" data-action="saveNewLib">
+                            Создать
+                        </button>
+                        <button class="btn btn-danger" data-action="cancelNewLib">
+                            Отмена
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="row g-3" align-items-end>
-                <div class="col-md-3 float-right">
-                    <button class="btn btn-success" data-action="saveNewLib">
-                        Создать
-                    </button>
-                    <button class="btn btn-danger" data-action="cancelNewLib">
-                        Отмена
-                    </button>
+            <div class="row g-3" data-id="edit-library-block" style="display: none" align-items-end>
+                <div class="row g-2">
+                    <div class="col-md-2">
+                        <label class="material-label">Регион</label>
+                        <input data-id="edited-region" class="form-control" type="text"></input>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="material-label">Название библиотеки</label>
+                        <input data-id="edited-name" class="form-control" type="text"></input>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="material-label">Почтовый адрес</label>
+                        <input data-id="edited-post-address" class="form-control" type="text"></input>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="material-label">VK</label>
+                        <input data-id="edited-vk-address" class="form-control" type="text"></input>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="material-label">Имя библиотекаря</label>
+                        <input data-id="edited-contact" class="form-control" type="text"></input>
+                    </div>
+                </div>
+                <div class="row g-3" align-items-end>
+                    <div class="col-md-3 float-right">
+                        <button class="btn btn-primary" data-action="saveLib">
+                            Сохранить
+                        </button>
+                        <button class="btn btn-danger" data-action="cancelNewLib">
+                            Отмена
+                        </button>
+                    </div>
                 </div>
             </div>
+            <div data-id="message-block">
+                <div data-id="selected-lib"></div>
+            </div>
+            <span data-id="error-field" style="color: crimson;display: none"></span>
+            <div data-id="log-list"></div>
         </div>
-        <div class="row g-3" data-id="edit-library-block" style="display: none" align-items-end>
-            <div class="row g-2">
-                <div class="col-md-2">
-                    <label class="material-label">Регион</label>
-                    <input data-id="edited-region" class="form-control" type="text"></input>
-                </div>
-                <div class="col-md-4">
-                    <label class="material-label">Название библиотеки</label>
-                    <input data-id="edited-name" class="form-control" type="text"></input>
-                </div>
-                <div class="col-md-4">
-                    <label class="material-label">Почтовый адрес</label>
-                    <input data-id="edited-post-address" class="form-control" type="text"></input>
-                </div>
-                <div class="col-md-3">
-                    <label class="material-label">VK</label>
-                    <input data-id="edited-vk-address" class="form-control" type="text"></input>
-                </div>
-                <div class="col-md-3">
-                    <label class="material-label">Имя библиотекаря</label>
-                    <input data-id="edited-contact" class="form-control" type="text"></input>
-                </div>
-            </div>
-            <div class="row g-3" align-items-end>
-                <div class="col-md-3 float-right">
-                    <button class="btn btn-primary" data-action="saveLib">
-                        Сохранить
-                    </button>
-                    <button class="btn btn-danger" data-action="cancelNewLib">
-                        Отмена
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div data-id="message-block">
-            <div data-id="selected-lib"></div>
-        </div>
-        <span data-id="error-field" style="color: crimson;display: none"></span>
-        <div data-id="log-list"></div>
+        <div data-component="table" data-id="lib-table"></div>
+        <div data-component="table" data-id="msg-table" style="display: none"></div>
     </div>
-    <div data-component="table" data-id="lib-table"></div>
-    <div data-component="table" data-id="msg-table" style="display: none"></div>
-</div>
-<?!= include('components/custom-table') ?>
-<?!= include('components/variable-container') ?>
-<?!= include('components/navigation') ?>
-<?!= include('components/common-functions') ?>
-<?!= include('components/logger') ?>
-<script>
-    (function (ns) {
-        const ID_ROW = 0
-        const REGION_ROW = 1
-        const NAME_ROW = 2
-        const POST_ROW = 3
-        const VK_ROW = 4
-        const CONTACT_ROW = 5
-        const CONTROL_ROW = 6
-        const MSG_CONTROL_ROW = 6
-        const msgTableRows = {data: 0, author: 1, message: 2, control: 3}
-        let root = null
-        let loaderEl = null
-        let vars = null
-        let loggerComponent = null
-        let libTable = {}
-        let msgTable = {}
-        let editedLibId = null
+    <?!= include('components/custom-table') ?>
+    <?!= include('components/variable-container') ?>
+    <?!= include('components/navigation') ?>
+    <?!= include('components/common-functions') ?>
+    <?!= include('components/logger') ?>
+    <script>
+        (function (ns) {
+            const ID_ROW = 0
+            const REGION_ROW = 1
+            const NAME_ROW = 2
+            const POST_ROW = 3
+            const VK_ROW = 4
+            const CONTACT_ROW = 5
+            const CONTROL_ROW = 6
+            const MSG_CONTROL_ROW = 6
+            const msgTableRows = {data: 0, author: 1, message: 2, control: 3}
+            let root = null
+            let loaderEl = null
+            let vars = null
+            let loggerComponent = null
+            let libTable = {}
+            let msgTable = {}
+            let editedLibId = null
 
-        async function init(loader = null, params = {}) {
-            loadNavigation(ns)
-            root = document.querySelector(`[data-id="root"]`)
-            if (!ns.VarContainer) {
-                console.error('VarContainer not initialized');
-                return;
+            async function init(loader = null, params = {}) {
+                loadNavigation(ns)
+                root = document.querySelector(`[data-id="root"]`)
+                if (!ns.VarContainer) {
+                    console.error('VarContainer not initialized');
+                    return;
+                }
+                vars = ns.VarContainer.create(root)
+                loggerComponent = ns.LoggerFactory.create(vars.get('log-list').getElement())
+                createMsgTable()
+                loaderEl = loader
+                await creatLibTable()
+                root.addEventListener('click', clickHandler)
             }
-            vars = ns.VarContainer.create(root)
-            loggerComponent = ns.LoggerFactory.create(vars.get('log-list').getElement())
-            createMsgTable()
-            loaderEl = loader
-            await creatLibTable()
-            root.addEventListener('click', clickHandler)
-        }
 
-        function createMsgTable() {
-            msgTable.table = ns.TableFactory.create(
-                vars.get('msg-table').getElement(),
-                ['дата', 'кто', 'сообщение'],
-                msgTableView,
-                5
-            )
-        }
-
-        async function creatLibTable() {
-            await loadLibsFromDb()
-            libTable.table = ns.TableFactory.create(
-                vars.get('lib-table').getElement(),
-                libTable.header,
-                libTableView,
-                20
-            )
-            libTable.table.render(libTable.filteredData)
-        }
-
-        function msgTableView(td, index, cell, row) {
-            if (index === msgTableRows.control) {
-                const div = document.createElement('div')
-                div.class = "display: flex;flex-direction: row;"
-                const editBtn = ns.Common.createBtn('редактировать', 'primary', 'editMsg', cell)
-                div.appendChild(editBtn)
-                td.appendChild(div)
-            } else {
-                td.textContent = cell
+            function createMsgTable() {
+                msgTable.table = ns.TableFactory.create(
+                    vars.get('msg-table').getElement(),
+                    ['дата', 'кто', 'сообщение'],
+                    msgTableView,
+                    5
+                )
             }
-        }
 
-        function libTableView(td, index, cell, row) {
-            if (index === CONTROL_ROW) {
-                const buttons = []
-                buttons.push(ns.Common.createBtn('редактировать', 'primary', 'editLib', cell, true))
-                buttons.push(ns.Common.createBtn('переписка', 'primary', 'openMessages', cell, true))
-                buttons.push(ns.Common.createBtn('заказы', 'primary', 'openOrders', cell, true))
-                buttons.push(ns.Common.createBtn('новый заказ', 'primary', 'newOrder', cell, true))
-                const controls = ns.Common.createMultiBtn('действия', 'primary', buttons)
-                td.appendChild(controls)
-            } else {
-                td.textContent = cell
+            async function creatLibTable() {
+                await loadLibsFromDb()
+                libTable.table = ns.TableFactory.create(
+                    vars.get('lib-table').getElement(),
+                    libTable.header,
+                    libTableView,
+                    20
+                )
+                libTable.table.render(libTable.filteredData)
             }
-        }
 
-        async function loadLibsFromDb() {
-            loaderEl.show()
-            const result = await ns.Common.asyncCall('loadLibList')
-            if (result.data) {
-                const rows = result.data.map(row => {
-                    row.push(row[ID_ROW])
-                    return row
+            function msgTableView(td, index, cell, row) {
+                if (index === msgTableRows.control) {
+                    const div = document.createElement('div')
+                    div.class = "display: flex;flex-direction: row;"
+                    const editBtn = ns.Common.createBtn('редактировать', 'primary', 'editMsg', cell)
+                    div.appendChild(editBtn)
+                    td.appendChild(div)
+                } else {
+                    td.textContent = cell
+                }
+            }
+
+            function libTableView(td, index, cell, row) {
+                if (index === CONTROL_ROW) {
+                    const buttons = []
+                    buttons.push(ns.Common.createLinkAction(cell, 'editLib', 'редактировать'))
+                    buttons.push(ns.Common.createLinkAction(cell, 'openMessages', 'переписка'))
+                    buttons.push(ns.Common.createLinkAction(cell, 'openOrders', 'заказы'))
+                    buttons.push(ns.Common.createLinkAction(cell, 'newOrder', 'новый заказ'))
+                    const controls = ns.Common.createMultiBtn('действия', 'primary', buttons)
+                    td.appendChild(controls)
+                } else {
+                    td.textContent = cell
+                }
+            }
+
+            async function loadLibsFromDb() {
+                loaderEl.show()
+                const result = await ns.Common.asyncCall('loadLibList')
+                if (result.data) {
+                    const rows = result.data.map(row => {
+                        row.push(row[ID_ROW])
+                        return row
+                    })
+                    libTable.fullData = rows;
+                    libTable.header = result.header
+                    libTable.filteredData = rows;
+                    libTable.fullDataMap = new Map()
+                    libTable.fullData.forEach(row => {
+                        libTable.fullDataMap.set(row[ID_ROW], row)
+                    })
+                    loaderEl.hide()
+                }
+            }
+
+            async function reloadLibTable() {
+                await loadLibsFromDb()
+                libTable.table.render(libTable.filteredData)
+            }
+
+            function addNewLib() {
+                vars.get("add-library-block").show()
+                vars.get("search-lib").hide()
+            }
+
+            function clickHandler(event) {
+                const action = event.target.dataset.action
+                let value = ''
+                switch (action) {
+                    case 'saveNewLib':
+                        saveNewLib()
+                        break
+                    case 'cancelNewLib':
+                        cancelNewLib()
+                        break
+                    case 'addNewLib':
+                        addNewLib()
+                        break
+                    case 'searchLib':
+                        searchLib(vars.get('search-lib').get())
+                        break;
+                    case 'editLib':
+                        editedLibId = Number(event.target.dataset.value)
+                        editLib(editedLibId)
+                        break;
+                    case 'saveLib':
+                        saveLib()
+                        break;
+                    case 'openMessages':
+                        editedLibId = Number(event.target.dataset.value)
+                        openMessages(editedLibId)
+                        break;
+                    case 'returnToLibs':
+                        returnToLibs()
+                        break;
+                    case 'openOrders':
+                        editedLibId = Number(event.target.dataset.value)
+                        pushToOrders(editedLibId)
+                        break;
+                    case 'newOrder':
+                        editedLibId = Number(event.target.dataset.value)
+                        toNewOrder(editedLibId)
+                        break;
+
+
+                    default:
+                        console.error('[clickHandler] Unknown action ' + action)
+                }
+            }
+
+            function searchLib(value) {
+                if (!value) {
+                    libTable.filteredData = libTable.fullData
+                }
+                libTable.filteredData = libTable.fullData.filter(row => {
+                    return row[NAME_ROW].includes(value) || row[CONTACT_ROW].includes(value)
                 })
-                libTable.fullData = rows;
-                libTable.header = result.header
-                libTable.filteredData = rows;
-                libTable.fullDataMap = new Map()
-                libTable.fullData.forEach(row => {
-                    libTable.fullDataMap.set(row[ID_ROW], row)
-                })
-                loaderEl.hide()
-            }
-        }
-
-        async function reloadLibTable() {
-            await loadLibsFromDb()
-            libTable.table.render(libTable.filteredData)
-        }
-
-        function addNewLib() {
-            vars.get("add-library-block").show()
-            vars.get("search-lib").hide()
-        }
-
-        function clickHandler(event) {
-            const action = event.target.dataset.action
-            let value = ''
-            switch (action) {
-                case 'saveNewLib':
-                    saveNewLib()
-                    break
-                case 'cancelNewLib':
-                    cancelNewLib()
-                    break
-                case 'addNewLib':
-                    addNewLib()
-                    break
-                case 'searchLib':
-                    searchLib(vars.get('search-lib').get())
-                    break;
-                case 'editLib':
-                    editedLibId = Number(event.target.dataset.value)
-                    editLib(editedLibId)
-                    break;
-                case 'saveLib':
-                    saveLib()
-                    break;
-                case 'openMessages':
-                    editedLibId = Number(event.target.dataset.value)
-                    openMessages(editedLibId)
-                    break;
-                case 'returnToLibs':
-                    returnToLibs()
-                    break;
-                case 'openOrders':
-                    editedLibId = Number(event.target.dataset.value)
-                    pushToOrders(editedLibId)
-                    break;
-                case 'newOrder':
-                    editedLibId = Number(event.target.dataset.value)
-                    toNewOrder(editedLibId)
-                    break;
-
-
-                default:
-                    console.error('[clickHandler] Unknown action ' + action)
-            }
-        }
-
-        function searchLib(value) {
-            if (!value) {
-                libTable.filteredData = libTable.fullData
-            }
-            libTable.filteredData = libTable.fullData.filter(row => {
-                return row[NAME_ROW].includes(value) || row[CONTACT_ROW].includes(value)
-            })
-            libTable.table.render(libTable.filteredData)
-        }
-
-
-        function editLib(libId) {
-            const library = getLibById(Number(libId))
-            vars.get("edited-region").set(library[REGION_ROW])
-            vars.get("edited-name").set(library[NAME_ROW])
-            vars.get("edited-post-address").set(library[POST_ROW])
-            vars.get("edited-vk-address").set(library[VK_ROW])
-            vars.get("edited-contact").set(library[CONTACT_ROW])
-            vars.get("edit-library-block").show()
-        }
-
-        async function saveLib() {
-            const library = {
-                id: editedLibId,
-                region: vars.get("edited-region").get(),
-                name: vars.get("edited-name").get(),
-                post: vars.get("edited-post-address").get(),
-                vk: vars.get("edited-vk-address").get(),
-                contact: vars.get("edited-contact").get(),
-            }
-            await saveLibToDb(library)
-            editedLibId = null
-            await reloadLibTable()
-        }
-
-        async function saveNewLib(id = null) {
-            const library = {
-                region: vars.get("new-region").get(),
-                name: vars.get("new-name").get(),
-                post: vars.get("new-post-address").get(),
-                vk: vars.get("new-vk-address").get(),
-                contact: vars.get("new-contact").get(),
+                libTable.table.render(libTable.filteredData)
             }
 
-            await addLibToDb(library)
-            await reloadLibTable()
-        }
 
-        async function saveLibToDb(library) {
-            loaderEl.show()
-            const result = await ns.Common.asyncCall('saveLib', library)
-            if (result) {
-                loggerComponent.sendMessage(`updated ${result.id} ${result.name}`)
+            function editLib(libId) {
+                const library = getLibById(Number(libId))
+                vars.get("edited-region").set(library[REGION_ROW])
+                vars.get("edited-name").set(library[NAME_ROW])
+                vars.get("edited-post-address").set(library[POST_ROW])
+                vars.get("edited-vk-address").set(library[VK_ROW])
+                vars.get("edited-contact").set(library[CONTACT_ROW])
+                vars.get("edit-library-block").show()
+            }
+
+            async function saveLib() {
+                const library = {
+                    id: editedLibId,
+                    region: vars.get("edited-region").get(),
+                    name: vars.get("edited-name").get(),
+                    post: vars.get("edited-post-address").get(),
+                    vk: vars.get("edited-vk-address").get(),
+                    contact: vars.get("edited-contact").get(),
+                }
+                await saveLibToDb(library)
+                editedLibId = null
+                await reloadLibTable()
+            }
+
+            async function saveNewLib(id = null) {
+                const library = {
+                    region: vars.get("new-region").get(),
+                    name: vars.get("new-name").get(),
+                    post: vars.get("new-post-address").get(),
+                    vk: vars.get("new-vk-address").get(),
+                    contact: vars.get("new-contact").get(),
+                }
+
+                await addLibToDb(library)
+                await reloadLibTable()
+            }
+
+            async function saveLibToDb(library) {
+                loaderEl.show()
+                const result = await ns.Common.asyncCall('saveLib', library)
+                if (result) {
+                    loggerComponent.sendMessage(`updated ${result.id} ${result.name}`)
+                    clearAddFields();
+                    vars.get("add-library-block").hide()
+                    vars.get("edit-library-block").hide()
+                    vars.get("search-lib").show()
+                    loaderEl.hide()
+                    showError("", false);
+                }
+            }
+
+            async function addLibToDb(library) {
+                loaderEl.show()
+                const result = await ns.Common.asyncCall('saveNewLib', library)
+                if (result) {
+                    loggerComponent.sendMessage(`created ${result.id} ${result.name}`)
+                    clearAddFields();
+                    vars.get("add-library-block").hide()
+                    vars.get("edit-library-block").hide()
+                    vars.get("search-lib").show()
+                    loaderEl.hide()
+                    showError("", false);
+                }
+            }
+
+            function cancelNewLib() {
                 clearAddFields();
                 vars.get("add-library-block").hide()
-                vars.get("edit-library-block").hide()
                 vars.get("search-lib").show()
+            }
+
+            function clearAddFields() {
+                vars.get("new-region").set('')
+                vars.get("new-name").set('')
+                vars.get("new-post-address").set('')
+                vars.get("new-vk-address").set('')
+                vars.get("new-contact").set('')
+            }
+
+            function showError(error, show) {
+                vars.get("error-field").set(error);
+                if (show) {
+                    vars.get("error-field").show()
+                } else {
+                    vars.get("error-field").hide()
+                }
+            }
+
+            async function openMessages(libId) {
+                const library = libTable.fullDataMap.get(libId)
+                vars.get('selected-lib').set(library[NAME_ROW])
+                vars.get("search-block").hide()
+                vars.get("lib-table").hide()
+                let messages = await loadMessagesFromDb(libId)
+                messages = messages.map(message => [message.data, message.author, message.message + ' ' + message.vkMessage])
+                msgTable.table.render(messages)
+                vars.get("msg-table").show()
+            }
+
+            function returnToLibs() {
+                vars.get("search-block").hide()
+                vars.get("lib-table").show()
+            }
+
+            async function loadMessagesFromDb(libId) {
+                loaderEl.show()
+                const result = await ns.Common.asyncCall('loadMsgList', libId)
                 loaderEl.hide()
-                showError("", false);
+                return result
             }
-        }
 
-        async function addLibToDb(library) {
-            loaderEl.show()
-            const result = await ns.Common.asyncCall('saveNewLib', library)
-            if (result) {
-                loggerComponent.sendMessage(`created ${result.id} ${result.name}`)
-                clearAddFields();
-                vars.get("add-library-block").hide()
-                vars.get("edit-library-block").hide()
-                vars.get("search-lib").show()
-                loaderEl.hide()
-                showError("", false);
+            async function pushToOrders(libId) {
+                const library = getLibById(libId)
+                navigate('orders', {type: 'list', library})
             }
-        }
 
-        function cancelNewLib() {
-            clearAddFields();
-            vars.get("add-library-block").hide()
-            vars.get("search-lib").show()
-        }
-
-        function clearAddFields() {
-            vars.get("new-region").set('')
-            vars.get("new-name").set('')
-            vars.get("new-post-address").set('')
-            vars.get("new-vk-address").set('')
-            vars.get("new-contact").set('')
-        }
-
-        function showError(error, show) {
-            vars.get("error-field").set(error);
-            if (show) {
-                vars.get("error-field").show()
-            } else {
-                vars.get("error-field").hide()
+            async function toNewOrder(libId) {
+                const library = getLibById(libId)
+                navigate('orders', {type: 'new', library})
             }
-        }
 
-        async function openMessages(libId) {
-            const library = libTable.fullDataMap.get(libId)
-            vars.get('selected-lib').set(library[NAME_ROW])
-            vars.get("search-block").hide()
-            vars.get("lib-table").hide()
-            let messages = await loadMessagesFromDb(libId)
-            messages = messages.map(message => [message.data, message.author, message.message + ' ' + message.vkMessage])
-            msgTable.table.render(messages)
-            vars.get("msg-table").show()
-        }
-
-        function returnToLibs() {
-            vars.get("search-block").hide()
-            vars.get("lib-table").show()
-        }
-
-        async function loadMessagesFromDb(libId) {
-            loaderEl.show()
-            const result = await ns.Common.asyncCall('loadMsgList', libId)
-            loaderEl.hide()
-            return result
-        }
-
-        async function pushToOrders(libId) {
-            const library = getLibById(libId)
-            navigate('orders', {type: 'list', library})
-        }
-
-        async function toNewOrder(libId) {
-            const library = getLibById(libId)
-            navigate('orders', {type: 'new', library})
-        }
-
-        function getLibById(libId) {
-            return libTable.fullDataMap.get(libId);
-        }
-
-        function destroy() {
-            if (root) {
-                root.removeEventListener('click', clickHandler)
+            function getLibById(libId) {
+                return libTable.fullDataMap.get(libId);
             }
-            if (vars) {
-                vars.forEach((value, key) => {
-                    value.destroy()
-                })
-            }
-        }
 
-        ns.AddLibrary = {
-            init,
-            destroy,
-        };
-    })(window.App = window.App || {});
-</script>
+            function destroy() {
+                if (root) {
+                    root.removeEventListener('click', clickHandler)
+                }
+                if (vars) {
+                    vars.forEach((value, key) => {
+                        value.destroy()
+                    })
+                }
+            }
+
+            ns.AddLibrary = {
+                init,
+                destroy,
+            };
+        })(window.App = window.App || {});
+    </script>

@@ -36,13 +36,13 @@
     const app = document.getElementById('app')
     let previousPage = null
     const routerPages = {
-        'add-book': {name: 'pages/add-book', component: 'AddBook', admin: true, label: 'Добавить книгу'},
-        'book-list': {name: 'pages/book-list', component: 'BookList', admin: false, label: "Список книг"},
-        'deleted-list': {name: 'pages/deleted-list', component: 'DeletedBookList', admin: true, label: "Удаленные"},
-        'orders': {name: 'pages/orders', component: 'Orders', admin: true, label: "Заказы"},
-        'edit-book': {name: 'pages/edit-book', component: 'EditBook', admin: true, label: "Редактировать"},
-        'libraries': {name: 'pages/library-list', component: 'AddLibrary', admin: true, label: "Библиотеки"},
-        'about-page': {name: 'pages/about-page', component: 'AboutPage', admin: false, label: "О нас"},
+        'add-book': {name: 'pages/add-book', component: 'AddBook', hidden: false, label: 'Добавить книгу'},
+        'book-list': {name: 'pages/book-list', component: 'BookList', hidden: true, label: "Список книг"},
+        'deleted-list': {name: 'pages/deleted-list', component: 'DeletedBookList', hidden: false, label: "Удаленные"},
+        'orders': {name: 'pages/orders', component: 'Orders', hidden: true, label: "Заказы"},
+        'edit-book': {name: 'pages/edit-book', component: 'EditBook', hidden: false, label: "Список книг"},
+        'libraries': {name: 'pages/library-list', component: 'AddLibrary', hidden: false, label: "Библиотеки"},
+        'about-page': {name: 'pages/about-page', component: 'AboutPage', hidden: false, label: "О нас"},
     }
 
     const loader = new Loader(document.querySelector(`[data-id="loader"]`))

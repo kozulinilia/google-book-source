@@ -1,5 +1,3 @@
-const ORDER_COLUMN_NUMBER = 16;
-
 function getOrdersTableData(orderStatus, libId = null) {
     const sheet = getSheetByCustomName("ordersSheet");
     if (!sheet) {
@@ -28,7 +26,8 @@ function getListOfBooksInOrder(orderNumber) {
 
     for (let i = 1; i < data.length; i++) {
         if (data[i][ORDER_COLUMN_NUMBER] === Number(orderNumber)) {
-            listOfBooksInOrder.push({bookName: data[i][NAME_ROW], author: data[i][AUTHOR_ROW]});
+            const book = new BookInst(rawType, data[i])
+            listOfBooksInOrder.push(book.toObj());
         }
     }
 

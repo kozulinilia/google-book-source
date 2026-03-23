@@ -13,6 +13,7 @@ const FREE_STATUS = 'free';
 const DELETED_STATUS = 'deleted';
 const RESERVED_STATUS = 'reserved';
 const NEW_ORDER_STATUS = 'new'
+const ORDER_COLUMN_NUMBER = 16;
 
 class BookInst {
     constructor(type, data, id = null) {
@@ -28,6 +29,8 @@ class BookInst {
                 this.link = data[5]
                 this.box = data[6]
                 this.id = id ? Number(id) : Number(Number(data[7]))
+                this.dateTime = data[8] ?? ''
+                this.dateTime = data[9] ?? ''
                 break;
             case objType:
                 this.theme = data.theme
@@ -38,6 +41,8 @@ class BookInst {
                 this.link = data.link
                 this.box = data.box
                 this.id = id ? Number(id) : Number(Number(data.id))
+                this.dateTime = data[8]
+                this.order = data[9]
             case rawType:
                 this.theme = data[THEME_ROW]
                 this.author = data[AUTHOR_ROW]
@@ -48,6 +53,8 @@ class BookInst {
                 this.box = data[BOX_ROW]
                 this.id = id ? Number(id) : Number(Number(data[BOOK_ID_ROW]))
                 this.status = data[STATE_ROW]
+                this.dateTime = data[DATE_ROW] ?? ''
+                this.order = data[ORDER_COLUMN_NUMBER] ?? ''
                 break;
         }
     }
@@ -61,6 +68,8 @@ class BookInst {
             this.link,
             this.box,
             this.id,
+            this.dateTime,
+            this.order,
         ]
     }
     toObj() {

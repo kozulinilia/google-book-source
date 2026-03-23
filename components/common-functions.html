@@ -71,6 +71,7 @@
             const ulEl = document.createElement('ul')
             ulEl.className = "dropdown-menu"
             buttons.forEach(btn => {
+                btn.className = btn.className + ' mb-2'
                 const li = document.createElement('li')
                 li.appendChild(btn)
                 ulEl.appendChild(li)
@@ -81,11 +82,21 @@
             return div
         }
 
+        function createLinkAction(value, action, label) {
+            const element = document.createElement("a")
+            element.className = 'link'
+            element.setAttribute('data-value', value)
+            element.setAttribute('data-action', action)
+            element.textContent = label
+            return element
+        }
+
         ns.Common = {
             createBtn,
             asyncCall,
             createInput,
             createMultiBtn,
+            createLinkAction,
         };
 
     })(window.App = window.App || {})
