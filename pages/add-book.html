@@ -74,7 +74,7 @@
         let loaderEl = null
         let vars = null
 
-        function init(loader = null) {
+        function init(loader = null, params = {}) {
             loadNavigation(ns)
             root = document.querySelector(`[data-id="root"]`)
             if (!ns.VarContainer) {

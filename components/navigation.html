@@ -19,7 +19,7 @@
             root = element
             Object.keys(routerPages).forEach(page => {
                 let pageEl = routerPages[page]
-                if (isAdmin || pageEl.admin) {
+                if (!pageEl.hidden) {
                     const btn = createNavButton(pageEl.label, page)
                     root.appendChild(btn)
                 }

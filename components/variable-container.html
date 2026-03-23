@@ -8,6 +8,9 @@
                 if (['DIV', 'SPAN'].includes(element.nodeName)) {
                     this.setKey = "innerText"
                 }
+                if (['H1', 'H2', 'H3', 'H5', 'H6'].includes(element.nodeName)) {
+                    this.setKey = "innerText"
+                }
                 if (element.nodeName === "INPUT") {
                     this.setKey = "value"
                     this.element.addEventListener('input', this.setEvent)

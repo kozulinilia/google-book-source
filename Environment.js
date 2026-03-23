@@ -9,5 +9,6 @@ function loadEnvironment() {
     GLOBAL.librarySheet = PropertiesService.getScriptProperties().getProperty('LIBRARY_SHEET')
     GLOBAL.messagesSheet = PropertiesService.getScriptProperties().getProperty('MESSAGES_SHEET')
     GLOBAL.vkToken = PropertiesService.getScriptProperties().getProperty('VK_TOKEN')
+    GLOBAL.newBooksDir = PropertiesService.getScriptProperties().getProperty('NEW_BOOKS_DIR')
     Logger.log(GLOBAL)
 }

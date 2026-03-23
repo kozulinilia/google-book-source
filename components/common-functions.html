@@ -1,20 +1,25 @@
 <script>
     (function (ns) {
         function createBtn(
-            name, type, action, value
+            name, type, action, value, isSmall = false
         ) {
             const btn = document.createElement('button')
-            switch(type) {
+            const classList = ["btn"]
+            switch (type) {
                 case 'success':
-                    btn.className = "btn btn-success"
+                    classList.push("btn-success")
                     break;
                 case 'danger':
-                    btn.className = "btn btn-danger"
+                    classList.push("btn-danger")
                     break;
                 case 'primary':
-                    btn.className = "btn btn-primary"
+                    classList.push("btn-primary")
                     break;
             }
+            if (isSmall) {
+                classList.push("btn-sm")
+            }
+            btn.className = classList.join(' ')
             btn.setAttribute('data-action', action)
             btn.setAttribute('data-value', value)
             btn.innerText = name
@@ -42,10 +47,56 @@
             });
         }
 
+        function createMultiBtn(name, type, buttons) {
+            const div = document.createElement('div')
+            div.className = "dropdown"
+            const btn = document.createElement('button')
+            const classList = ["btn", "btn-primary", "dropdown-toggle", "btn-sm"]
+            btn.setAttribute('data-bs-toggle', "dropdown")
+            btn.type = "button"
+
+            switch (type) {
+                case 'success':
+                    classList.push("btn btn-success")
+                    break;
+                case 'danger':
+                    classList.push("btn btn-danger")
+                    break;
+                case 'primary':
+                    classList.push("btn btn-primary")
+                    break;
+            }
+            btn.className = classList.join(' ')
+            btn.innerText = name
+            const ulEl = document.createElement('ul')
+            ulEl.className = "dropdown-menu"
+            buttons.forEach(btn => {
+                btn.className = btn.className + ' mb-2'
+                const li = document.createElement('li')
+                li.appendChild(btn)
+                ulEl.appendChild(li)
+            })
+            btn.appendChild(ulEl)
+            div.appendChild(btn)
+
+            return div
+        }
+
+        function createLinkAction(value, action, label) {
+            const element = document.createElement("a")
+            element.className = 'link'
+            element.setAttribute('data-value', value)
+            element.setAttribute('data-action', action)
+            element.textContent = label
+            return element
+        }
+
         ns.Common = {
             createBtn,
             asyncCall,
-            createInput
+            createInput,
+            createMultiBtn,
+            createLinkAction,
         };
 
     })(window.App = window.App || {})

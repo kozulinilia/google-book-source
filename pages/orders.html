@@ -1,19 +1,26 @@
 <!DOCTYPE html>
 <div data-id="root">
     <div data-id="navigation"></div>
-    <div class="card shadow p-4">
+    <h3 data-id="selected-lib" class="hidden"></h3>
+    <div data-id="orders-list-block" class="card shadow p-4">
         <div class="col-md-4 float-right">
-            <button class="btn btn-primary" data-action="showTabToMakeOrders" data-id="showTabToMakeOrdersBtn">Новый заказ</button>
+            <button class="btn btn-primary" data-action="showTabToMakeOrders" data-id="showTabToMakeOrdersBtn">Новый
+                заказ
+            </button>
         </div>
 
         <h4 class="mb-4" style="margin-top: 25px;">Список заказов</h4>
         <div style="display: flex;">
             <div style="margin-bottom: 10px; margin-left: 30px; font-size: 40;">
-                <button class="btn btn-outline-dark btn-sm" data-action="showNewOrders" data-id="showNewOrders" disabled="true">Новые заказы</button>
+                <button class="btn btn-outline-dark btn-sm" data-action="showNewOrders" data-id="showNewOrders"
+                        disabled="true">Новые заказы
+                </button>
             </div>
 
             <div style="margin-bottom: 10px; margin-left: 30px; font-size: 40;">
-                <button class="btn btn-outline-dark btn-sm" data-action="showSentOrders" data-id="showSentOrders">Отправленные заказы</button>
+                <button class="btn btn-outline-dark btn-sm" data-action="showSentOrders" data-id="showSentOrders">
+                    Отправленные заказы
+                </button>
             </div>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: flex-start">
@@ -25,13 +32,13 @@
                     <col style="width: 200px;">
                 </colgroup>
                 <thead>
-                    <tr>
-                        <th>Номер</th>
-                        <th>Библиотека</th>
-                        <th>Кол-во книг</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
+                <tr>
+                    <th>Номер</th>
+                    <th>Библиотека</th>
+                    <th>Кол-во книг</th>
+                    <th></th>
+                    <th></th>
+                </tr>
                 </thead>
                 <tbody>
                 </tbody>
@@ -45,22 +52,22 @@
                             <col style="width: 800px;">
                         </colgroup>
                         <tbody>
-                            <tr>
-                                <th>Номер</th>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>Библиотека</th>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>Комментарий</th>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th style="border-top: 1px solid black">Список книг</th>
-                                <td style="border-top: 1px solid black"></td>
-                            </tr>
+                        <tr>
+                            <th>Номер</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>Библиотека</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>Комментарий</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th style="border-top: 1px solid black">Список книг</th>
+                            <td style="border-top: 1px solid black"></td>
+                        </tr>
                         </tbody>
                     </table>
                     <div class="col-md-4 float-right" style="margin-top: 15px;">
@@ -92,50 +99,60 @@
                     </div>
                 </div>
 
-            <div class="row g-3" style="flex-grow: 1;">
-                <div style="display: flex; align-items: flex-start">
-                    <div class="col-md-3" style="width: 50%;">
-                        <span data-id="error-field" style="color: crimson;display: none"></span>
-                        <label class="material-label">Библиотека</label>
-                        <select class="form-select" data-id="library" data-action="chooseLibrary">
-                            <option value="" disabled selected hidden>Выбрать библиотеку</option>
-                        </select>
-                        <h4 data-id="selected-lib"></h4>
+                <div class="row g-3" style="flex-grow: 1;">
+                    <div style="display: flex; align-items: flex-start">
+                        <div class="col-md-3" style="width: 50%;">
+                            <span data-id="error-field" style="color: crimson;display: none"></span>
+                            <label class="material-label">Библиотека</label>
+                            <select class="form-select" data-id="library" data-action="chooseLibrary">
+                                <option value="" disabled selected hidden>Выбрать библиотеку</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 float-right" style="margin-left: auto;">
+                            <button data-id="postBooksOrderBtn" class="btn btn-dark"
+                                    data-action="postBooksOrderListToGoogleTable">Заказать
+                            </button>
+                        </div>
                     </div>
-                    <div class="col-md-2 float-right" style="margin-left: auto;">
-                        <button data-id="postBooksOrderBtn" class="btn btn-dark" data-action="postBooksOrderListToGoogleTable">Заказать</button>
-                    </div>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <table data-id="orderTable">
-                        <caption style="caption-side: top;">Таблица заказа</caption>
-                        <colgroup>
-                            <col style="width: 300px;">
-                            <col style="width: 100px;">
-                        </colgroup>
-                        <thead>
+                    <div style="display: flex; justify-content: space-between;">
+                        <table data-id="orderTable">
+                            <caption style="caption-side: top;">Таблица заказа</caption>
+                            <colgroup>
+                                <col style="width: 300px;">
+                                <col style="width: 100px;">
+                            </colgroup>
+                            <thead>
                             <tr>
                                 <th>Название</th>
                                 <th>Номер</th>
                                 <th></th>
                             </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                    <div>
-                        <label for="orderComment" style="display: block;">Комментарий к заказу</label>
-                        <textarea data-id="orderComment" name="orderComment" rows="4" cols="50"
-                            placeholder="Введите комментарий для заказа..." style="margin-top: 5px;"></textarea>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <div>
+                            <label for="orderComment" style="display: block;">Комментарий к заказу</label>
+                            <textarea data-id="orderComment" name="orderComment" rows="4" cols="50"
+                                      placeholder="Введите комментарий для заказа..."
+                                      style="margin-top: 5px;"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <div data-component="table" data-id="tableForOrders"></div>
     </div>
-    <div data-component="table" data-id="tableForOrders"></div>
+    <div data-id="image-modal" class="custom-modal hidden">
+        <div class="image-modal-content">
+            <button class="btn btn-danger float-right" data-action="closeImageModal">X</button>
+            <img class="responsive-img" data-id="img" src=""/>
+        </div>
+    </div>
     <?!= include('components/custom-table') ?>
     <?!= include('components/variable-container') ?>
     <?!= include('components/navigation') ?>
+    <?!= include('components/common-functions') ?>
 </div>
 <script>
     (function (ns) {
@@ -162,42 +179,33 @@
         let libraryForOrder = '';
         let selectedLibrary = {};
         let orderStatus = null;
-        function init(loader, libId = null) {
-            console.log('init lib', libId)
+
+        async function init(loader, params = {}) {
+            loaderEl = loader
             loadNavigation(ns)
-            if (!ns.TableFactory) {
-                console.error('TableFactory not initialized');
-
-                return;
-            }
-
-            if (!ns.VarContainer) {
-                console.error('VarContainer not initialized');
-
-                return;
-            }
-
             root = document.querySelector(`[data-id="root"]`);
-
             vars = ns.VarContainer.create(root);
-
             root.addEventListener('click', clickHandler);
             root.addEventListener('input', inputHandler);
             root.addEventListener('change', changeHandler);
-
-            getListOfOrdersFromGoogleTable(NEW_ORDER_STATUS);
+            if (params['type']) {
+                selectedLibrary = parseLibrary(params['library'])
+                vars.get("selected-lib").set(selectedLibrary.name)
+                vars.get("selected-lib").show()
+            }
+            if (params['type'] === 'new') {
+                vars.get("orders-list-block").hide()
+                await showTabToMakeOrders()
+                return;
+            }
+            await getListOfOrdersFromGoogleTable(NEW_ORDER_STATUS);
         }
 
-        function getListOfOrdersFromGoogleTable(orderStatus) {
-            loaderEl = loader;
-            loaderEl.show('orders/getListOfBooksFromGoogleTable');
-
-            google.script.run.withSuccessHandler(data => {
-                fillTableWithOrdersByData(data);
-
-                loaderEl.hide('orders/getListOfBooksFromGoogleTable');
-                
-            }).getOrdersTableData(orderStatus);
+        async function getListOfOrdersFromGoogleTable(orderStatus) {
+            loaderEl.show('orders/getListOfOrdersFromGoogleTable');
+            const data = await ns.Common.asyncCall('getOrdersTableData', orderStatus)
+            fillTableWithOrdersByData(data);
+            loaderEl.hide('orders/getListOfOrdersFromGoogleTable');
         }
 
         function fillTableWithOrdersByData(data) {
@@ -336,7 +344,7 @@
 
         async function clickHandler(event) {
             const action = event.target.dataset.action;
-            
+
             if (action === 'loadDataForOrders') {
                 loadDataForOrders();
             }
@@ -361,7 +369,7 @@
             }
 
             if (action === 'postBooksOrderListToGoogleTable') {
-                if (!libraryForOrder) {
+                if (!selectedLibrary.id) {
                     alert('Необходимо выбрать библиотеку!');
 
                     return;
@@ -385,63 +393,69 @@
             }
 
             if (action === 'showTabToMakeOrders') {
-                vars.get('tabToMakeOrders').getElement().hidden = false;
-                vars.get('showTabToMakeOrdersBtn').getElement().disabled = true;
-
-                getListOfBooksFromGoogleTable();
-
-                getListOfLibrariesFromGoogleTable();
+                await showTabToMakeOrders();
             }
 
             if (action === 'openOrder') {
-                clearOrderDescriptionFields();
-
-                vars.get('orderDescTable').getElement().hidden = false;
-
-                const row = event.target.closest('tr');
-
-                const orderNumber = row.cells[0].textContent;
-
-                const orderDesc = await getOrderDescriptionFromGoogleTable(orderNumber);
-
-                addOrderDescriptionToOrderDescTable(orderDesc);
+                await openOrder(event);
             }
 
             if (action === 'hideOrderDescTable') {
-                hideOrderDescTable();
-            }
-
-            function hideOrderDescTable() {
                 vars.get('orderDescTable').getElement().hidden = true;
             }
 
             if (action === 'showNewOrders') {
-                vars.get('showSentOrders').getElement().disabled = false;
-                vars.get('showNewOrders').getElement().disabled = true;
-
-                hideOrderDescTable();
-
-                getListOfOrdersFromGoogleTable(NEW_ORDER_STATUS);
+                await showNewOrders();
             }
 
             if (action === 'showSentOrders') {
-                vars.get('showNewOrders').getElement().disabled = false;
-                vars.get('showSentOrders').getElement().disabled = true;
-
-                hideOrderDescTable();
-
-                getListOfOrdersFromGoogleTable(SENT_ORDER_STATUS);
+                await showSentOrders();
             }
+
+            if (action === 'openImage') {
+                const link = event.target.dataset.value
+                openImageInModal(link)
+            }
+
+            if (action === "closeImageModal") {
+                vars.get("image-modal").hide()
+            }
+        }
+
+        async function showTabToMakeOrders() {
+            vars.get('tabToMakeOrders').getElement().hidden = false;
+            vars.get('showTabToMakeOrdersBtn').getElement().disabled = true;
+
+            await getListOfBooksFromGoogleTable();
+            await getListOfLibrariesFromGoogleTable();
+        }
+
+        async function showNewOrders() {
+            vars.get('showSentOrders').getElement().disabled = false;
+            vars.get('showNewOrders').getElement().disabled = true;
+
+            vars.get('orderDescTable').getElement().hidden = true;
+
+            await getListOfOrdersFromGoogleTable(NEW_ORDER_STATUS);
+        }
+
+        async function showSentOrders() {
+            vars.get('showNewOrders').getElement().disabled = false;
+            vars.get('showSentOrders').getElement().disabled = true;
+
+            vars.get('orderDescTable').getElement().hidden = true;
+
+            await getListOfOrdersFromGoogleTable(SENT_ORDER_STATUS);
         }
 
         function loadDataForOrders() {
             const bookNameCellIndex = 2;
             const bookNumberCellIndex = 7;
-            
+
             filteredData = fullData.filter(row => {
 
                 return row[bookNameCellIndex].toLowerCase().includes(bookNameFromFilter.toLowerCase()) &&
-                                                                                String(row[bookNumberCellIndex]).includes(bookNumberFromFilter);
+                    String(row[bookNumberCellIndex]).includes(bookNumberFromFilter);
             });
 
             tableObject.render(filteredData);
@@ -481,43 +495,38 @@
             });
         }
 
-        function getListOfBooksFromGoogleTable() {
-            loaderEl = loader;
-            loaderEl.show();
+        async function getListOfBooksFromGoogleTable() {
+            loaderEl.show("orders/getListOfBooksFromGoogleTable");
+            const data = await ns.Common.asyncCall('getFilteredData')
+            const tableElement = vars.get('tableForOrders').getElement();
 
-            google.script.run.withSuccessHandler(data => {
-                const tableElement = vars.get('tableForOrders').getElement();
+            headers = data.header;
+            fullData = data.rows;
+            filteredData = data.rows;
 
-                headers = data.header;
-                fullData = data.rows;
-                filteredData = data.rows;
+            let orderHeader = 'Заказ';
+            headers[headers.length + 1] = orderHeader;
 
-                let orderHeader = 'Заказ';
-                headers[headers.length + 1] = orderHeader;
+            filteredData.forEach(row => {
+                row[row.length] = "";
+            });
 
-                filteredData.forEach(row => {
-                    row[row.length] = "";
-                });
+            tableObject = ns.TableFactory.create(
+                tableElement,
+                headers,
+                customTableFunction,
+                amountRowsOnPage,
+                filteredData,
+            );
 
-                tableObject = ns.TableFactory.create(
-                    tableElement,
-                    headers,
-                    customTableFunction,
-                    amountRowsOnPage,
-                    filteredData,
-                );
+            tableObject.render(filteredData);
 
-                tableObject.render(filteredData);
-
-                loaderEl.hide();
-
-            }).getFilteredData();
+            loaderEl.hide("orders/getListOfBooksFromGoogleTable");
         }
 
-        function getListOfLibrariesFromGoogleTable() {
-            google.script.run.withSuccessHandler(data => {
-                fillDropdownValuesOfLibraries(data);
-            }).getDropdownValuesOfLibraries();
+        async function getListOfLibrariesFromGoogleTable() {
+            const data = await ns.Common.asyncCall('getDropdownValuesOfLibraries')
+            fillDropdownValuesOfLibraries(data);
         }
 
         function clearOrderDescriptionFields() {
@@ -547,28 +556,24 @@
         }
 
         async function getOrderDescriptionFromGoogleTable(orderNumber) {
+            loaderEl.show("orders/getListOfBooksInOrderFromGoogleTable");
             const listOfBooksInOrder = await getListOfBooksInOrderFromGoogleTable(orderNumber);
 
             const infoAboutOrder = await getInformationAboutOrderFromGoogleTable(orderNumber);
-
-            loaderEl = loader;
-            loaderEl.hide();
+            loaderEl.hide("orders/getListOfBooksInOrderFromGoogleTable");
 
             const indexOfLibrary = 1;
             const indexOfOrderComment = 4;
 
             return {
-                    'orderNumber': orderNumber,
-                    'nameOfLibrary': infoAboutOrder[indexOfLibrary],
-                    'orderComment': infoAboutOrder[indexOfOrderComment],
-                    'listOfBooksInOrder': listOfBooksInOrder
-                    };
+                'orderNumber': orderNumber,
+                'nameOfLibrary': infoAboutOrder[indexOfLibrary],
+                'orderComment': infoAboutOrder[indexOfOrderComment],
+                'listOfBooksInOrder': listOfBooksInOrder
+            };
         }
 
         function getListOfBooksInOrderFromGoogleTable(orderNumber) {
-            loaderEl = loader;
-            loaderEl.show();
-
             return new Promise(resolve => {
                 google.script.run.withSuccessHandler(result => {
                     resolve(result);
@@ -588,8 +593,6 @@
         function addOrderDescriptionToOrderDescTable(orderDesc) {
             const orderDescTable = vars.get('orderDescTable').getElement().querySelector('table');
 
-            // clearOrderDescriptionFields(orderDescTable);
-
             orderDescTable.rows[0].cells[1].textContent = orderDesc.orderNumber;
             orderDescTable.rows[1].cells[1].textContent = orderDesc.nameOfLibrary;
             orderDescTable.rows[2].cells[1].textContent = orderDesc.orderComment;
@@ -604,8 +607,8 @@
 
             listOfBooksInOrder.forEach(book => {
                 const liForBookName = document.createElement("li");
-                liForBookName.textContent = book.bookName + " (" + book.author + ")";
-
+                const name = book.name + " (" + book.author + ")";
+                liForBookName.appendChild(ns.Common.createLinkAction(book.link, "openImage", name))
                 ulForListOfBooks.appendChild(liForBookName);
             });
 
@@ -632,8 +635,8 @@
         function transformBooksOrderListToArray() {
             const defaultOrderNUmber = 0;
             const orderComment = vars.get('orderComment').get();
-            
-            const resultArrayWithOrder = [defaultOrderNUmber, libraryForOrder, booksOrderList.length, NEW_ORDER_STATUS, orderComment];
+
+            const resultArrayWithOrder = [defaultOrderNUmber, selectedLibrary.id, booksOrderList.length, NEW_ORDER_STATUS, orderComment];
 
             return resultArrayWithOrder;
         }
@@ -669,6 +672,46 @@
 
         }
 
+        function parseLibrary(library) {
+            return {
+                id: library[0],
+                region: library[1],
+                name: library[2],
+                post: library[3],
+                vk: library[4],
+                contact: library[5],
+            }
+        }
+
+        async function openOrder(event) {
+            clearOrderDescriptionFields();
+
+            const row = event.target.closest('tr');
+
+            const orderNumber = row.cells[0].textContent;
+
+            const orderDesc = await getOrderDescriptionFromGoogleTable(orderNumber);
+
+            addOrderDescriptionToOrderDescTable(orderDesc);
+
+            vars.get('orderDescTable').getElement().hidden = false;
+        }
+
+        function openImageInModal(link) {
+            loaderEl.show('orders/openImageInModal')
+            google.script.run
+                .withSuccessHandler(image => {
+                    vars.get("img").set(image)
+                    loaderEl.hide('orders/openImageInModal')
+                    vars.get("image-modal").show()
+                })
+                .withFailureHandler(error => {
+                    showError(error, true);
+                    loaderEl.hide('orders/openImageInModal')
+                })
+                .getImage(link);
+        }
+
         function destroy() {
             if (tableObject) {
                 tableObject.destroy();
@@ -689,3 +732,30 @@
 
     (window.App = window.App || {});
 </script>
+<style>
+    .link {
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .custom-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .5);
+    }
+
+    .image-modal-content {
+        background: white;
+        width: 80vh;
+        height: 80vh; /* Макс. высота - 80% окна просмотра */
+        overflow-y: auto; /* Прокрутка, если контент не помещается */
+    }
+
+    .responsive-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+</style>

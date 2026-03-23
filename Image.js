@@ -62,3 +62,8 @@ function getDoubleImages() {
     }
     return doubleFileIds
 }
+
+function addGroupImages() {
+    loadEnvironment()
+    const folder = DriveApp.getFolderById(GLOBAL.imgDir);
+}

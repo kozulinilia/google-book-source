@@ -115,6 +115,7 @@
 <?!= include('components/custom-table') ?>
 <?!= include('components/variable-container') ?>
 <?!= include('components/navigation') ?>
+<?!= include('components/common-functions') ?>
 <script>
     (function (ns) {
         const THEME_ROW = 0
@@ -139,16 +140,8 @@
         let deletedBookId = 0
         const FREE_STATUS = 'free'
 
-        function init(loader = null) {
+        function init(loader = null, params = {}) {
             loadNavigation(ns)
-            if (!ns.TableFactory) {
-                console.error('TableFactory not initialized');
-                return;
-            }
-            if (!ns.VarContainer) {
-                console.error('VarContainer not initialized');
-                return;
-            }
             root = document.querySelector(`[data-id="root"]`)
             vars = ns.VarContainer.create(root)
             vars.get("edit-book-block").hide()
@@ -266,8 +259,8 @@
                     resetSearch();
                     break;
                 case "openImage":
-                    const bookId = event.target.dataset.value
-                    openImageInModal(bookId);
+                    const link = event.target.dataset.value
+                    openImageInModal(link);
                     break;
                 case "closeImageModal":
                     vars.get("image-modal").hide()
@@ -370,25 +363,16 @@
             if (index === 5) {
                 const linkEl = document.createElement("div")
                 linkEl.style = "display: flex;flex-direction: column;"
-                linkEl.appendChild(createLinkAction(row[NUMBER_ROW], 'editBook', "редактировать"))
-                linkEl.appendChild(createLinkAction(row[NUMBER_ROW], 'deleteBook', "удалить"))
+                linkEl.appendChild(ns.Common.createLinkAction(row[NUMBER_ROW], 'editBook', "редактировать"))
+                linkEl.appendChild(ns.Common.createLinkAction(row[NUMBER_ROW], 'deleteBook', "удалить"))
                 td.appendChild(linkEl)
             } else if (index === NAME_ROW && row[LINK_ROW]) {
                 const linkEl = document.createElement("div")
-                linkEl.appendChild(createLinkAction(row[LINK_ROW], 'openImage', cell))
+                linkEl.appendChild(ns.Common.createLinkAction(row[LINK_ROW], 'openImage', cell))
                 td.appendChild(linkEl)
             } else {
                 td.textContent = cell;
             }
-        }
-
-        function createLinkAction(value, id, label) {
-            const element = document.createElement("a")
-            element.className = 'link'
-            element.setAttribute('data-value', value)
-            element.setAttribute('data-action', id)
-            element.textContent = label
-            return element
         }
 
         function findDuplicateImages() {
@@ -428,9 +412,8 @@
             vars.get('theme').set('')
         }
 
-        function openImageInModal(bookId) {
+        function openImageInModal(link) {
             loaderEl.show('edit-book/openImageInModal')
-            console.log('openImageInModal', bookId)
             google.script.run
                 .withSuccessHandler(image => {
                     vars.get("img").set(image)
@@ -441,7 +424,7 @@
                     showError(error, true);
                     loaderEl.hide('edit-book/openImageInModal')
                 })
-                .getImage(bookId);
+                .getImage(link);
         }
 
         function destroy() {
@@ -500,16 +483,6 @@
         width: 100%;
         height: 100%;
         object-fit: contain;
-    }
-
-    .parent {
-        position: relative; /* Создает точку отсчета */
-    }
-
-    .child {
-        position: absolute;
-        top: 50px; /* 50px вниз от верхнего края .parent */
-        left: 10px; /* 10px вправо от левого края .parent */
     }
 
 </style>

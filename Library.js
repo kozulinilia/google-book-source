@@ -1,5 +1,6 @@
 const rowType = 'row'
 const objType = 'obj'
+const rawType = 'raw'
 class LibInst {
     constructor(type, data, id = null) {
         switch(type) {
