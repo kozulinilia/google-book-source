@@ -28,13 +28,11 @@
             <table data-id="tableWithOrders">
                 <colgroup>
                     <col style="width: 100px;">
-                    <col style="width: 300px;">
-                    <col style="width: 200px;">
+                    <col style="width: 100px;">
                 </colgroup>
                 <thead>
                 <tr>
                     <th>Номер</th>
-                    <th>Библиотека</th>
                     <th>Кол-во книг</th>
                     <th></th>
                     <th></th>
@@ -43,7 +41,7 @@
                 <tbody>
                 </tbody>
             </table>
-            <div class="row g-3" style="width: 50%;">
+            <div class="row g-3" style="width: 75%;">
                 <div data-id="orderDescTable" hidden="true">
                     <table>
                         <caption style="caption-side: top;">Подробная информация о заказе</caption>
@@ -54,10 +52,6 @@
                         <tbody>
                         <tr>
                             <th>Номер</th>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th>Библиотека</th>
                             <td></td>
                         </tr>
                         <tr>
@@ -221,18 +215,18 @@
                 addBorderTopLineForCell(cellWithOrderId);
                 cellWithOrderId.textContent = data[i][0];
 
-                const cellWithLibraryName = newRow.insertCell(1);
-                addBorderTopLineForCell(cellWithLibraryName);
-                cellWithLibraryName.textContent = data[i][1];
+                // const cellWithLibraryName = newRow.insertCell(1);
+                // addBorderTopLineForCell(cellWithLibraryName);
+                // cellWithLibraryName.textContent = data[i][1];
 
-                const cellWithBooksAmount = newRow.insertCell(2);
+                const cellWithBooksAmount = newRow.insertCell(1);
                 addBorderTopLineForCell(cellWithBooksAmount);
                 cellWithBooksAmount.textContent = data[i][2];
 
-                const cellWithOpenBtn = newRow.insertCell(3);
+                const cellWithOpenBtn = newRow.insertCell(2);
                 addBorderTopLineForCell(cellWithOpenBtn);
 
-                const cellWithSendBtn = newRow.insertCell(4);
+                const cellWithSendBtn = newRow.insertCell(3);
                 addBorderTopLineForCell(cellWithSendBtn);
 
                 addOpenBtnToRowWithOrder(cellWithOpenBtn);
@@ -535,7 +529,6 @@
             orderDescTable.rows[0].cells[1].textContent = '';
             orderDescTable.rows[1].cells[1].textContent = '';
             orderDescTable.rows[2].cells[1].textContent = '';
-            orderDescTable.rows[3].cells[1].textContent = '';
         }
 
         function addDeleteBtnToOrderListRow(cellWithDeleteBtn) {
@@ -594,8 +587,7 @@
             const orderDescTable = vars.get('orderDescTable').getElement().querySelector('table');
 
             orderDescTable.rows[0].cells[1].textContent = orderDesc.orderNumber;
-            orderDescTable.rows[1].cells[1].textContent = orderDesc.nameOfLibrary;
-            orderDescTable.rows[2].cells[1].textContent = orderDesc.orderComment;
+            orderDescTable.rows[1].cells[1].textContent = orderDesc.orderComment;
 
             addListOfBooksInOrderDescription(orderDesc.listOfBooksInOrder, orderDescTable);
         }
@@ -607,16 +599,16 @@
 
             listOfBooksInOrder.forEach(book => {
                 const liForBookName = document.createElement("li");
-                const name = book.name + " (" + book.author + ")";
+                const name = book.name + " (" + book.author + ") - к. " + book.box;
                 liForBookName.appendChild(ns.Common.createLinkAction(book.link, "openImage", name))
                 ulForListOfBooks.appendChild(liForBookName);
             });
 
-            orderDescTable.rows[3].cells[1].appendChild(ulForListOfBooks);
+            orderDescTable.rows[2].cells[1].appendChild(ulForListOfBooks);
         }
 
         function clearListOfBooksInOrderDescription(orderDescTable) {
-            orderDescTable.rows[3].cells[1].innerHTML = '';
+            orderDescTable.rows[2].cells[1].innerHTML = '';
         }
 
         function isBooksOrderListEmpty() {
