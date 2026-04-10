@@ -1,6 +1,6 @@
-function moveImageToTrash(fileId) {
+function moveImageToFolder(dirName, fileId) {
     loadEnvironment();
-    const targetFolder = DriveApp.getFolderById(GLOBAL.imgTrashDir);
+    const targetFolder = DriveApp.getFolderById(dirName);
     const file = DriveApp.getFileById(fileId)
     const previousParents = file.getParents()
     let parents = []
@@ -63,7 +63,52 @@ function getDoubleImages() {
     return doubleFileIds
 }
 
-function addGroupImages() {
+function loadGroupBooksByBox(boxNum) {
+    let bookSheet = 'booksSheet'
     loadEnvironment()
-    const folder = DriveApp.getFolderById(GLOBAL.imgDir);
+    const srcFolder = DriveApp.getFolderById(GLOBAL.newBooksDir);
+    let files = srcFolder.getFiles();
+    let row = 0;
+    while (files.hasNext()) {
+        let imgFile = files.next();
+        let link = imgFile.getUrl()
+        let mime = imgFile.getMimeType();
+        if (mime.indexOf("image/") === -1) {
+            continue;
+        }
+            let text = parseTextFromImage(imgFile).replace(/\n/g, " ");
+            let lastRow = getLastRowInSheet(bookSheet);
+            let nextId = 1;
+            if (lastRow) {
+                lastRow = new BookInst(rowType, lastRow)
+                nextId = Math.ceil(lastRow.id) + 1
+            }
+            imgFile.setName(`${nextId}.jpg`);
+            const nextRow = new BookInst(
+                objType,
+                {name: text, boxNum: boxNum, link, date: getNowDate()},
+                nextId
+            );
+            addRowToSheet(bookSheet, createRow(nextRow));
+            moveImageToFolder(GLOBAL.imgDir, imgFile.getId())
+            row++;
+    }
+
+    return row;
+}
+
+function parseTextFromImage(imgFile) {
+    let blob = imgFile.getBlob();
+    let resource = {
+        title: imgFile.getName(),
+        mimeType: MimeType.GOOGLE_DOCS
+    };
+    let docFile = Drive.Files.create(resource, blob, {
+        ocr: true,
+        ocrLanguage: 'ru'
+    });
+    let doc = DocumentApp.openById(docFile.id);
+    let text = doc.getBody().getText();
+    DriveApp.getFileById(docFile.id).setTrashed(true);
+    return text;
 }
