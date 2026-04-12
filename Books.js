@@ -96,15 +96,22 @@ function getFilteredData(filterTheme = false, status = FREE_STATUS) {
     const rawHeader = data.shift();
     const header = convertOutputBookRow(rawHeader);
 
-    const result = data.filter(row => {
+    const result = [];
+    const objResult = [];
+        data.filter(row => {
         const matchTheme = filterTheme ? row[THEME_ROW].includes(filterTheme) : true;
         const matchStatus = row[STATE_ROW] === status;
 
         return matchTheme && matchStatus;
     })
-        .map(row => convertOutputBookRow(row));
+        .forEach(row => {
+            const resultRow = convertOutputBookRow(row);
+            const objRow = (new BookInst(rowType, resultRow)).toObj();
+            objRow.img = getImage(resultRow[5]);
+            objResult.push(objRow)
+        });
 
-    return {header, rows: result};
+        return {header, rows: result, objRows: objResult};
 }
 
 function getDropdownValues(state) {
@@ -150,7 +157,8 @@ function convertOutputBookRow(row) {
         row[ANNOTATION_ROW],
         row[LINK_ROW],
         row[BOX_ROW],
-        row[BOOK_ID_ROW]
+        row[BOOK_ID_ROW],
+        row[DATE_ROW],
     ]
 }
 

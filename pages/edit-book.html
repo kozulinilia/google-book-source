@@ -160,8 +160,8 @@
                 fullData = data.rows;
                 filteredData = data.rows;
                 fullDataMap = new Map()
-                fullData.forEach(row => {
-                    fullDataMap.set(row[NUMBER_ROW], row)
+                data.objRows.forEach(row => {
+                    fullDataMap.set(row.id, row)
                 })
                 const tableElement = root.querySelector(`[data-id="table2"]`)
                 tableObject = ns.TableFactory.create(
@@ -229,7 +229,7 @@
                 case "deleteBook":
                     deletedBookId = event.target.dataset.value
                     row = fullDataMap.get(Number(deletedBookId))
-                    vars.get("del-book-name").set(row[NAME_ROW])
+                    vars.get("del-book-name").set(row.name)
                     vars.get("delete-modal").show()
                     break;
                 case "submitDelete":
@@ -259,8 +259,8 @@
                     resetSearch();
                     break;
                 case "openImage":
-                    const link = event.target.dataset.value
-                    openImageInModal(link);
+                    const id = event.target.dataset.value
+                    openImageInModal(id);
                     break;
                 case "closeImageModal":
                     vars.get("image-modal").hide()
@@ -271,14 +271,14 @@
         }
 
         function assignFields(row, id) {
-            vars.get('new-author').set(row[AUTHOR_ROW])
-            vars.get('new-name').set(row[NAME_ROW])
-            vars.get('new-year').set(row[YEAR_ROW])
-            vars.get('new-annotation').set(row[ANNOTATION_ROW])
-            vars.get('new-box-num').set(row[BOX_ROW])
-            vars.get('new-theme').set(row[THEME_ROW])
+            vars.get('new-author').set(row.author)
+            vars.get('new-name').set(row.name)
+            vars.get('new-year').set(row.year)
+            vars.get('new-annotation').set(row.annotation)
+            vars.get('new-box-num').set(row.boxNum)
+            vars.get('new-theme').set(row.theme)
             vars.get("new-book-id").set(id)
-            link = row[LINK_ROW]
+            link = row.link
         }
 
         function showError(error, show) {
@@ -368,7 +368,7 @@
                 td.appendChild(linkEl)
             } else if (index === NAME_ROW && row[LINK_ROW]) {
                 const linkEl = document.createElement("div")
-                linkEl.appendChild(ns.Common.createLinkAction(row[LINK_ROW], 'openImage', cell))
+                linkEl.appendChild(ns.Common.createLinkAction(row[NUMBER_ROW], 'openImage', cell))
                 td.appendChild(linkEl)
             } else {
                 td.textContent = cell;
@@ -412,19 +412,11 @@
             vars.get('theme').set('')
         }
 
-        function openImageInModal(link) {
+        function openImageInModal(id) {
+            const row = fullDataMap.get(Number(id));
+            vars.get("img").set(row.img);
+            vars.get("image-modal").show();
             loaderEl.show('edit-book/openImageInModal')
-            google.script.run
-                .withSuccessHandler(image => {
-                    vars.get("img").set(image)
-                    loaderEl.hide('edit-book/openImageInModal')
-                    vars.get("image-modal").show()
-                })
-                .withFailureHandler(error => {
-                    showError(error, true);
-                    loaderEl.hide('edit-book/openImageInModal')
-                })
-                .getImage(link);
         }
 
         function destroy() {
