@@ -41,8 +41,32 @@
                 <div data-id="duplicate-img"></div>
             </div>
         </div>
+    </div>
+    <span data-id="error-field" style="color: crimson;display: none"></span>
 
-        <div data-id="edit-book-block" style="display: none" align-items-end>
+    <div data-component="table" data-id="table2"></div>
+    <div data-id="delete-modal" class="custom-modal">
+        <div class="custom-modal-content">
+            <div>Вы уверены, что хотите удалить книгу</div>
+            <div style="font-size:20px" data-id="del-book-name"></div>
+            <div style="margin-top:25px;">
+                <button class="btn btn-danger" data-action="submitDelete">Удалить</button>
+                <button class="btn btn-primary" data-action="cancelDelete">Отмена</button>
+            </div>
+        </div>
+    </div>
+    <div data-id="image-modal" class="custom-modal hidden">
+        <div class="image-modal-content">
+            <button class="btn btn-danger float-right" data-action="closeImageModal">X</button>
+            <img class="responsive-img" data-id="img" src=""/>
+        </div>
+    </div>
+    <div data-id="edit-book-block" class="custom-modal hidden">
+        <div class="image-modal-content">
+            <button class="btn btn-danger float-right" data-action="closeImageModal">X</button>
+            <img class="responsive-img" data-id="img" src=""/>
+        </div>
+        <div align-items-end>
             <h4 class="mb-4">Редактирование</h4>
             <div class="row g-2">
                 <div class="col-md-1">
@@ -90,25 +114,6 @@
                 </div>
             </div>
             <span data-id="error-field" style="color: crimson;display: none"></span>
-        </div>
-    </div>
-    <span data-id="error-field" style="color: crimson;display: none"></span>
-
-    <div data-component="table" data-id="table2"></div>
-    <div data-id="delete-modal" class="custom-modal">
-        <div class="custom-modal-content">
-            <div>Вы уверены, что хотите удалить книгу</div>
-            <div style="font-size:20px" data-id="del-book-name"></div>
-            <div style="margin-top:25px;">
-                <button class="btn btn-danger" data-action="submitDelete">Удалить</button>
-                <button class="btn btn-primary" data-action="cancelDelete">Отмена</button>
-            </div>
-        </div>
-    </div>
-    <div data-id="image-modal" class="custom-modal hidden">
-        <div class="image-modal-content">
-            <button class="btn btn-danger float-right" data-action="closeImageModal">X</button>
-            <img class="responsive-img" data-id="img" src=""/>
         </div>
     </div>
 </div>
@@ -189,11 +194,7 @@
                     break;
                 case 'editBook':
                     id = event.target.dataset.value
-                    row = fullDataMap.get(Number(id))
-                    assignFields(row, id)
-                    editedTheme = false
-                    vars.get("edit-book-block").show()
-                    vars.get("search-book-block").hide()
+                    editBook(id)
                     break;
                 case 'confirmEditBook':
                     loaderEl.show('edit-book/confirmEditBook')
@@ -316,6 +317,14 @@
                 default:
                     console.error('[changeHandler] Unknown action ' + action)
             }
+        }
+
+        async function editBook(id) {
+            let row = fullDataMap.get(Number(id))
+            assignFields(row, id)
+            editedTheme = false
+            await ns.Common.asyncCall('openImageInModal', row[LINK_ROW])
+            vars.get("edit-book-block").show()
         }
 
         function populateDropdowns(data, id) {
