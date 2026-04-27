@@ -120,13 +120,3 @@ function changeBookStatusToReserved(sheet, bookRowIndex) {
 function addOrderNumberToBook(sheet, bookRowIndex, nextOrderNumber) {
     sheet.getRange(bookRowIndex + 1, ORDER_COLUMN_NUMBER + 1, 1, 1).setValue(nextOrderNumber);
 }
-
-function getDropdownValuesOfLibraries() {
-    loadEnvironment();
-    const ss = SpreadsheetApp.openById(GLOBAL.tableId);
-    const sheet = ss.getSheetByName(GLOBAL.recipientsSheet);
-
-    const data = sheet.getDataRange().getValues();
-
-    return data;
-}

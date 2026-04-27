@@ -28,13 +28,11 @@
             <table data-id="tableWithOrders">
                 <colgroup>
                     <col style="width: 100px;">
-                    <col style="width: 300px;">
-                    <col style="width: 200px;">
+                    <col style="width: 100px;">
                 </colgroup>
                 <thead>
                 <tr>
                     <th>Номер</th>
-                    <th>Библиотека</th>
                     <th>Кол-во книг</th>
                     <th></th>
                     <th></th>
@@ -43,13 +41,13 @@
                 <tbody>
                 </tbody>
             </table>
-            <div class="row g-3" style="width: 50%;">
+            <div class="row g-3" style="width: 75%;">
                 <div data-id="orderDescTable" hidden="true">
                     <table>
                         <caption style="caption-side: top;">Подробная информация о заказе</caption>
                         <colgroup>
                             <col style="width: 200px;">
-                            <col style="width: 800px;">
+                            <col style="width: 400px;">
                         </colgroup>
                         <tbody>
                         <tr>
@@ -57,17 +55,39 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <th>Библиотека</th>
-                            <td></td>
-                        </tr>
-                        <tr>
                             <th>Комментарий</th>
                             <td></td>
                         </tr>
-                        <tr>
-                            <th style="border-top: 1px solid black">Список книг</th>
-                            <td style="border-top: 1px solid black"></td>
-                        </tr>
+                        </tbody>
+                    </table>
+                    <table data-id="orderDescTableWithListOfBooks" style="margin-top: 30px;">
+                        <caption style="caption-side: top;">Книги в заказе</caption>
+                        <colgroup>
+                            <col style="width: 400px;">
+                            <col style="width: 200px;">
+                            <col style="width: 200px;">
+                            <col style="width: 300px;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Коробка</th>
+                                <th>Найдена для заказа</th>
+                                <th data-id="foundBooksCounterArea" style="border: solid;">
+                                    <div style="margin-left: 30px;">
+                                        <label for="commonBooksAmount">Всего книг:</label>
+                                        <output data-id = "commonBooksAmount" name="commonBooksAmount"
+                                                style="margin-left: 58px;"></output>
+                                    </div>
+                                    <div style="margin-top: 30px; margin-left: 30px;">
+                                        <label for="foundBooksCounter">Найдено книг:</label>
+                                        <output data-id = "foundBooksCounter" name="foundBooksCounter"
+                                                style="margin-left: 30px;"></output>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
                         </tbody>
                     </table>
                     <div class="col-md-4 float-right" style="margin-top: 15px;">
@@ -103,10 +123,6 @@
                     <div style="display: flex; align-items: flex-start">
                         <div class="col-md-3" style="width: 50%;">
                             <span data-id="error-field" style="color: crimson;display: none"></span>
-                            <label class="material-label">Библиотека</label>
-                            <select class="form-select" data-id="library" data-action="chooseLibrary">
-                                <option value="" disabled selected hidden>Выбрать библиотеку</option>
-                            </select>
                         </div>
                         <div class="col-md-2 float-right" style="margin-left: auto;">
                             <button data-id="postBooksOrderBtn" class="btn btn-dark"
@@ -180,6 +196,9 @@
         let selectedLibrary = {};
         let orderStatus = null;
 
+        let commonBooksAmount = 0;
+        let amountFoundBooks = 0;
+
         async function init(loader, params = {}) {
             loaderEl = loader
             loadNavigation(ns)
@@ -221,18 +240,14 @@
                 addBorderTopLineForCell(cellWithOrderId);
                 cellWithOrderId.textContent = data[i][0];
 
-                const cellWithLibraryName = newRow.insertCell(1);
-                addBorderTopLineForCell(cellWithLibraryName);
-                cellWithLibraryName.textContent = data[i][1];
-
-                const cellWithBooksAmount = newRow.insertCell(2);
+                const cellWithBooksAmount = newRow.insertCell(1);
                 addBorderTopLineForCell(cellWithBooksAmount);
                 cellWithBooksAmount.textContent = data[i][2];
 
-                const cellWithOpenBtn = newRow.insertCell(3);
+                const cellWithOpenBtn = newRow.insertCell(2);
                 addBorderTopLineForCell(cellWithOpenBtn);
 
-                const cellWithSendBtn = newRow.insertCell(4);
+                const cellWithSendBtn = newRow.insertCell(3);
                 addBorderTopLineForCell(cellWithSendBtn);
 
                 addOpenBtnToRowWithOrder(cellWithOpenBtn);
@@ -316,30 +331,6 @@
             });
 
             return result;
-        }
-
-        function fillDropdownValuesOfLibraries(listOflibraries) {
-            const librarySelect = vars.get('library').getElement();
-
-            librarySelect.innerHTML = '';
-
-            const libraryOption = document.createElement("option");
-
-            libraryOption.disabled = true;
-            libraryOption.selected = true;
-            libraryOption.value = '';
-            libraryOption.textContent = 'Выбрать библиотеку';
-            librarySelect.appendChild(libraryOption);
-
-            for (let i = 1; i < listOflibraries.length; i++) {
-                const option = document.createElement("option");
-
-                option.setAttribute("data-action", "chooseLibrary")
-                option.value = listOflibraries[i][1];
-                option.textContent = listOflibraries[i][1];
-
-                librarySelect.appendChild(option);
-            }
         }
 
         async function clickHandler(event) {
@@ -427,7 +418,6 @@
             vars.get('showTabToMakeOrdersBtn').getElement().disabled = true;
 
             await getListOfBooksFromGoogleTable();
-            await getListOfLibrariesFromGoogleTable();
         }
 
         async function showNewOrders() {
@@ -479,17 +469,17 @@
 
             booksOrderList.forEach(book => {
                 const newRow = tbodyOrderTable.insertRow();
+
                 const cellWithBookName = newRow.insertCell(0);
-                cellWithBookName.style.borderTop = '1px solid black';
+                cellWithBookName.textContent = book.name;
+                addBorderTopLineForCell(cellWithBookName);
 
                 const cellWithBookNumber = newRow.insertCell(1);
-                cellWithBookNumber.style.borderTop = '1px solid black';
+                cellWithBookNumber.textContent = book.number;
+                addBorderTopLineForCell(cellWithBookNumber);
 
                 const cellWithDeleteBtn = newRow.insertCell(2);
-                cellWithDeleteBtn.style.borderTop = '1px solid black';
-
-                cellWithBookName.textContent = book.name;
-                cellWithBookNumber.textContent = book.number;
+                addBorderTopLineForCell(cellWithDeleteBtn);
 
                 addDeleteBtnToOrderListRow(cellWithDeleteBtn);
             });
@@ -524,18 +514,11 @@
             loaderEl.hide("orders/getListOfBooksFromGoogleTable");
         }
 
-        async function getListOfLibrariesFromGoogleTable() {
-            const data = await ns.Common.asyncCall('getDropdownValuesOfLibraries')
-            fillDropdownValuesOfLibraries(data);
-        }
-
         function clearOrderDescriptionFields() {
             const orderDescTable = vars.get('orderDescTable').getElement().querySelector('table');
 
             orderDescTable.rows[0].cells[1].textContent = '';
             orderDescTable.rows[1].cells[1].textContent = '';
-            orderDescTable.rows[2].cells[1].textContent = '';
-            orderDescTable.rows[3].cells[1].textContent = '';
         }
 
         function addDeleteBtnToOrderListRow(cellWithDeleteBtn) {
@@ -594,29 +577,51 @@
             const orderDescTable = vars.get('orderDescTable').getElement().querySelector('table');
 
             orderDescTable.rows[0].cells[1].textContent = orderDesc.orderNumber;
-            orderDescTable.rows[1].cells[1].textContent = orderDesc.nameOfLibrary;
-            orderDescTable.rows[2].cells[1].textContent = orderDesc.orderComment;
+            orderDescTable.rows[1].cells[1].textContent = orderDesc.orderComment;
 
-            addListOfBooksInOrderDescription(orderDesc.listOfBooksInOrder, orderDescTable);
+            addListOfBooksInOrderDescription(orderDesc.listOfBooksInOrder);
+
+            commonBooksAmount = orderDesc.listOfBooksInOrder.length;
+            vars.get('commonBooksAmount').getElement().value = commonBooksAmount;
         }
 
-        function addListOfBooksInOrderDescription(listOfBooksInOrder, orderDescTable) {
-            clearListOfBooksInOrderDescription(orderDescTable);
+        function addListOfBooksInOrderDescription(listOfBooksInOrder) {
+            const orderDescTableWithListOfBooks = vars.get('orderDescTableWithListOfBooks').getElement().querySelector('tbody');
 
-            const ulForListOfBooks = document.createElement("ul");
+            clearListOfBooksInOrderDescription(orderDescTableWithListOfBooks);
 
             listOfBooksInOrder.forEach(book => {
-                const liForBookName = document.createElement("li");
-                const name = book.name + " (" + book.author + ")";
-                liForBookName.appendChild(ns.Common.createLinkAction(book.link, "openImage", name))
-                ulForListOfBooks.appendChild(liForBookName);
+                const newRow = orderDescTableWithListOfBooks.insertRow();
+
+                const cellWithBookName = newRow.insertCell(0);
+                const bookNameAndAuthor = book.name + " (" + book.author + ")";
+                cellWithBookName.appendChild(ns.Common.createLinkAction(book.link, "openImage", bookNameAndAuthor));
+                addBorderTopLineForCell(cellWithBookName);
+
+                const cellWithBookBox = newRow.insertCell(1);
+                cellWithBookBox.textContent = book.box;
+                addBorderTopLineForCell(cellWithBookBox);
+
+                const cellWithBookSearchedStatus = newRow.insertCell(2);
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.setAttribute('data-action', 'markBookAsFound');
+
+                cellWithBookSearchedStatus.appendChild(checkbox);
+                addBorderTopLineForCell(cellWithBookSearchedStatus);
             });
 
-            orderDescTable.rows[3].cells[1].appendChild(ulForListOfBooks);
         }
 
-        function clearListOfBooksInOrderDescription(orderDescTable) {
-            orderDescTable.rows[3].cells[1].innerHTML = '';
+        function clearListOfBooksInOrderDescription(orderDescTableWithListOfBooks) {
+            orderDescTableWithListOfBooks.innerHTML = '';
+
+            amountFoundBooks = 0;
+
+            vars.get('foundBooksCounter').getElement().value = "";
+
+            paintFoundBooksCounterAreaBorderInBlackColor();
         }
 
         function isBooksOrderListEmpty() {
@@ -670,6 +675,36 @@
                 libraryForOrder = vars.get('library').get();
             }
 
+            if (action === 'markBookAsFound') {
+                const row = event.target.closest('tr');
+
+                const currentCheckbox = row.cells[2].querySelector('input');
+
+                if (currentCheckbox.checked) {
+                    row.cells[0].style = "text-decoration: line-through; border-top: 1px solid black";
+                    amountFoundBooks++;
+                } else {
+                    row.cells[0].style = "text-decoration: none; border-top: 1px solid black";
+                    amountFoundBooks--;
+                }
+
+                vars.get('foundBooksCounter').getElement().value = amountFoundBooks;
+
+                if (amountFoundBooks === commonBooksAmount) {
+                    paintFoundBooksCounterAreaBorderInGreenColor();
+                } else {
+                    paintFoundBooksCounterAreaBorderInBlackColor();
+                }
+            }
+
+        }
+
+        function paintFoundBooksCounterAreaBorderInGreenColor() {
+            vars.get('foundBooksCounterArea').getElement().style = "border: solid; border-color: green; border-width: 10px;";
+        }
+
+        function paintFoundBooksCounterAreaBorderInBlackColor() {
+            vars.get('foundBooksCounterArea').getElement().style = "border: solid; border-color: black; border-width: 2px;";
         }
 
         function parseLibrary(library) {
