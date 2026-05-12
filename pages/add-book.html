@@ -3,6 +3,21 @@
     <div data-id="navigation"></div>
     <div class="card shadow p-4">
         <h4 class="mb-4">
+            Добавить коробку книг
+        </h4>
+        <div class="col-md-1">
+            <label class="material-label">Номер коробки</label>
+            <input data-id="group-box-num" class="form-control" type="number"/>
+        </div>
+        <div class="col-md-4 mt-3">
+            <button class="btn btn-success" data-action="confirmAddGroupBooks">
+                Добавить все новые книги в коробку
+            </button>
+        </div>
+
+    </div>
+    <div class="card shadow p-4">
+        <h4 class="mb-4">
             Добавить книгу
         </h4>
         <label>Новый номер</label>
@@ -64,6 +79,15 @@
         <span data-id="error-field" style="color: crimson;display: none"></span>
         <div data-id="log-list"></div>
     </div>
+    <div data-id="confirm-modal" class="custom-modal hidden">
+        <div class="custom-modal-content">
+            <div data-id="confirm-text"></div>
+            <div style="margin-top:25px;">
+                <button class="btn btn-success" data-action="submitAddGroupBooks">Добавить</button>
+                <button class="btn btn-danger" data-action="cancelAddGroupBooks">Отмена</button>
+            </div>
+        </div>
+    </div>
 </div>
 <?!= include('components/variable-container') ?>
 <?!= include('components/navigation') ?>
@@ -73,6 +97,7 @@
         let root = null
         let loaderEl = null
         let vars = null
+        let selectedGroupBox = null;
 
         function init(loader = null, params = {}) {
             loadNavigation(ns)
@@ -115,6 +140,15 @@
                 case 'addNewBook':
                     addNewBook()
                     break
+                case 'confirmAddGroupBooks':
+                    confirmAddGroupBooks();
+                    break;
+                case 'cancelAddGroupBooks':
+                    vars.get('group-box-num').set('');
+                    vars.get('confirm-modal').hide();
+                    break;
+                case 'submitAddGroupBooks':
+                    submitAddGroupBooks();
                 default:
                     console.error('[clickHandler] Unknown action ' + action)
             }
@@ -159,7 +193,7 @@
             loaderEl.show('add-book/saveNewBook')
             google.script.run.withSuccessHandler(result => {
                 if (result) {
-                    addLog(`${book.name} ${book.id}`);
+                    addLog(`${book.name} ${book.id} добавлена`);
                     clearAddFields();
                     vars.get("add-book-block").hide()
                     vars.get("new-book-button").show()
@@ -206,9 +240,9 @@
             }
         }
 
-        function addLog(id) {
+        function addLog(text) {
             const newEl = document.createElement("div");
-            newEl.innerText = id + " добавлена";
+            newEl.innerText = text;
             vars.get("log-list").getElement().appendChild(newEl)
         }
 
@@ -234,6 +268,31 @@
             });
         }
 
+        function confirmAddGroupBooks() {
+            let boxNum = vars.get('group-box-num').get();
+            if (boxNum === '') {
+                showError('Введите номер коробки', true);
+                return;
+            }
+            vars.get('confirm-text').set(
+                `Вы уверены, что хотите добавить все новые книги в коробку ${vars.get('group-box-num').get()}`
+            )
+            vars.get('confirm-modal').show()
+        }
+
+        function submitAddGroupBooks() {
+            let boxNum = vars.get('group-box-num').get();
+            vars.get('confirm-modal').hide()
+            loaderEl.show('add-book/submitAddGroupBooks')
+            console.log({boxNum})
+            google.script.run.withSuccessHandler(count => {
+                loaderEl.hide('add-book/submitAddGroupBooks')
+                addLog(`${count} книг было добавлено в коробку ${boxNum}`)
+                vars.get('group-box-num').set('')
+            })
+                .loadGroupBooksByBox(boxNum)
+        }
+
 
         ns.AddBook = {
             init,
@@ -241,3 +300,20 @@
         };
     })(window.App = window.App || {});
 </script>
+<style>
+    .custom-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .5);
+    }
+
+    .custom-modal-content {
+        background: white;
+        margin: 10% auto;
+        padding: 20px;
+        width: 400px;
+        justify-content: center;
+        align-items: center;
+    }
+</style>

@@ -19,30 +19,30 @@ class BookInst {
     constructor(type, data, id = null) {
         this.status = '';
         switch(type) {
-
             case rowType:
-                this.theme = data[0]
-                this.author = data[1]
-                this.name = data[2]
-                this.year = data[3]
-                this.annotation = data[4]
-                this.link = data[5]
-                this.box = data[6]
-                this.id = id ? Number(id) : Number(Number(data[7]))
-                this.dateTime = data[8] ?? ''
-                this.dateTime = data[9] ?? ''
+                this.theme = data[2]
+                this.author = data[5]
+                this.name = data[6]
+                this.year = data[7]
+                this.annotation = data[8]
+                this.link = data[10]
+                this.boxNum = data[11]
+                this.id = id ? Number(id) : Number(Number(data[12]))
+                this.date = data[15] ?? ''
+                this.order = data[16] ?? ''
                 break;
             case objType:
-                this.theme = data.theme
-                this.author = data.author
+                this.theme = data.theme ?? ''
+                this.author = data.author ?? ''
                 this.name = data.name
-                this.year = data.year
-                this.annotation = data.annotation
-                this.link = data.link
-                this.box = data.box
+                this.year = data.year ?? ''
+                this.annotation = data.annotation ?? ''
+                this.link = data.link ?? ''
+                this.boxNum = data.boxNum
                 this.id = id ? Number(id) : Number(Number(data.id))
-                this.dateTime = data[8]
-                this.order = data[9]
+                this.date = data.date ?? ''
+                this.order = data.order ?? ''
+                break;
             case rawType:
                 this.theme = data[THEME_ROW]
                 this.author = data[AUTHOR_ROW]
@@ -50,10 +50,10 @@ class BookInst {
                 this.year = data[YEAR_ROW]
                 this.annotation = data[ANNOTATION_ROW]
                 this.link = data[LINK_ROW]
-                this.box = data[BOX_ROW]
+                this.boxNum = data[BOX_ROW]
                 this.id = id ? Number(id) : Number(Number(data[BOOK_ID_ROW]))
                 this.status = data[STATE_ROW]
-                this.dateTime = data[DATE_ROW] ?? ''
+                this.date = data[DATE_ROW] ?? ''
                 this.order = data[ORDER_COLUMN_NUMBER] ?? ''
                 break;
         }
@@ -66,9 +66,9 @@ class BookInst {
             this.year,
             this.annotation,
             this.link,
-            this.box,
+            this.boxNum,
             this.id,
-            this.dateTime,
+            this.date,
             this.order,
         ]
     }
@@ -80,8 +80,9 @@ class BookInst {
             year: this.year,
             annotation: this.annotation,
             link: this.link,
-            box: this.box,
+            boxNum: this.boxNum,
             id: this.id,
+            date: this.date ?? '',
         }
     }
 }
@@ -149,7 +150,7 @@ function convertOutputBookRow(row) {
         row[ANNOTATION_ROW],
         row[LINK_ROW],
         row[BOX_ROW],
-        row[BOOK_ID_ROW],
+        row[BOOK_ID_ROW]
     ]
 }
 
@@ -289,7 +290,7 @@ function deleteRowById(id) {
     updateByTextFinder(id)
     try {
         const file = getImageLinkFromFolder(id);
-        moveImageToTrash(file.getId())
+        moveImageToFolder(GLOBAL.imgTrashDir, file.getId())
     } catch (e) {
     }
 
