@@ -12,7 +12,8 @@ const GLOBAL = {};
 const FREE_STATUS = 'free';
 const DELETED_STATUS = 'deleted';
 const RESERVED_STATUS = 'reserved';
-const NEW_ORDER_STATUS = 'new'
+const NEW_ORDER_STATUS = 'new';
+const SENT_STATUS = 'sent';
 const ORDER_COLUMN_NUMBER = 16;
 
 class BookInst {

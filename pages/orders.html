@@ -12,7 +12,7 @@
         <h4 class="mb-4" style="margin-top: 25px;">Список заказов</h4>
         <div style="display: flex;">
             <div style="margin-bottom: 10px; margin-left: 30px; font-size: 40;">
-                <button class="btn btn-outline-dark btn-sm" data-action="showNewOrders" data-id="showNewOrders"
+                <button class="btn btn-warning btn-sm" data-action="showNewOrders" data-id="showNewOrders"
                         disabled="true">Новые заказы
                 </button>
             </div>
@@ -159,17 +159,34 @@
         </div>
         <div data-component="table" data-id="tableForOrders"></div>
     </div>
+    <div data-id="order-empty-modal" class="custom-modal">
+        <div class="empty-order-modal-content">
+            <div>Ваш заказ пуст, необходимо добавить книги!</div>
+            <div style="margin-top: 25px; margin-left: 125px">
+                <button style="width: 100px" class="btn btn-primary" data-action="hideOrderEmptyModal">Ок</button>
+            </div>
+        </div>
+    </div>
+    <div data-id="order-confirm-modal" class="custom-modal">
+        <div class="custom-modal-content">
+            <div>Вы подтверждаете заказ?</div>
+            <div style="margin-top: 25px;">
+                <button class="btn btn-danger" data-action="submitOrderConfirmation">Подтвердить</button>
+                <button class="btn btn-primary" data-action="cancelOrderConfirmation">Отмена</button>
+            </div>
+        </div>
+    </div>
     <div data-id="image-modal" class="custom-modal hidden">
         <div class="image-modal-content">
             <button class="btn btn-danger float-right" data-action="closeImageModal">X</button>
             <img class="responsive-img" data-id="img" src=""/>
         </div>
     </div>
-    <?!= include('components/custom-table') ?>
-    <?!= include('components/variable-container') ?>
-    <?!= include('components/navigation') ?>
-    <?!= include('components/common-functions') ?>
 </div>
+<?!= include('components/custom-table') ?>
+<?!= include('components/variable-container') ?>
+<?!= include('components/navigation') ?>
+<?!= include('components/common-functions') ?>
 <script>
     (function (ns) {
         const NEW_ORDER_STATUS = 'new';
@@ -199,6 +216,8 @@
         let commonBooksAmount = 0;
         let amountFoundBooks = 0;
 
+        let showNewOrdersInOrdersList = true;
+
         async function init(loader, params = {}) {
             loaderEl = loader
             loadNavigation(ns)
@@ -222,12 +241,15 @@
 
         async function getListOfOrdersFromGoogleTable(orderStatus) {
             loaderEl.show('orders/getListOfOrdersFromGoogleTable');
+
             const data = await ns.Common.asyncCall('getOrdersTableData', orderStatus)
-            fillTableWithOrdersByData(data);
+
+            fillTableWithOrdersByData(data, orderStatus);
+
             loaderEl.hide('orders/getListOfOrdersFromGoogleTable');
         }
 
-        function fillTableWithOrdersByData(data) {
+        function fillTableWithOrdersByData(data, orderStatus) {
             const tableWithOrders = vars.get('tableWithOrders').getElement();
 
             const tbodyOfTableWithOrders = tableWithOrders.querySelector('tbody');
@@ -246,12 +268,14 @@
 
                 const cellWithOpenBtn = newRow.insertCell(2);
                 addBorderTopLineForCell(cellWithOpenBtn);
-
-                const cellWithSendBtn = newRow.insertCell(3);
-                addBorderTopLineForCell(cellWithSendBtn);
-
                 addOpenBtnToRowWithOrder(cellWithOpenBtn);
-                addSendBtnToRowWithOrder(cellWithSendBtn);
+
+                if (orderStatus === NEW_ORDER_STATUS) {
+                    const cellWithSendBtn = newRow.insertCell(3);
+                    addBorderTopLineForCell(cellWithSendBtn);
+
+                    addSendBtnToRowWithOrder(cellWithSendBtn);
+                }
             }
         }
 
@@ -360,27 +384,30 @@
             }
 
             if (action === 'postBooksOrderListToGoogleTable') {
-                if (!selectedLibrary.id) {
-                    alert('Необходимо выбрать библиотеку!');
-
-                    return;
-                }
-
                 if (isBooksOrderListEmpty()) {
-                    alert('Ваш заказ пуст, необходимо добавить книги!');
+                    vars.get("order-empty-modal").show();
 
                     return;
                 }
 
-                if (confirm('Вы подтверждаете заказ?')) {
-                    postBooksOrderListToGoogleTable();
-                } else {
+                vars.get("order-confirm-modal").show();
+            }
 
-                    return;
-                }
+            if (action === 'hideOrderEmptyModal') {
+                vars.get("order-empty-modal").hide();
+            }
+
+            if (action === 'submitOrderConfirmation') {
+                vars.get("order-confirm-modal").hide();
+
+                postBooksOrderListToGoogleTable();
 
                 booksOrderList = [];
                 fillOrderTableByBooksList(booksOrderList);
+            }
+
+            if (action === 'cancelOrderConfirmation') {
+                vars.get("order-confirm-modal").hide();
             }
 
             if (action === 'showTabToMakeOrders') {
@@ -389,6 +416,10 @@
 
             if (action === 'openOrder') {
                 await openOrder(event);
+            }
+
+            if (action === 'sendOrder') {
+                sendOrder(event);
             }
 
             if (action === 'hideOrderDescTable') {
@@ -421,8 +452,16 @@
         }
 
         async function showNewOrders() {
-            vars.get('showSentOrders').getElement().disabled = false;
-            vars.get('showNewOrders').getElement().disabled = true;
+            showNewOrdersInOrdersList = true;
+
+            const showSentOrdersBtn = vars.get('showSentOrders').getElement();
+            const showNewOrdersBtn = vars.get('showNewOrders').getElement();
+
+            showSentOrdersBtn.disabled = false;
+            showNewOrdersBtn.disabled = true;
+
+            showNewOrdersBtn.className = 'btn btn-warning btn-sm';
+            showSentOrdersBtn.className = 'btn btn-outline-dark btn-sm';
 
             vars.get('orderDescTable').getElement().hidden = true;
 
@@ -430,8 +469,16 @@
         }
 
         async function showSentOrders() {
-            vars.get('showNewOrders').getElement().disabled = false;
-            vars.get('showSentOrders').getElement().disabled = true;
+            showNewOrdersInOrdersList = false;
+
+            const showSentOrdersBtn = vars.get('showSentOrders').getElement();
+            const showNewOrdersBtn = vars.get('showNewOrders').getElement();
+
+            showNewOrdersBtn.disabled = false;
+            showSentOrdersBtn.disabled = true;
+
+            showNewOrdersBtn.className = 'btn btn-outline-dark btn-sm';
+            showSentOrdersBtn.className = 'btn btn-warning btn-sm';
 
             vars.get('orderDescTable').getElement().hidden = true;
 
@@ -598,18 +645,20 @@
                 cellWithBookName.appendChild(ns.Common.createLinkAction(book.link, "openImage", bookNameAndAuthor));
                 addBorderTopLineForCell(cellWithBookName);
 
-                const cellWithBookBox = newRow.insertCell(1);
-                cellWithBookBox.textContent = book.box;
-                addBorderTopLineForCell(cellWithBookBox);
+                if (showNewOrdersInOrdersList) {
+                    const cellWithBookBox = newRow.insertCell(1);
+                    cellWithBookBox.textContent = book.boxNum;
+                    addBorderTopLineForCell(cellWithBookBox);
 
-                const cellWithBookSearchedStatus = newRow.insertCell(2);
+                    const cellWithBookSearchedStatus = newRow.insertCell(2);
 
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.setAttribute('data-action', 'markBookAsFound');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.setAttribute('data-action', 'markBookAsFound');
 
-                cellWithBookSearchedStatus.appendChild(checkbox);
-                addBorderTopLineForCell(cellWithBookSearchedStatus);
+                    cellWithBookSearchedStatus.appendChild(checkbox);
+                    addBorderTopLineForCell(cellWithBookSearchedStatus);
+                }
             });
 
         }
@@ -638,10 +687,10 @@
         }
 
         function transformBooksOrderListToArray() {
-            const defaultOrderNUmber = 0;
+            const defaultOrderNumber = 0;
             const orderComment = vars.get('orderComment').get();
 
-            const resultArrayWithOrder = [defaultOrderNUmber, selectedLibrary.id, booksOrderList.length, NEW_ORDER_STATUS, orderComment];
+            const resultArrayWithOrder = [defaultOrderNumber, selectedLibrary.id, booksOrderList.length, NEW_ORDER_STATUS, orderComment];
 
             return resultArrayWithOrder;
         }
@@ -732,6 +781,67 @@
             vars.get('orderDescTable').getElement().hidden = false;
         }
 
+        function sendOrder(event) {
+            const row = event.target.closest('tr');
+            const orderNumber = row.cells[0].textContent;
+
+            markBooksFromOrderAsSent(orderNumber);
+            markOrderAsSent(row);
+            removeBooksImagesToTrashFolder(orderNumber);
+        }
+
+        function markBooksFromOrderAsSent(orderNumber) {
+            loaderEl.show("orders/getListOfBooksInOrderFromGoogleTable");
+
+            google.script.run.markBooksFromOrderAsSentInGoogleTable(orderNumber);
+
+            loaderEl.hide("orders/getListOfBooksInOrderFromGoogleTable");
+        }
+
+        function markOrderAsSent(row) {
+            const orderNumber = row.cells[0].textContent;
+
+            loaderEl.show("orders/getListOfBooksInOrderFromGoogleTable");
+
+            google.script.run.withSuccessHandler(() => {
+                changeNameOfOrderSendButton(row);
+            }).markOrderAsSentInGoogleTable(orderNumber);
+
+            loaderEl.hide("orders/getListOfBooksInOrderFromGoogleTable");
+        }
+
+        function changeNameOfOrderSendButton(row) {
+            const button = row.cells[3].querySelector('button[data-action="sendOrder"]');
+
+            button.disabled = true;
+            button.className = 'btn btn-success btn-sm';
+            button.textContent = 'Отправлен'
+            
+        }
+
+        function removeBooksImagesToTrashFolder(orderNumber) {
+             google.script.run
+                .withSuccessHandler(data => {
+                        removeBooksImages(data);
+                    })
+                    .findBooksByOrderNumber(orderNumber);
+        }
+
+        async function removeBooksImages(arrayOfBooksToDeleteNumbers) {
+            //TODO мне не проверить, удаляются ли фото из папки, просьба проверить
+
+            for (const bookId of arrayOfBooksToDeleteNumbers) {
+                await deleteBookImageByBookId(bookId);
+            };
+        }
+
+        async function deleteBookImageByBookId(bookId) {
+            google.script.run.
+                withSuccessHandler(() => {
+                    console.log('Image of book with id = ' + bookId + ' was deleted...');
+                }).deleteRowById(bookId);
+        }
+
         function openImageInModal(link) {
             loaderEl.show('orders/openImageInModal')
             google.script.run
@@ -768,10 +878,13 @@
     (window.App = window.App || {});
 </script>
 <style>
-    .link {
-        color: blue;
-        text-decoration: underline;
-        cursor: pointer;
+    .empty-order-modal-content {
+        background: white;
+        margin: 10% auto;
+        padding: 20px;
+        width: 400px;
+        justify-content: center;
+        align-items: center;
     }
 
     .custom-modal {
@@ -779,6 +892,21 @@
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, .5);
+    }
+
+    .custom-modal-content {
+        background: white;
+        margin: 10% auto;
+        padding: 20px;
+        width: 250px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .link {
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
     }
 
     .image-modal-content {
