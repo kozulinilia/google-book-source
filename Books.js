@@ -96,6 +96,9 @@ function getFilteredData(filterTheme = false, status = FREE_STATUS) {
     const data = sheet.getDataRange().getValues();
     const rawHeader = data.shift();
     const header = convertOutputBookRow(rawHeader);
+    if (!header[header.length - 1]) {
+        header[header.length - 1] = 'Дата';
+    }
 
     const result = data.filter(row => {
         const matchTheme = filterTheme ? row[THEME_ROW].includes(filterTheme) : true;
@@ -103,6 +106,7 @@ function getFilteredData(filterTheme = false, status = FREE_STATUS) {
 
         return matchTheme && matchStatus;
     })
+        .sort((a, b) => bookDateTime(b[DATE_ROW]) - bookDateTime(a[DATE_ROW]))
         .map(row => convertOutputBookRow(row));
 
     return {header, rows: result};
@@ -151,8 +155,51 @@ function convertOutputBookRow(row) {
         row[ANNOTATION_ROW],
         row[LINK_ROW],
         row[BOX_ROW],
-        row[BOOK_ID_ROW]
+        row[BOOK_ID_ROW],
+        formatBookDate(row[DATE_ROW])
     ]
+}
+
+function formatBookDate(value) {
+    if (!value) {
+        return '';
+    }
+    if (value instanceof Date) {
+        if (isNaN(value.getTime())) {
+            return '';
+        }
+        const day = String(value.getDate()).padStart(2, '0')
+        const month = String(value.getMonth() + 1).padStart(2, '0')
+        return `${day}.${month}.${value.getFullYear()}`
+    }
+    const str = String(value)
+    if (/^\d{1,2}\.\d{1,2}\.\d{4}/.test(str)) {
+        return str.substring(0, 10)
+    }
+    const parsed = Date.parse(str)
+    if (!isNaN(parsed)) {
+        const d = new Date(parsed)
+        const day = String(d.getDate()).padStart(2, '0')
+        const month = String(d.getMonth() + 1).padStart(2, '0')
+        return `${day}.${month}.${d.getFullYear()}`
+    }
+    return str
+}
+
+function bookDateTime(value) {
+    if (value instanceof Date) {
+        return isNaN(value.getTime()) ? 0 : value.getTime()
+    }
+    if (!value) {
+        return 0
+    }
+    const str = String(value)
+    const match = str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/)
+    if (match) {
+        return new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1])).getTime()
+    }
+    const parsed = Date.parse(str)
+    return isNaN(parsed) ? 0 : parsed
 }
 
 function addNewBook(id = null) {

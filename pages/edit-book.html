@@ -177,7 +177,17 @@
         }
 
         function clickHandler(event) {
-            const action = event.target.dataset.action
+            const el = event.target.closest('[data-action]')
+            if (!el) {
+                return
+            }
+
+            const action = el.dataset.action
+
+            if (action === 'changeTheme' || action === 'changeFilter') {
+                return
+            }
+            
             let id = 0
             let row = 0
             let book = {}
@@ -188,7 +198,7 @@
                     loadData()
                     break;
                 case 'editBook':
-                    id = event.target.dataset.value
+                    id = el.dataset.value
                     row = fullDataMap.get(Number(id))
                     assignFields(row, id)
                     editedTheme = false
@@ -227,7 +237,7 @@
                     vars.get("search-book-block").show(true)
                     break;
                 case "deleteBook":
-                    deletedBookId = event.target.dataset.value
+                    deletedBookId = el.dataset.value
                     row = fullDataMap.get(Number(deletedBookId))
                     vars.get("del-book-name").set(row[NAME_ROW])
                     vars.get("delete-modal").show()
@@ -238,9 +248,8 @@
                     google.script.run
                         .withSuccessHandler(result => {
                             if (result) {
-                                loaderEl.hide('edit-book/submitDelete')
                                 showError("", false);
-                                loadData()
+                                refreshData(() => loaderEl.hide('edit-book/submitDelete'))
                             }
                         })
                         .withFailureHandler(error => {
@@ -259,8 +268,7 @@
                     resetSearch();
                     break;
                 case "openImage":
-                    const link = event.target.dataset.value
-                    openImageInModal(link);
+                    openImageInModal(el.dataset.value);
                     break;
                 case "closeImageModal":
                     vars.get("image-modal").hide()
@@ -297,7 +305,12 @@
 
         function changeHandler(event) {
             const action = event.target.dataset.action
+            if (!action) {
+                return
+            }
+
             const value = event.target.value
+
             switch (action) {
                 case 'changeFilter':
                     changeFilter()
@@ -336,6 +349,29 @@
             if (vars.get('theme')) {
                 vars.get('reset-btn').show()
             }
+        }
+
+        function refreshData(callback = null) {
+            google.script.run
+                .withSuccessHandler(data => {
+                    headers = data.header;
+                    fullData = data.rows;
+                    fullDataMap = new Map()
+                    fullData.forEach(row => {
+                        fullDataMap.set(row[NUMBER_ROW], row)
+                    })
+                    loadData()
+                    if (callback) {
+                        callback()
+                    }
+                })
+                .withFailureHandler(error => {
+                    showError(error, true);
+                    if (callback) {
+                        callback()
+                    }
+                })
+                .getFilteredData()
         }
 
         function loadData() {
