@@ -216,7 +216,11 @@
             }
 
             function clickHandler(event) {
-                const action = event.target.dataset.action
+                const el = event.target.closest('[data-action]')
+                if (!el) {
+                    return
+                }
+                const action = el.dataset.action
                 let value = ''
                 switch (action) {
                     case 'saveNewLib':
@@ -232,25 +236,25 @@
                         searchLib(vars.get('search-lib').get())
                         break;
                     case 'editLib':
-                        editedLibId = Number(event.target.dataset.value)
+                        editedLibId = Number(el.dataset.value)
                         editLib(editedLibId)
                         break;
                     case 'saveLib':
                         saveLib()
                         break;
                     case 'openMessages':
-                        editedLibId = Number(event.target.dataset.value)
+                        editedLibId = Number(el.dataset.value)
                         openMessages(editedLibId)
                         break;
                     case 'returnToLibs':
                         returnToLibs()
                         break;
                     case 'openOrders':
-                        editedLibId = Number(event.target.dataset.value)
+                        editedLibId = Number(el.dataset.value)
                         pushToOrders(editedLibId)
                         break;
                     case 'newOrder':
-                        editedLibId = Number(event.target.dataset.value)
+                        editedLibId = Number(el.dataset.value)
                         toNewOrder(editedLibId)
                         break;
 
