@@ -129,7 +129,14 @@
         }
 
         function clickHandler(event) {
-            const action = event.target.dataset.action
+            const el = event.target.closest('[data-action]')
+            if (!el) {
+                return
+            }
+            const action = el.dataset.action
+            if (action === 'changeTheme' || action === 'changeFilter' || action === 'selectAuthor') {
+                return
+            }
             switch (action) {
                 case 'saveNewBook':
                     saveNewBook()
@@ -149,6 +156,7 @@
                     break;
                 case 'submitAddGroupBooks':
                     submitAddGroupBooks();
+                    break;
                 default:
                     console.error('[clickHandler] Unknown action ' + action)
             }
@@ -156,6 +164,9 @@
 
         const changeHandler = (event) => {
             const action = event.target.dataset.action
+            if (!action) {
+                return
+            }
             const value = event.target.value
             switch (action) {
                 case 'changeTheme':
@@ -169,7 +180,7 @@
                     vars.get('new-author').set(value)
                     break;
                 default:
-                    console.error('[clickHandler] Unknown action ' + action)
+                    console.error('[changeHandler] Unknown action ' + action)
             }
         }
 

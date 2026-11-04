@@ -126,9 +126,11 @@
             clickHandler = (event) => {
                 const action = event.target.dataset.action
                 if (action === 'prevPage') {
+                    event.stopPropagation()
                     this.prevPage()
                 }
                 if (action === 'nextPage') {
+                    event.stopPropagation()
                     this.nextPage()
                 }
             }

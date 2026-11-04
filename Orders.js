@@ -26,8 +26,12 @@ function getListOfBooksInOrder(orderNumber) {
 
     for (let i = 1; i < data.length; i++) {
         if (data[i][ORDER_COLUMN_NUMBER] === Number(orderNumber)) {
-            const book = new BookInst(rawType, data[i])
-            listOfBooksInOrder.push(book.toObj());
+            
+            // const book = new BookInst(rawType, data[i])
+            // listOfBooksInOrder.push(book.toObj());
+            //TODO не работает почему-то этот код, метод возвращает null, видимо что-то с объектом BookInst
+        
+            listOfBooksInOrder.push({author: data[i][5], name: data[i][6], link: data[i][10], boxNum: data[i][11]});
         }
     }
 
@@ -59,7 +63,7 @@ function postBooksOrderListToGoogleTable(arrayWithBooksForOrder, stringWithNumbe
         throw Error('страницы ' + GLOBAL.ordersSheet + ' не существует')
     }
 
-    const nextOrderNumber = getNextOrderNUmber(sheet);
+    const nextOrderNumber = getNextOrderNumber(sheet);
 
     saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder, nextOrderNumber);
 
@@ -74,7 +78,7 @@ function saveBooksOrderInGoogleTables(sheet, arrayWithBooksForOrder, nextOrderNu
     sheet.appendRow(arrayWithBooksForOrder);
 }
 
-function getNextOrderNUmber(sheet) {
+function getNextOrderNumber(sheet) {
     const ordersNumbers = sheet.getRange("A2:A" + sheet.getLastRow()).getValues();
 
     return getMaxValueOfOrdersNumbers(ordersNumbers) + 1;
@@ -103,20 +107,66 @@ function changeBooksStatusAndOrderNumberInMainGoogleTable(stringWithNumbersOrder
 
     const data = sheet.getDataRange().getValues();
 
-    const cell = sheet.getRange(2, 16, 1, 1);
-
     for (let i = 1; i < data.length; i++) {
         if (arrayWithOrderedBooksNumbers.includes(String(data[i][BOOK_ID_ROW]))) {
-            changeBookStatusToReserved(sheet, i);
+            changeBookStatus(sheet, i, RESERVED_STATUS);
             addOrderNumberToBook(sheet, i, nextOrderNumber);
+            setActualDateOfBookStatusChanging(sheet, i);
         }
     }
 }
 
-function changeBookStatusToReserved(sheet, bookRowIndex) {
-    sheet.getRange(bookRowIndex + 1, STATE_ROW + 1, 1, 1).setValue(RESERVED_STATUS);
+function changeBookStatus(sheet, bookRowIndex, newStatus) {
+    sheet.getRange(bookRowIndex + 1, STATE_ROW + 1, 1, 1).setValue(newStatus);
 }
 
 function addOrderNumberToBook(sheet, bookRowIndex, nextOrderNumber) {
     sheet.getRange(bookRowIndex + 1, ORDER_COLUMN_NUMBER + 1, 1, 1).setValue(nextOrderNumber);
+}
+
+function setActualDateOfBookStatusChanging(sheet, bookRowIndex) {
+    sheet.getRange(bookRowIndex + 1, DATE_ROW + 1, 1, 1).setValue(new Date());
+}
+
+function markBooksFromOrderAsSentInGoogleTable(orderNumber) {
+    const ss = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty('TABLE_ID'));
+    const sheet = ss.getSheetByName(PropertiesService.getScriptProperties().getProperty('BOOKS_SHEET'));
+
+    const data = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < data.length; i++) {
+        if (Number(orderNumber) === data[i][ORDER_COLUMN_NUMBER]) {
+            changeBookStatus(sheet, i, SENT_STATUS);
+            setActualDateOfBookStatusChanging(sheet, i);
+        }
+    }
+}
+
+function markOrderAsSentInGoogleTable(orderNumber) {
+    const ss = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty('TABLE_ID'));
+    const sheet = ss.getSheetByName(PropertiesService.getScriptProperties().getProperty('ORDERS_SHEET'));
+
+    const data = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < data.length; i++) {
+        if (Number(orderNumber) === data[i][0]) {
+            sheet.getRange(i + 1, 4, 1, 1).setValue('sent');
+        }
+    }
+}
+
+function findBooksByOrderNumber(orderNumber) {
+    let booksNumbersArray = [];
+    const ss = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty('TABLE_ID'));
+    const sheet = ss.getSheetByName(PropertiesService.getScriptProperties().getProperty('BOOKS_SHEET'));
+
+    const data = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < data.length; i++) {
+        if (Number(orderNumber) === data[i][ORDER_COLUMN_NUMBER]) {
+            booksNumbersArray.push(sheet.getRange(i + 1, BOOK_ID_ROW + 1, 1, 1).getValue());
+        }
+    }
+
+    return booksNumbersArray;
 }
