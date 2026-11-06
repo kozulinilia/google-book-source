@@ -19,6 +19,14 @@ function moveImageToFolder(dirName, fileId) {
     );
 }
 
+function moveImageToFolderWithResetOwner(dirName, fileId) {
+    loadEnvironment();
+    const targetFolder = DriveApp.getFolderById(dirName);
+    const file = DriveApp.getFileById(fileId)
+    const fileCopy = file.makeCopy(file.getName(), targetFolder);
+    file.setTrashed(true);
+}
+
 function getImageLinkFromFolder(imageId) {
     loadEnvironment();
     const folder = DriveApp.getFolderById(GLOBAL.imgDir);
@@ -37,6 +45,19 @@ function getImageLinkFromFolder(imageId) {
 function getImageFile(link) {
     const fileId = link.match(/[-\w]{25,}/);
     return DriveApp.getFileById(fileId)
+}
+
+function getImageFileByName(imageName) {
+    loadEnvironment();
+    const folder = DriveApp.getFolderById(GLOBAL.imgDir);
+    const files = folder.getFilesByName(imageName);
+    if (files.hasNext()) {
+        const blob = files.next().getBlob();
+        return "data:" + blob.getContentType() + ";base64," +
+            Utilities.base64Encode(blob.getBytes());
+    } else {
+        return null;
+    }
 }
 
 function getImage(link) {
@@ -71,7 +92,6 @@ function loadGroupBooksByBox(boxNum) {
     let row = 0;
     while (files.hasNext()) {
         let imgFile = files.next();
-        let link = imgFile.getUrl()
         let mime = imgFile.getMimeType();
         if (mime.indexOf("image/") === -1) {
             continue;
@@ -86,11 +106,11 @@ function loadGroupBooksByBox(boxNum) {
             imgFile.setName(`${nextId}.jpg`);
             const nextRow = new BookInst(
                 objType,
-                {name: text, boxNum: boxNum, link, date: getNowDate()},
+                {name: text, boxNum: boxNum, link: '', date: getNowDate()},
                 nextId
             );
             addRowToSheet(bookSheet, createRow(nextRow));
-            moveImageToFolder(GLOBAL.imgDir, imgFile.getId())
+            moveImageToFolderWithResetOwner(GLOBAL.imgDir, imgFile.getId())
             row++;
     }
 
