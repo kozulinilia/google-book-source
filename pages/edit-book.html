@@ -402,9 +402,9 @@
                 linkEl.appendChild(ns.Common.createLinkAction(row[NUMBER_ROW], 'editBook', "редактировать"))
                 linkEl.appendChild(ns.Common.createLinkAction(row[NUMBER_ROW], 'deleteBook', "удалить"))
                 td.appendChild(linkEl)
-            } else if (index === NAME_ROW && row[LINK_ROW]) {
+            } else if (index === NAME_ROW) {
                 const linkEl = document.createElement("div")
-                linkEl.appendChild(ns.Common.createLinkAction(row[LINK_ROW], 'openImage', cell))
+                linkEl.appendChild(ns.Common.createLinkAction(row[NUMBER_ROW] + '.jpg', 'openImage', cell))
                 td.appendChild(linkEl)
             } else {
                 td.textContent = cell;
@@ -448,7 +448,8 @@
             vars.get('theme').set('')
         }
 
-        function openImageInModal(link) {
+        function openImageInModal(name) {
+            console.log('openImageInModal', name)
             loaderEl.show('edit-book/openImageInModal')
             google.script.run
                 .withSuccessHandler(image => {
@@ -460,7 +461,7 @@
                     showError(error, true);
                     loaderEl.hide('edit-book/openImageInModal')
                 })
-                .getImage(link);
+                .getImageFileByName(name);
         }
 
         function destroy() {
