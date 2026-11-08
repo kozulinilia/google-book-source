@@ -22,9 +22,11 @@ function moveImageToFolder(dirName, fileId) {
 function moveImageToFolderWithResetOwner(dirName, fileId) {
     loadEnvironment();
     const targetFolder = DriveApp.getFolderById(dirName);
+    const sourceFolder = DriveApp.getFolderById(GLOBAL.newBooksDir);
     const file = DriveApp.getFileById(fileId)
-    const fileCopy = file.makeCopy(file.getName(), targetFolder);
-    file.setTrashed(true);
+    file.makeCopy(file.getName(), targetFolder);
+    file.setName('[НА УДАЛЕНИЕ]');
+    sourceFolder.removeFile(file);
 }
 
 function getImageLinkFromFolder(imageId) {
@@ -90,6 +92,7 @@ function loadGroupBooksByBox(boxNum) {
     const srcFolder = DriveApp.getFolderById(GLOBAL.newBooksDir);
     let files = srcFolder.getFiles();
     let row = 0;
+    const errors = [];
     while (files.hasNext()) {
         let imgFile = files.next();
         let mime = imgFile.getMimeType();
@@ -110,11 +113,16 @@ function loadGroupBooksByBox(boxNum) {
                 nextId
             );
             addRowToSheet(bookSheet, createRow(nextRow));
-            moveImageToFolderWithResetOwner(GLOBAL.imgDir, imgFile.getId())
+            try {
+                moveImageToFolderWithResetOwner(GLOBAL.imgDir, imgFile.getId())
+            } catch (error) {
+                errors.push(error.message)
+            }
+
             row++;
     }
 
-    return row;
+    return {row, errors};
 }
 
 function parseTextFromImage(imgFile) {

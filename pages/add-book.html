@@ -295,11 +295,13 @@
             let boxNum = vars.get('group-box-num').get();
             vars.get('confirm-modal').hide()
             loaderEl.show('add-book/submitAddGroupBooks')
-            console.log({boxNum})
-            google.script.run.withSuccessHandler(count => {
+            google.script.run.withSuccessHandler(({row, errors}) => {
                 loaderEl.hide('add-book/submitAddGroupBooks')
-                addLog(`${count} книг было добавлено в коробку ${boxNum}`)
+                addLog(`${row} книг было добавлено в коробку ${boxNum}`)
                 vars.get('group-box-num').set('')
+                if (errors.length) {
+                    console.log('loadGroupBooksByBox errors:', errors)
+                }
             })
                 .loadGroupBooksByBox(boxNum)
         }
