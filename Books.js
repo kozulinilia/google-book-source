@@ -107,12 +107,12 @@ function getFilteredData(filterTheme = false, status = FREE_STATUS) {
         return matchTheme && matchStatus;
     })
         .sort((a, b) => {
-            const emptyA = !a[DATE_ROW]
-            const emptyB = !b[DATE_ROW]
+            const emptyA = !a[BOOK_ID_ROW]
+            const emptyB = !b[BOOK_ID_ROW]
             if (emptyA && emptyB) return 0
             if (emptyA) return 1
             if (emptyB) return -1
-            return bookDateTime(b[DATE_ROW]) - bookDateTime(a[DATE_ROW])
+            return bookDateTime(b[BOOK_ID_ROW]) - bookDateTime(a[BOOK_ID_ROW])
         })
         .map(row => convertOutputBookRow(row));
 
